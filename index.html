@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KOTATSUNAME - Libros y Relatos</title>
+  <link rel="stylesheet" href="buscador.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(()=>{});
+      });
+    }
+  </script>
+  <style>
+     .btn-refresh {
+      text-decoration:none;background:transparent;padding:8px 10px;border-radius: 100%;
+      color:#fff;font-family:var(--font-body);font-size:0.8rem;font-weight:600;
+      letter-spacing:0.08em;border:1px solid var(--accent);white-space:nowrap;
+      cursor:pointer;transition:all 0.3s;
+    }
+    .btn-refresh:hover{background:var(--accent);box-shadow:0 0 15px var(--accent);}
+
+    .nav-btn {
+      text-decoration:none;background:transparent;padding:8px 15px;border-radius:5px;
+      color:#fff;font-family:var(--font-body);font-size:0.8rem;font-weight:600;
+      letter-spacing:0.08em;border:1px solid var(--accent);white-space:nowrap;
+      cursor:pointer;transition:all 0.3s;
+    }
+    .nav-btn:hover{background:var(--accent);box-shadow:0 0 15px var(--accent);}
+
+    .top-bar{
+      display:flex;align-items:center;justify-content:flex-end;gap:10px;
+      margin-bottom:16px;flex-wrap:wrap;
+    }
+
+    /* ── Usuario logueado ── */
+    .user-chip{
+      display:none;align-items:center;gap:8px;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:50px;padding:6px 14px 6px 8px;cursor:pointer;transition:0.2s;
+    }
+    .user-chip:hover{border-color:var(--accent);}
+    .user-chip img{width:26px;height:26px;border-radius:50%;object-fit:cover;border:1px solid var(--accent);}
+    .user-chip span{font-size:0.8rem;font-weight:600;color:var(--text);}
+
+    /* ── Recomendadas ── */
+    .rec-section{margin-bottom:40px;}
+    .rec-header{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:16px;
+    }
+    .rec-title{
+      font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.2em;
+      text-transform:uppercase;color:var(--text-muted);
+    }
+    .rec-refresh{
+      background:none;border:1px solid var(--border);color:var(--accent3);
+      font-family:var(--font-body);font-size:0.72rem;font-weight:600;
+      padding:10px 12px;border-radius: 100%;cursor:pointer;transition:1s;
+      letter-spacing:0.1em;text-transform:uppercase;
+    }
+    .rec-refresh:hover{background:rgba(6,182,212,0.08);border-color:var(--accent3);}
+
+    .rec-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+      gap:16px;
+    }
+
+    /* Skeleton */
+    .skeleton{
+      background:linear-gradient(90deg,var(--surface2) 25%,#1e1e2e 50%,var(--surface2) 75%);
+      background-size:200% 100%;animation:shimmer 1.6s infinite;border-radius:12px;
+    }
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .skel-card{height:280px;}
+
+    /* ── Géneros extra ── */
+    .genres-collapsed .genre-extra{display:none;}
+    .genres-expanded .genre-extra{display:inline-flex;}
+
+    #pwaInstallBtn{display:none;}
+
+    /* Guide modal */
+    .guide-overlay{
+      display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:10000;
+      align-items:center;justify-content:center;padding:20px;
+    }
+    .guide-overlay.active{display:flex;}
+    .guide-card{
+      background:var(--surface);border:1px solid var(--accent);width:100%;max-width:400px;
+      padding:25px;border-radius:var(--radius);position:relative;box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    }
+    .guide-title{font-family:var(--font-display);color:var(--accent);margin-bottom:20px;font-size:1.2rem;text-align:center;}
+    .guide-step{display:flex;gap:15px;margin-bottom:15px;align-items:flex-start;}
+    .step-num{
+      background:var(--accent);color:white;min-width:25px;height:25px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.8rem;
+    }
+    .guide-step p{margin:0;font-family:var(--font-body);color:var(--text);line-height:1.4;}
+    .guide-close{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;}
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <div class="wrapper">
+
+    <!-- Barra superior --><a href="index.html" class="btn-refresh">↻</a>
+    <div class="top-bar">
+      <!-- Chip de usuario si está logueado -->
+      <div class="user-chip" id="userChip" onclick="irAlPanel()">
+        <img id="chipAvatar" src="data:image/svg+xml,<svg viewBox='0 0 1 1' fill='%231a1a28' xmlns='http://www.w3.org/2000/svg'><rect width='1' height='1'/></svg>" alt="Avatar" />
+        <span id="chipName">Usuario</span>
+      </div>
+      <!-- Botón acceso si no está logueado -->   
+      <a href="registrarse.html" class="nav-btn" id="btnAcceso">👤 Acceder</a>
+      <button id="pwaInstallBtn" class="nav-btn">INSTALAR APP</button>
+    </div>
+
+    <header class="header">
+      <h1 class="logo">⛩ BIBLIOTECA KOTATSU</h1>
+      <p class="tagline">Crónicas, relatos y leyendas originales</p>
+    </header>
+
+    <!-- ══ RECOMENDADAS ══ -->
+    <section class="rec-section" id="recSection">
+      <div class="rec-header">
+        <span class="rec-title">✦ Destacadas</span>
+        <button class="rec-refresh" onclick="shuffleRecomendadas()">↻</button>
+
+      </div>
+      <div class="rec-grid" id="recGrid">
+        <!-- Skeletons mientras carga -->
+        <div class="skeleton skel-card"></div>
+        <div class="skeleton skel-card"></div>
+        <div class="skeleton skel-card"></div>
+        <div class="skeleton skel-card"></div>
+      </div>
+    </section>
+
+    <!-- BARRA DE BÚSQUEDA -->
+    <div class="search-bar">
+      <span class="search-icon"></span>
+      <input type="text" id="searchInput" placeholder="Buscar por título o autor..." autocomplete="off" />
+      <button id="clearBtn" class="clear-btn" title="Limpiar">✕</button>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filters-panel">
+      <div class="filter-group">
+        <div class="filter-label-row">
+          <label class="filter-label">Género Literario</label>
+          <button class="genres-toggle" id="genresToggle">Ver todos ▾</button>
+        </div>
+        <div class="tag-group genres-collapsed" id="generoFilter">
+          <button class="tag active" data-filter="genero" data-value="">Todos</button>
+          <button class="tag" data-filter="genero" data-value="romance">Romance</button>
+          <button class="tag" data-filter="genero" data-value="fantasía">Fantasía</button>
+          <button class="tag" data-filter="genero" data-value="otro-mundo">Otro Mundo</button>
+          <button class="tag" data-filter="genero" data-value="terror">Terror</button>
+          <button class="tag" data-filter="genero" data-value="acción">Acción</button>
+          <button class="tag" data-filter="genero" data-value="misterio">Misterio</button>
+          <button class="tag" data-filter="genero" data-value="drama">Drama</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="aventura">Aventura</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="psicológico">Psicológico</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="one-shot">One-shot</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="poesía">Poesía</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="ciencia-ficción">Sci-Fi</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="comedia">Comedia</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="histórico">Histórico</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="sobrenatural">Sobrenatural</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="suspenso">Suspenso</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="slice-of-life">Slice of Life</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="distopía">Distopía</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="mitología">Mitología</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="isekai">Isekai</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="cyberpunk">Cyberpunk</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="steampunk">Steampunk</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="LitRPG">LitRPG</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="harem">Harem</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="magia">Magia</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="deportes">Deportes</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="escolar">Escolar</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="yaoi">Yaoi</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="yuri">Yuri</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="gore">Gore</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button id="resetFilters" class="reset-btn">↺ Resetear Biblioteca</button>
+        <a href="index.html" class="nav-btn">Refrescar</a>
+      </div>
+    </div>
+
+    <!-- CONTADOR -->
+    <div class="results-header">
+      <span id="resultCount" class="result-count">Cargando biblioteca...</span>
+    </div>
+
+    <!-- GRID PRINCIPAL -->
+    <div id="resultsGrid" class="results-grid"></div>
+
+    <!-- EMPTY STATE -->
+    <div id="emptyState" class="empty-state hidden">
+      <span class="empty-icon"></span>
+      <p>No se encontraron relatos en los archivos...</p>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div id="modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose" aria-label="Cerrar">✕</button>
+      <div class="modal-cover" id="modalCover"></div>
+      <div class="modal-content">
+        <div class="modal-badge" id="modalBadge">Escrito Original</div>
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="modal-tags" id="modalTags"></div>
+        <p class="modal-sinopsis" id="modalSinopsis"></p>
+        <div class="modal-footer">
+          <span class="modal-seasons" id="modalSeasons"></span>
+          <div class="modal-btns" id="modalBtns"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PWA Modal -->
+  <div id="pwaModal" class="guide-overlay">
+    <div class="guide-card">
+      <button class="guide-close" id="closeGuide">✕</button>
+      <div class="guide-title">INSTALACIÓN</div>
+      <div class="guide-step"><div class="step-num">1</div><p>Toca los <strong>tres puntos (⋮)</strong> en el navegador.</p></div>
+      <div class="guide-step"><div class="step-num">2</div><p>Selecciona <strong>"Agregar a la pantalla principal"</strong>.</p></div>
+      <div class="guide-step"><div class="step-num">3</div><p>Pulsa en <strong>"Instalar"</strong>.</p></div>
+      <div id="pwaActions" style="margin-top:20px;">
+        <button class="nav-btn" id="btnEntendido" style="width:100%;">ENTENDIDO</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── PWA install ──
+    (function(){
+      const installBtn = document.getElementById('pwaInstallBtn');
+      const modal      = document.getElementById('pwaModal');
+      const closeBtn   = document.getElementById('closeGuide');
+      const btnE       = document.getElementById('btnEntendido');
+
+      if (!window.matchMedia('(display-mode: standalone)').matches && installBtn) {
+        installBtn.style.display = 'inline-block';
+      }
+      if (installBtn) installBtn.onclick = () => modal.classList.add('active');
+      const cerrar = () => modal.classList.remove('active');
+      if (closeBtn) closeBtn.onclick = cerrar;
+      if (btnE)     btnE.onclick     = cerrar;
+      window.addEventListener('click', e => { if (e.target === modal) cerrar(); });
+    })();
+
+    // ── Chip de usuario ──
+    (function(){
+      const id   = localStorage.getItem("ktt_id");
+      const user = localStorage.getItem("ktt_user");
+      const foto = localStorage.getItem("ktt_foto");
+      const role = localStorage.getItem("ktt_role") || "user";
+
+      if (id) {
+        document.getElementById("btnAcceso").style.display = "none";
+        const chip = document.getElementById("userChip");
+        chip.style.display = "flex";
+        document.getElementById("chipName").textContent = user || "Usuario";
+        if (foto) document.getElementById("chipAvatar").src = foto;
+      }
+    })();
+
+    window.irAlPanel = function() {
+      const role = localStorage.getItem("ktt_role") || "user";
+      const map  = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
+      window.location.href = map[role] || "panel_autor.html";
+    };
+  </script>
+
+  <script type="module" src="escritos_buscador.js"></script>
+</body>
+</html>

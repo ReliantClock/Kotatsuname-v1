@@ -1,0 +1,25 @@
+{
+  "name": "KOTATSUNAME",
+  "short_name": "Kotatsuname",
+  "description": "Portal de Autores y Catálogo de Libros",
+  "lang":"es",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "icons": [
+    {
+      "src": "ICONO_192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "ICONO_512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

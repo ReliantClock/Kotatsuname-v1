@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nueva Obra | Kotatsu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="buscador.css">
+  <style>
+    body { margin:0; background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; }
+
+    .top-nav {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:14px 24px; border-bottom:1px solid var(--border);
+      background:rgba(10,10,15,0.85); backdrop-filter:blur(12px);
+      position:sticky; top:0; z-index:50;
+    }
+    .brand { font-family:'Cinzel Decorative'; color:var(--accent); font-size:1.1rem; }
+    .nav-btn {
+      display:inline-block; text-decoration:none; background:transparent;
+      padding:7px 16px; border-radius:8px; color:var(--text-muted);
+      font-family:'Rajdhani'; font-size:0.8rem; font-weight:700;
+      border:1px solid var(--border); cursor:pointer; transition:0.2s;
+    }
+    .nav-btn:hover { border-color:var(--accent3); color:var(--accent3); }
+
+    .editor { max-width:720px; margin:0 auto; padding:32px 20px 120px; }
+
+    .editor-header {
+      margin-bottom:36px; padding-bottom:20px;
+      border-bottom:2px solid var(--accent);
+    }
+    .editor-label {
+      font-size:0.75rem; font-weight:700; letter-spacing:0.2em;
+      text-transform:uppercase; color:var(--accent3); margin-bottom:10px; display:block;
+    }
+    .title-input {
+      width:100%; background:rgba(255,255,255,0.05); border:1px solid transparent;
+      color:#fff; font-family:'Cinzel Decorative'; font-size:clamp(1.3rem,4vw,1.9rem);
+      padding:10px 14px; border-radius:10px; outline:none; transition:0.3s; box-sizing:border-box;
+    }
+    .title-input:focus { border-color:var(--accent); background:rgba(255,255,255,0.08); }
+    .title-input::placeholder { color:rgba(255,255,255,0.25); }
+
+    .author-ref { color:var(--accent3); font-size:0.95rem; margin-top:8px; }
+    .id-tag     { font-size:0.7rem; color:var(--text-muted); margin-left:8px; font-family:monospace; }
+
+    .section { margin-top:36px; padding-top:28px; border-top:1px solid var(--border); }
+    .section-label {
+      font-size:0.75rem; font-weight:700; letter-spacing:0.2em;
+      text-transform:uppercase; color:var(--accent3); margin-bottom:18px; display:block;
+    }
+
+    .field { margin-bottom:22px; }
+    .field label {
+      display:block; font-size:0.72rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:1.5px; color:var(--accent); margin-bottom:8px;
+    }
+    .field input, .field select, .field textarea {
+      width:100%; background:rgba(255,255,255,0.06); border:1px solid var(--border);
+      padding:13px 16px; border-radius:10px; color:#fff; outline:none;
+      font-family:'Rajdhani'; font-size:0.97rem; transition:0.25s; box-sizing:border-box;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color:var(--accent3); background:rgba(255,255,255,0.1);
+    }
+    .field textarea { resize:vertical; min-height:100px; line-height:1.6; }
+    .field select option { background:#1a1a28; }
+    .field .hint { font-size:0.78rem; color:var(--text-muted); margin-top:6px; }
+
+    /* Preview de portada */
+    .cover-preview-wrap { display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; }
+    .cover-preview-wrap .field { flex:1; min-width:200px; }
+    .cover-thumb {
+      width:80px; height:112px; border-radius:8px; border:2px solid var(--border);
+      object-fit:cover; background:var(--surface2); display:none;
+      flex-shrink:0; margin-top:24px;
+    }
+    .cover-thumb.visible { display:block; border-color:var(--accent); }
+
+    /* Géneros como tags clickeables */
+    .generos-grid {
+      display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;
+    }
+    .gen-tag {
+      padding:5px 13px; border-radius:20px; border:1px solid var(--border);
+      color:var(--text-muted); font-family:'Rajdhani'; font-size:0.82rem;
+      font-weight:600; cursor:pointer; transition:0.2s; background:var(--surface2);
+      user-select:none;
+    }
+    .gen-tag.selected {
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      border-color:transparent; color:#fff;
+    }
+
+    .float-actions { position:fixed; bottom:24px; right:24px; display:flex; gap:12px; z-index:100; }
+    .btn-cancel {
+      background:var(--surface); border:1px solid var(--border); color:var(--text-muted);
+      padding:13px 24px; border-radius:12px; font-family:'Rajdhani'; font-weight:700;
+      font-size:0.9rem; cursor:pointer; transition:0.2s;
+    }
+    .btn-cancel:hover { border-color:var(--accent); color:var(--accent); }
+    .btn-save {
+      background:linear-gradient(135deg,var(--accent),#7c3aed); border:none; color:#fff;
+      padding:13px 28px; border-radius:12px; font-family:'Rajdhani'; font-weight:700;
+      font-size:0.9rem; cursor:pointer; transition:0.2s;
+      box-shadow:0 6px 20px rgba(230,62,109,0.3);
+      display:flex; align-items:center; gap:10px;
+    }
+    .btn-save:hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.1); }
+    .btn-save:disabled { opacity:0.6; cursor:not-allowed; }
+
+    .spinner {
+      width:16px; height:16px; border:2px solid rgba(255,255,255,0.25);
+      border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; display:none;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .global-err { color:var(--accent); font-size:0.9rem; text-align:center; margin-top:16px; min-height:1.2rem; }
+
+    .success-msg {
+      color:#4CAF50; font-size:0.9rem; text-align:center;
+      margin-top:16px; min-height:1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <nav class="top-nav">
+    <span class="brand">KOTATSUNAME</span>
+    <a href="panel_autor.html" class="nav-btn">← Volver</a>
+  </nav>
+
+  <div class="editor">
+    <header class="editor-header">
+      <span class="editor-label" id="modeLabel">Nuevo Manuscrito</span>
+      <input type="text" class="title-input" id="titulo" placeholder="Título de la Obra..." />
+      <p class="author-ref">
+        Autor: <strong id="autorName"></strong>
+        <span class="id-tag" id="autorIdTag"></span>
+      </p>
+    </header>
+
+    <!-- Sinopsis -->
+    <section class="section">
+      <span class="section-label">Sinopsis</span>
+      <div class="field">
+        <textarea id="sinopsis" rows="5" placeholder="Escribe el resumen que atrapará a los lectores..."></textarea>
+      </div>
+    </section>
+
+    <!-- Géneros -->
+    <section class="section">
+      <span class="section-label">Géneros</span>
+      <div class="field">
+        <label>Selecciona los géneros (toca para elegir)</label>
+        <div class="generos-grid" id="generosGrid"></div>
+        <input type="hidden" id="generosHidden" />
+        <p class="hint">También puedes escribir géneros personalizados separados por coma:</p>
+        <input type="text" id="generosExtra" placeholder="Ej: LitRPG, Harem, Otro..." style="margin-top:8px;" />
+      </div>
+    </section>
+
+    <!-- Detalles -->
+    <section class="section">
+      <span class="section-label">Detalles</span>
+
+      <div class="field">
+        <label>Estado de la Obra</label>
+        <select id="estado">
+          <option value="en emisión">En Emisión</option>
+          <option value="completado">Completado</option>
+          <option value="en pausa">En Pausa</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Imagen de Portada (Google Drive)</label>
+        <div class="cover-preview-wrap">
+          <div class="field" style="margin-bottom:0;">
+            <input type="text" id="cover" placeholder="Link de Google Drive o ID del archivo..."
+              oninput="previewCover()" />
+            <p class="hint">Pega el link completo de compartir o solo el ID del archivo.</p>
+          </div>
+          <img id="coverThumb" class="cover-thumb" alt="Preview portada" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Primer capítulo -->
+    <section class="section">
+      <span class="section-label">Primer Capítulo (Opcional)</span>
+      <div class="field">
+        <label>Nombre del Capítulo 1</label>
+        <input type="text" id="cap1nombre" placeholder="Ej: El inicio del viaje" />
+      </div>
+      <div class="field">
+        <label>Link de Google Docs</label>
+        <input type="text" id="cap1link" placeholder="https://docs.google.com/document/d/..." />
+      </div>
+    </section>
+
+    <div class="global-err"  id="globalErr"></div>
+    <div class="success-msg" id="globalOk"></div>
+  </div>
+
+  <div class="float-actions">
+    <button class="btn-cancel" onclick="window.location.href='panel_autor.html'">Cancelar</button>
+    <button class="btn-save" id="btnSave" onclick="guardar()">
+      <div class="spinner" id="spinner"></div>
+      <span id="saveTxt">Publicar Obra ✦</span>
+    </button>
+  </div>
+
+  <script type="module">
+    import { loadEscritos, clearCache } from "./escritos_data.js";
+
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlwm_htimcLqGW7p5HQvdgqwY1V7tlr3oEt5vl6FMZ8j6TGyB3V8t4Dwd2t8vU9AZA/exec";
+
+    const params  = new URLSearchParams(window.location.search);
+    const editId  = params.get("id");
+
+    const idAutor = (localStorage.getItem("ktt_id")   || "").trim();
+    const user    = (localStorage.getItem("ktt_user") || "").trim();
+
+    if (!idAutor || idAutor === "null") window.location.href = "registrarse.html";
+
+    document.getElementById("autorName").textContent  = user || "Anónimo";
+    document.getElementById("autorIdTag").textContent = `[${idAutor}]`;
+
+    // ── Géneros predefinidos ──
+    const GENEROS_PRESET = [
+      "Romance","Fantasía","Otro Mundo","Terror","Acción","Misterio","Drama",
+      "Aventura","Psicológico","One-shot","Poesía","Ciencia Ficción","Comedia",
+      "Histórico","Sobrenatural","Suspenso","Slice of Life","Distopía",
+      "Mitología","Isekai","Cyberpunk","Steampunk","LitRPG","Magia","Deportes","Escolar"
+    ];
+
+    const grid    = document.getElementById("generosGrid");
+    const hidden  = document.getElementById("generosHidden");
+    let selected  = new Set();
+
+    GENEROS_PRESET.forEach(g => {
+      const btn = document.createElement("button");
+      btn.type      = "button";
+      btn.className = "gen-tag";
+      btn.textContent = g;
+      btn.addEventListener("click", () => {
+        if (selected.has(g)) { selected.delete(g); btn.classList.remove("selected"); }
+        else                 { selected.add(g);    btn.classList.add("selected"); }
+        syncGeneros();
+      });
+      grid.appendChild(btn);
+    });
+
+    function syncGeneros() {
+      const extra = document.getElementById("generosExtra").value
+        .split(",").map(s => s.trim()).filter(Boolean);
+      const todos = [...selected, ...extra];
+      hidden.value = todos.join(", ");
+    }
+    document.getElementById("generosExtra").addEventListener("input", syncGeneros);
+
+    // ── Preview portada ──
+    window.previewCover = function() {
+      const val   = document.getElementById("cover").value.trim();
+      const thumb = document.getElementById("coverThumb");
+      if (!val) { thumb.classList.remove("visible"); return; }
+      const match = val.match(/[-\w]{25,}/);
+      if (!match) { thumb.classList.remove("visible"); return; }
+      const url = `https://wsrv.nl/?url=${encodeURIComponent(
+        `https://drive.google.com/uc?export=view&id=${match[0]}`
+      )}&w=200&output=webp`;
+      thumb.src = url;
+      thumb.classList.add("visible");
+      thumb.onerror = () => thumb.classList.remove("visible");
+    };
+
+    // ── Modo edición ──
+    if (editId) {
+      document.getElementById("modeLabel").textContent = "Editando Manuscrito";
+      document.getElementById("saveTxt").textContent   = "Guardar Cambios ✦";
+      precargar();
+    }
+
+    async function precargar() {
+      const obras = await loadEscritos();
+      const obra  = obras.find(o => String(o.id) === String(editId));
+      if (!obra) return;
+
+      document.getElementById("titulo").value   = obra.titulo   || "";
+      document.getElementById("sinopsis").value = obra.sinopsis || "";
+      document.getElementById("cover").value    = obra.raw_cover || "";
+      document.getElementById("estado").value   = obra.estado   || "en emisión";
+
+      // Marcar géneros
+      if (Array.isArray(obra.generos)) {
+        obra.generos.forEach(g => {
+          selected.add(g);
+          const btn = [...grid.querySelectorAll(".gen-tag")]
+            .find(b => b.textContent.toLowerCase() === g.toLowerCase());
+          if (btn) btn.classList.add("selected");
+          else document.getElementById("generosExtra").value =
+            [...(document.getElementById("generosExtra").value ? [document.getElementById("generosExtra").value] : []), g].join(", ");
+        });
+        syncGeneros();
+      }
+
+      // Preview portada
+      if (obra.raw_cover) window.previewCover();
+
+      const cap1 = obra.caps?.find(c => c.numero === 1);
+      if (cap1) {
+        document.getElementById("cap1nombre").value = cap1.nombre  || "";
+        document.getElementById("cap1link").value   = cap1.rawLink || "";
+      }
+    }
+
+    window.guardar = async () => {
+      const titulo  = document.getElementById("titulo").value.trim();
+      const errEl   = document.getElementById("globalErr");
+      const okEl    = document.getElementById("globalOk");
+      const btn     = document.getElementById("btnSave");
+      const spinner = document.getElementById("spinner");
+      const txt     = document.getElementById("saveTxt");
+
+      errEl.textContent = "";
+      okEl.textContent  = "";
+
+      if (!titulo) { errEl.textContent = "El título es obligatorio."; return; }
+      if (!idAutor || idAutor === "null") {
+        errEl.textContent = "Sesión expirada. Redirigiendo...";
+        setTimeout(() => window.location.href = "registrarse.html", 1500);
+        return;
+      }
+
+      btn.disabled          = true;
+      spinner.style.display = "block";
+      txt.style.display     = "none";
+
+      // Extraer ID de Drive si pegaron el link completo
+      let coverVal  = document.getElementById("cover").value.trim();
+      const driveId = coverVal.match(/[-\w]{25,}/);
+      if (driveId) coverVal = driveId[0];
+
+      syncGeneros();
+      const generosVal = document.getElementById("generosHidden").value;
+
+      const payload = {
+        action      : editId ? "editarObra" : "nuevaObra",
+        idObra      : editId  || null,
+        idAutor,
+        nombreAutor : user,
+        titulo,
+        sinopsis    : document.getElementById("sinopsis").value.trim(),
+        generos     : generosVal,
+        estado      : document.getElementById("estado").value,
+        cover       : coverVal,
+        cap1nombre  : document.getElementById("cap1nombre").value.trim(),
+        cap1link    : document.getElementById("cap1link").value.trim(),
+      };
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method:"POST", mode:"no-cors",
+          headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify(payload),
+        });
+
+        okEl.textContent = editId ? "¡Cambios guardados!" : "¡Obra publicada correctamente!";
+        clearCache();
+        sessionStorage.setItem("panel_reload", "1");
+        setTimeout(() => { window.location.href = "panel_autor.html"; }, 1500);
+
+      } catch(e) {
+        errEl.textContent     = "Error de conexión. Intenta de nuevo.";
+        btn.disabled          = false;
+        spinner.style.display = "none";
+        txt.style.display     = "block";
+      }
+    };
+  </script>
+</body>
+</html>

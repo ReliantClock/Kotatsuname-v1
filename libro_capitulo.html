@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lectura - Kotatsuname</title>
+  <link rel="stylesheet" href="buscador.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    .reading-page {
+      max-width:760px; margin:0 auto;
+      padding:36px 20px 100px; position:relative; z-index:1;
+    }
+    .nav-btn {
+      display:inline-block; text-decoration:none; background:transparent;
+      padding:8px 18px; border-radius:5px; color:#fff;
+      font-family:var(--font-body); font-size:0.8rem; font-weight:600;
+      letter-spacing:0.1em; border:1px solid var(--accent); cursor:pointer; transition:all 0.3s;
+    }
+    .nav-btn:hover { background:var(--accent); box-shadow:0 0 15px var(--accent); }
+
+    .read-header {
+      border-bottom:1px solid var(--border); margin-bottom:40px; padding-bottom:20px;
+    }
+    .read-header .cap-number {
+      font-size:0.8rem; font-weight:700; letter-spacing:0.2em;
+      text-transform:uppercase; color:var(--accent); margin-bottom:6px;
+    }
+    .read-header h1 {
+      font-family:var(--font-display); font-size:clamp(1.2rem,4vw,1.8rem);
+      color:var(--text); margin-bottom:8px; line-height:1.2;
+    }
+    .read-header .book-ref {
+      font-size:0.9rem; color:var(--text-muted); font-style:italic;
+    }
+    .author-link {
+      color:var(--accent3); text-decoration:none;
+      border-bottom:1px dashed var(--accent3); transition:0.2s;
+    }
+    .author-link:hover { color:#fff; border-bottom-color:#fff; }
+
+    .reading-text {
+      font-size:1.15rem; line-height:1.9; color:#ddd;
+      white-space:pre-wrap; font-family:'Rajdhani', sans-serif; min-height:200px;
+    }
+    .loading-text {
+      display:flex; align-items:center; gap:12px;
+      color:var(--text-muted); font-size:0.95rem; padding:40px 0;
+    }
+    .loading-text::before {
+      content:""; width:18px; height:18px;
+      border:2px solid var(--border); border-top-color:var(--accent);
+      border-radius:50%; animation:spin 0.8s linear infinite; flex-shrink:0;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    .chapter-nav {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-top:80px; padding-top:32px; border-top:1px solid var(--border); gap:12px;
+    }
+    .nav-cap-btn {
+      text-decoration:none; background:transparent; padding:12px 20px;
+      border-radius:8px; color:rgba(255,255,255,0.7);
+      font-family:var(--font-body); font-size:0.9rem; font-weight:600;
+      border:1px solid var(--border); cursor:pointer; transition:all 0.3s ease;
+      text-align:center; flex:1; max-width:160px;
+    }
+    .nav-cap-btn:hover:not(.disabled) {
+      background:var(--accent); border-color:var(--accent);
+      color:#fff; box-shadow:0 0 15px rgba(230,62,109,0.4);
+    }
+    .nav-cap-btn.disabled { opacity:0; pointer-events:none; }
+    .nav-cap-btn.index-btn {
+      max-width:120px; border-color:var(--border); color:var(--text-muted);
+    }
+    .nav-cap-btn.index-btn:hover {
+      border-color:var(--accent3); color:var(--accent3);
+      background:rgba(6,182,212,0.08); box-shadow:none;
+    }
+
+    .chapter-end {
+      text-align:center; margin-top:60px; padding:30px;
+      color:var(--text-muted); font-size:0.85rem;
+      letter-spacing:0.15em; text-transform:uppercase;
+      border-top:1px solid var(--border);
+    }
+
+    /* Controles flotantes */
+    .font-controls {
+      position:fixed; bottom:24px; right:24px;
+      display:flex; gap:8px; z-index:100;
+    }
+    .control-btn {
+      background:var(--surface); border:1px solid var(--border); color:var(--text);
+      padding:10px 14px; cursor:pointer; border-radius:8px;
+      font-size:0.85rem; font-weight:700; font-family:var(--font-body); transition:all 0.2s;
+    }
+    .control-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+    /* Selector de fuente */
+    .font-selector {
+      position:fixed; bottom:70px; right:24px;
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:12px; padding:12px; z-index:100;
+      display:none; flex-direction:column; gap:8px;
+      box-shadow:0 8px 30px rgba(0,0,0,0.5);
+    }
+    .font-selector.open { display:flex; }
+    .font-opt {
+      background:none; border:1px solid var(--border); color:var(--text-muted);
+      padding:7px 14px; border-radius:8px; cursor:pointer;
+      font-size:0.82rem; font-weight:600; transition:0.2s; white-space:nowrap;
+    }
+    .font-opt:hover, .font-opt.active {
+      border-color:var(--accent3); color:var(--accent3);
+      background:rgba(6,182,212,0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <div class="reading-page">
+    <nav style="margin-bottom:28px; display:flex; justify-content:space-between; align-items:center;">
+      <button id="btnVolver" class="nav-btn">← Volver</button>
+      <button id="btnCompartir" class="nav-btn" style="border-color:var(--accent3);color:var(--accent3);">Compartir</button>
+    </nav>
+
+    <header class="read-header">
+      <p class="cap-number" id="capNumber"></p>
+      <h1 id="capTitle">Cargando...</h1>
+      <p class="book-ref" id="bookRef"></p>
+    </header>
+
+    <article id="capContent" class="reading-text">
+      <div class="loading-text">Consultando los archivos...</div>
+    </article>
+
+    <div class="chapter-end">✦ Fin del capítulo ✦</div>
+
+    <footer class="chapter-nav">
+      <button id="btnPrev" class="nav-cap-btn disabled">Anterior</button>
+      <button id="btnIndex" class="nav-cap-btn index-btn">Índice</button>
+      <button id="btnNext" class="nav-cap-btn disabled">Siguiente</button>
+    </footer>
+  </div>
+
+  <!-- Controles de fuente -->
+  <div class="font-controls">
+    <button class="control-btn" id="fontDown">A−</button>
+    <button class="control-btn" id="fontUp">A+</button>
+    <button class="control-btn" id="fontToggle" title="Cambiar fuente">Aa</button>
+  </div>
+
+  <!-- Selector de tipografía -->
+  <div class="font-selector" id="fontSelector">
+    <button class="font-opt active" data-font="'Rajdhani', sans-serif">Rajdhani</button>
+    <button class="font-opt" data-font="'Georgia', serif">Georgia</button>
+    <button class="font-opt" data-font="'Courier New', monospace">Courier</button>
+    <button class="font-opt" data-font="'Arial', sans-serif">Arial</button>
+  </div>
+
+  <script type="module">
+    import { loadEscritos } from "./escritos_data.js";
+
+    const params    = new URLSearchParams(window.location.search);
+    const libroId   = params.get("id");
+    const numCap    = parseInt(params.get("num"))  || 1;
+    const gnum      = parseInt(params.get("gnum")) || 1;
+    const nombreCap = decodeURIComponent(params.get("nombre") || "");
+
+    let fontSize    = parseFloat(localStorage.getItem("ktt_fontSize")) || 1.15;
+    let currentFont = localStorage.getItem("ktt_fontFamily") || "'Rajdhani', sans-serif";
+
+    const indexUrl = `escritos_capitulos.html?id=${libroId}`;
+
+    // Aplicar preferencias guardadas
+    function applyFontPrefs() {
+      const el = document.getElementById("capContent");
+      if (el) {
+        el.style.fontSize   = `${fontSize}rem`;
+        el.style.fontFamily = currentFont;
+      }
+      document.querySelectorAll(".font-opt").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.font === currentFont);
+      });
+    }
+
+    function buildNavUrl(caps, targetGnum) {
+      const cap = caps[targetGnum - 1];
+      if (!cap) return null;
+      return `libro_capitulo.html?id=${libroId}&num=${cap.numero}&gnum=${targetGnum}&nombre=${encodeURIComponent(cap.nombre || "")}`;
+    }
+
+    function configurarCompartir(libro, capNombre) {
+      const btn = document.getElementById("btnCompartir");
+      if (!btn) return;
+      btn.addEventListener("click", async () => {
+        const data = {
+          title: `KotatsuName — ${libro.titulo}`,
+          text : `Lee el Capítulo ${gnum}${capNombre ? `: "${capNombre}"` : ""} de "${libro.titulo}" en KotatsuName`,
+          url  : window.location.href,
+        };
+        try {
+          if (navigator.share) { await navigator.share(data); }
+          else {
+            await navigator.clipboard.writeText(window.location.href);
+            const orig = btn.textContent;
+            btn.textContent = "✓ Copiado";
+            setTimeout(() => { btn.textContent = orig; }, 2000);
+          }
+        } catch(e) {}
+      });
+    }
+
+    async function cargarCapitulo() {
+      if (!libroId) { window.location.href = "index.html"; return; }
+
+      const libros = await loadEscritos();
+      const libro  = libros.find(l => l.id == libroId);
+      if (!libro) { window.location.href = "index.html"; return; }
+
+      const caps      = libro.caps || [];
+      const capActual = caps.find(c => c.numero === numCap);
+      const capNombreReal = capActual?.nombre || nombreCap || `Capítulo ${gnum}`;
+
+      // ── Cabecera ──
+      document.getElementById("capNumber").textContent = `Capítulo ${gnum}`;
+      document.getElementById("capTitle").textContent  = capNombreReal;
+      document.getElementById("bookRef").innerHTML     =
+        `<a href="escritos_capitulos.html?id=${libroId}" style="color:var(--text-muted);text-decoration:none;border-bottom:1px dashed var(--border);">${libro.titulo}</a>
+         &nbsp;·&nbsp;
+         <a href="perfil_autor.html?id=${encodeURIComponent(libro.id_autor)}" class="author-link">${libro.autor}</a>`;
+      document.title = `${capNombreReal} — ${libro.titulo}`;
+
+      configurarCompartir(libro, capNombreReal);
+      applyFontPrefs();
+
+      // ── Contenido ──
+      const content = document.getElementById("capContent");
+
+      if (!capActual?.urlTexto) {
+        content.textContent = "Este capítulo aún no tiene contenido disponible.";
+      } else {
+        try {
+          const res   = await fetch(capActual.urlTexto);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const texto = await res.text();
+          content.textContent = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+          applyFontPrefs();
+          window.scrollTo(0, 0);
+
+          // Precargar siguiente
+          if (gnum < caps.length) {
+            setTimeout(() => {
+              const siguiente = caps[gnum];
+              if (siguiente?.urlTexto) fetch(siguiente.urlTexto, { priority:"low" }).catch(()=>{});
+            }, 5000);
+          }
+        } catch(e) {
+          content.textContent = "No se pudo cargar el contenido. Verifica la conexión o el permiso del documento.";
+        }
+      }
+
+      // ── Navegación ──
+      const total   = caps.length;
+      const btnPrev = document.getElementById("btnPrev");
+      const btnNext = document.getElementById("btnNext");
+      const btnIdx  = document.getElementById("btnIndex");
+
+      if (gnum > 1) {
+        const url = buildNavUrl(caps, gnum - 1);
+        btnPrev.textContent = "← Anterior";
+        btnPrev.classList.remove("disabled");
+        btnPrev.addEventListener("click", () => { window.location.href = url; });
+      }
+
+      if (gnum < total) {
+        const url = buildNavUrl(caps, gnum + 1);
+        btnNext.textContent = "Siguiente →";
+        btnNext.classList.remove("disabled");
+        btnNext.addEventListener("click", () => { window.location.href = url; });
+      }
+
+      btnIdx.addEventListener("click",                 () => { window.location.href = indexUrl; });
+      document.getElementById("btnVolver").addEventListener("click", () => { window.location.href = indexUrl; });
+    }
+
+    // ── Controles de fuente ──
+    document.getElementById("fontUp").addEventListener("click", () => {
+      fontSize = Math.min(fontSize + 0.1, 2.0);
+      localStorage.setItem("ktt_fontSize", fontSize);
+      applyFontPrefs();
+    });
+    document.getElementById("fontDown").addEventListener("click", () => {
+      fontSize = Math.max(fontSize - 0.1, 0.8);
+      localStorage.setItem("ktt_fontSize", fontSize);
+      applyFontPrefs();
+    });
+
+    // Toggle selector de fuente
+    document.getElementById("fontToggle").addEventListener("click", () => {
+      document.getElementById("fontSelector").classList.toggle("open");
+    });
+    document.querySelectorAll(".font-opt").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentFont = btn.dataset.font;
+        localStorage.setItem("ktt_fontFamily", currentFont);
+        applyFontPrefs();
+        document.getElementById("fontSelector").classList.remove("open");
+      });
+    });
+
+    // Cerrar selector al tocar fuera
+    document.addEventListener("click", e => {
+      const sel = document.getElementById("fontSelector");
+      const tog = document.getElementById("fontToggle");
+      if (!sel.contains(e.target) && e.target !== tog) sel.classList.remove("open");
+    });
+
+    cargarCapitulo();
+  </script>
+</body>
+</html>

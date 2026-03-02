@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Capítulos | Kotatsu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="buscador.css">
+  <style>
+    body { margin:0; background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; }
+
+    .top-nav {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:14px 24px; border-bottom:1px solid var(--border);
+      background:rgba(10,10,15,0.85); backdrop-filter:blur(12px);
+      position:sticky; top:0; z-index:50;
+    }
+    .top-nav .brand { font-family:'Cinzel Decorative'; color:var(--accent); font-size:1.1rem; }
+    .nav-btn {
+      display:inline-block; text-decoration:none; background:transparent;
+      padding:7px 16px; border-radius:8px; color:var(--text-muted);
+      font-family:'Rajdhani'; font-size:0.8rem; font-weight:700;
+      border:1px solid var(--border); cursor:pointer; transition:0.2s;
+    }
+    .nav-btn:hover { border-color:var(--accent3); color:var(--accent3); }
+
+    .container { max-width:820px; margin:0 auto; padding:28px 20px 80px; }
+
+    /* Header obra */
+    .obra-header {
+      display:flex; align-items:flex-start; gap:20px;
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:16px; padding:20px 24px; margin-bottom:28px; flex-wrap:wrap;
+    }
+    .obra-cover {
+      width:80px; height:112px; border-radius:8px; object-fit:cover;
+      border:2px solid var(--accent); flex-shrink:0;
+    }
+    .obra-cover-ph {
+      width:80px; height:112px; border-radius:8px; background:var(--surface2);
+      border:2px solid var(--border); display:flex; align-items:center;
+      justify-content:center; font-size:2rem; flex-shrink:0;
+    }
+    .obra-meta h2 { font-family:'Cinzel Decorative'; font-size:1.2rem; color:#fff; margin:0 0 6px; }
+    .obra-meta p  { color:var(--text-muted); font-size:0.85rem; margin:0; }
+
+    /* Barra acciones */
+    .actions-bar {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:18px; gap:12px; flex-wrap:wrap;
+    }
+    .actions-bar h3 {
+      font-family:'Cinzel Decorative'; font-size:0.85rem;
+      color:var(--text-muted); letter-spacing:1px;
+    }
+    .btn-add-cap {
+      background:var(--accent3); color:#000; border:none;
+      padding:10px 22px; border-radius:50px; font-weight:700;
+      font-family:'Rajdhani'; font-size:0.85rem; cursor:pointer;
+      transition:0.2s; box-shadow:0 4px 14px rgba(6,182,212,0.3);
+    }
+    .btn-add-cap:hover { filter:brightness(1.1); transform:translateY(-1px); }
+
+    /* Cards capítulo */
+    .cap-list { display:flex; flex-direction:column; gap:10px; }
+
+    .cap-card {
+      background:var(--surface); border:1px solid var(--border);
+      border-radius:12px; padding:14px 18px;
+      display:flex; align-items:center; gap:14px; transition:border-color 0.2s;
+    }
+    .cap-card:hover { border-color:rgba(6,182,212,0.3); }
+
+    .cap-num {
+      font-size:0.72rem; font-weight:700; color:var(--text-muted);
+      letter-spacing:0.1em; text-transform:uppercase;
+      flex-shrink:0; min-width:48px;
+    }
+    .cap-nombre { flex:1; font-size:0.95rem; font-weight:600; color:var(--text); }
+    .cap-link   {
+      font-size:0.72rem; color:var(--text-muted); margin-top:2px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px;
+    }
+
+    .cap-actions { display:flex; gap:8px; flex-shrink:0; }
+    .btn-icon {
+      background:none; border:1px solid var(--border); color:var(--text-muted);
+      width:34px; height:34px; border-radius:8px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.85rem; transition:0.2s;
+    }
+    .btn-icon.edit:hover { border-color:var(--accent3); color:var(--accent3); }
+    .btn-icon.del:hover  { border-color:var(--accent);  color:var(--accent); }
+
+    /* Ver capítulo */
+    .btn-icon.view { border-color:var(--border); }
+    .btn-icon.view:hover { border-color:#4CAF50; color:#4CAF50; }
+
+    .empty-caps {
+      text-align:center; padding:50px 20px;
+      border:1px dashed var(--border); border-radius:14px; color:var(--text-muted);
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.75);
+      display:flex; align-items:center; justify-content:center;
+      z-index:100; padding:20px;
+      opacity:0; pointer-events:none; transition:opacity 0.3s;
+    }
+    .modal-overlay.open { opacity:1; pointer-events:all; }
+    .modal-box {
+      background:#12121e; border:1px solid var(--border);
+      border-radius:20px; padding:28px; width:100%; max-width:480px;
+      transform:scale(0.95); transition:transform 0.3s;
+    }
+    .modal-overlay.open .modal-box { transform:scale(1); }
+
+    .modal-box h3 { font-family:'Cinzel Decorative'; color:var(--accent3); margin:0 0 20px; font-size:1rem; }
+
+    .modal-field { margin-bottom:16px; }
+    .modal-field label {
+      display:block; font-size:0.7rem; color:var(--text-muted);
+      font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;
+    }
+    .modal-field input {
+      width:100%; background:#0a0a0f; border:1px solid var(--border);
+      padding:12px 14px; border-radius:10px; color:#fff; outline:none;
+      font-family:'Rajdhani'; font-size:0.95rem; box-sizing:border-box; transition:0.2s;
+    }
+    .modal-field input:focus { border-color:var(--accent3); }
+
+    /* Preview del link en el modal */
+    .link-preview {
+      font-size:0.75rem; color:var(--text-muted); margin-top:6px;
+      word-break:break-all; min-height:1em;
+    }
+    .link-preview a { color:var(--accent3); text-decoration:none; }
+    .link-preview a:hover { text-decoration:underline; }
+
+    .modal-actions { display:flex; gap:10px; margin-top:20px; }
+    .btn-modal {
+      flex:1; padding:13px; border-radius:10px; border:none;
+      font-family:'Rajdhani'; font-weight:700; font-size:0.95rem; cursor:pointer; transition:0.2s;
+    }
+    .btn-modal.cancel { background:var(--surface); color:var(--text-muted); border:1px solid var(--border); }
+    .btn-modal.cancel:hover { border-color:var(--accent); color:var(--accent); }
+    .btn-modal.save   { background:linear-gradient(135deg,var(--accent3),#0891b2); color:#000; }
+    .btn-modal.save:hover { filter:brightness(1.1); }
+    .btn-modal.danger { background:rgba(230,62,109,0.1); color:var(--accent); border:1px solid var(--accent); }
+    .btn-modal.danger:hover { background:var(--accent); color:#fff; }
+
+    .modal-err {
+      color:var(--accent); font-size:0.85rem; text-align:center;
+      margin-top:8px; min-height:1.2rem;
+    }
+    .modal-ok {
+      color:#4CAF50; font-size:0.85rem; text-align:center;
+      margin-top:8px; min-height:1.2rem;
+    }
+
+    .spinner-inline {
+      display:inline-block; width:14px; height:14px;
+      border:2px solid rgba(0,0,0,0.2); border-top-color:#000;
+      border-radius:50%; animation:spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <nav class="top-nav">
+    <span class="brand">KOTATSUNAME</span>
+    <a href="panel_autor.html" class="nav-btn">← Panel</a>
+  </nav>
+
+  <main class="container">
+    <div class="obra-header">
+      <div id="obraCover" class="obra-cover-ph"></div>
+      <div class="obra-meta">
+        <h2 id="obraTitulo">Cargando...</h2>
+        <p id="obraInfo"></p>
+      </div>
+    </div>
+
+    <div class="actions-bar">
+      <h3>Capítulos</h3>
+      <button class="btn-add-cap" onclick="abrirModal(null)">+ Agregar Capítulo</button>
+    </div>
+
+    <div id="capList" class="cap-list">
+      <div class="empty-caps">Cargando capítulos...</div>
+    </div>
+  </main>
+
+  <!-- Modal nuevo/editar capítulo -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <h3 id="modalTitulo">Nuevo Capítulo</h3>
+
+      <div class="modal-field">
+        <label>Número de Capítulo</label>
+        <input type="number" id="modalNumero" min="1" max="50" placeholder="Ej: 1" />
+      </div>
+
+      <div class="modal-field">
+        <label>Nombre del Capítulo</label>
+        <input type="text" id="modalNombre" placeholder="Ej: El inicio del viaje" />
+      </div>
+
+      <div class="modal-field">
+        <label>Link de Google Docs</label>
+        <input type="text" id="modalLink" placeholder="https://docs.google.com/document/d/..." oninput="previewLink()" />
+        <p class="link-preview" id="linkPreview"></p>
+      </div>
+
+      <div class="modal-err" id="modalErr"></div>
+      <div class="modal-ok"  id="modalOk"></div>
+
+      <div class="modal-actions">
+        <button class="btn-modal cancel" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-modal save"   id="btnGuardarCap" onclick="guardarCapitulo()">Guardar</button>
+      </div>
+
+      <div id="deleteSection" style="margin-top:12px; display:none;">
+        <button class="btn-modal danger" style="width:100%;" onclick="borrarCapitulo()">
+          <i class="fas fa-trash"></i> Borrar este capítulo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { loadEscritos, clearCache } from "./escritos_data.js";
+
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlwm_htimcLqGW7p5HQvdgqwY1V7tlr3oEt5vl6FMZ8j6TGyB3V8t4Dwd2t8vU9AZA/exec";
+
+    const params  = new URLSearchParams(window.location.search);
+    const idObra  = params.get("id");
+    const idAutor = localStorage.getItem("ktt_id");
+
+    if (!idAutor) window.location.href = "registrarse.html";
+
+    let obra        = null;
+    let capEditando = null;
+
+    // ── Preview del link en el modal ──
+    window.previewLink = function() {
+      const val = document.getElementById("modalLink").value.trim();
+      const prev = document.getElementById("linkPreview");
+      if (!val) { prev.innerHTML = ""; return; }
+      const m = val.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+      if (m) {
+        prev.innerHTML = `✓ Doc válido: <a href="${val}" target="_blank" rel="noopener">Ver documento →</a>`;
+      } else {
+        prev.textContent = "No parece un link de Google Docs válido";
+        prev.style.color = "var(--accent)";
+      }
+    };
+
+    // ── Cargar y renderizar ──
+    async function render() {
+      const todas = await loadEscritos();
+      obra = todas.find(o => String(o.id) === String(idObra));
+      if (!obra) { alert("Obra no encontrada."); window.location.href = "panel_autor.html"; return; }
+
+      document.title = `Capítulos — ${obra.titulo}`;
+      document.getElementById("obraTitulo").textContent = obra.titulo;
+      document.getElementById("obraInfo").textContent   =
+        `${obra.capitulos} capítulo${obra.capitulos !== 1 ? "s" : ""} · ${obra.autor}`;
+
+      if (obra.cover) {
+        const img     = document.createElement("img");
+        img.className = "obra-cover";
+        img.src       = obra.cover;
+        img.alt       = obra.titulo;
+        document.getElementById("obraCover").replaceWith(img);
+      }
+
+      const container = document.getElementById("capList");
+
+      if (!obra.caps || obra.caps.length === 0) {
+        container.innerHTML = `<div class="empty-caps"> No hay capítulos aún. Agrega el primero.</div>`;
+        return;
+      }
+
+      container.innerHTML = "";
+      obra.caps.forEach(cap => {
+        const card = document.createElement("div");
+        card.className = "cap-card";
+        card.innerHTML = `
+          <span class="cap-num">Cap. ${cap.numero}</span>
+          <div style="flex:1;min-width:0;">
+            <div class="cap-nombre">${cap.nombre || `Capítulo ${cap.numero}`}</div>
+            <div class="cap-link">${cap.rawLink || ""}</div>
+          </div>
+          <div class="cap-actions">
+            <button class="btn-icon view" title="Vista previa"
+              onclick="window.open('libro_capitulo.html?id=${idObra}&num=${cap.numero}&gnum=${cap.numero}&nombre=${encodeURIComponent(cap.nombre||"")}','_blank')">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-icon edit" title="Editar" onclick="abrirModal(${cap.numero})">
+              <i class="fas fa-pen"></i>
+            </button>
+            <button class="btn-icon del" title="Borrar" onclick="confirmarBorrado(${cap.numero})">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // ── Modal ──
+    window.abrirModal = (numCap) => {
+      capEditando = numCap;
+      const esNuevo = numCap === null;
+
+      document.getElementById("modalTitulo").textContent        = esNuevo ? "Nuevo Capítulo" : `Editar Capítulo ${numCap}`;
+      document.getElementById("modalErr").textContent           = "";
+      document.getElementById("modalOk").textContent            = "";
+      document.getElementById("linkPreview").textContent        = "";
+      document.getElementById("deleteSection").style.display    = esNuevo ? "none" : "block";
+
+      if (!esNuevo && obra) {
+        const cap = obra.caps.find(c => c.numero === numCap);
+        document.getElementById("modalNumero").value   = numCap;
+        document.getElementById("modalNombre").value   = cap?.nombre  || "";
+        document.getElementById("modalLink").value     = cap?.rawLink || "";
+        document.getElementById("modalNumero").disabled = true;
+        window.previewLink();
+      } else {
+        const usados  = obra?.caps.map(c => c.numero) || [];
+        let siguiente = 1;
+        while (usados.includes(siguiente)) siguiente++;
+        document.getElementById("modalNumero").value    = siguiente;
+        document.getElementById("modalNombre").value    = "";
+        document.getElementById("modalLink").value      = "";
+        document.getElementById("modalNumero").disabled = false;
+      }
+
+      document.getElementById("modalOverlay").classList.add("open");
+    };
+
+    window.cerrarModal = () => {
+      document.getElementById("modalOverlay").classList.remove("open");
+      capEditando = null;
+    };
+
+    document.getElementById("modalOverlay").addEventListener("click", e => {
+      if (e.target === document.getElementById("modalOverlay")) cerrarModal();
+    });
+
+    // ── Guardar capítulo ──
+    window.guardarCapitulo = async () => {
+      const num    = parseInt(document.getElementById("modalNumero").value);
+      const nombre = document.getElementById("modalNombre").value.trim();
+      const link   = document.getElementById("modalLink").value.trim();
+      const errEl  = document.getElementById("modalErr");
+      const okEl   = document.getElementById("modalOk");
+      const btn    = document.getElementById("btnGuardarCap");
+
+      errEl.textContent = "";
+      okEl.textContent  = "";
+
+      if (!num || num < 1 || num > 50) { errEl.textContent = "Número entre 1 y 50."; return; }
+      if (!nombre)  { errEl.textContent = "El nombre es obligatorio."; return; }
+      if (!link)    { errEl.textContent = "El link del documento es obligatorio."; return; }
+      if (!link.includes("docs.google.com/document")) {
+        errEl.textContent = "El link debe ser un Google Docs válido."; return;
+      }
+
+      btn.disabled  = true;
+      btn.innerHTML = '<span class="spinner-inline"></span>';
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method:"POST", mode:"no-cors",
+          body: JSON.stringify({
+            action      : "guardarCapitulo",
+            idObra, idAutor,
+            numCapitulo : num,
+            nombreCap   : nombre,
+            urlCap      : link,
+          }),
+        });
+
+        okEl.textContent = "¡Capítulo guardado!";
+        clearCache();
+        setTimeout(() => { cerrarModal(); render(); }, 1000);
+
+      } catch(e) {
+        errEl.textContent = "Error de conexión. Intenta de nuevo.";
+      } finally {
+        btn.disabled  = false;
+        btn.innerHTML = "Guardar";
+      }
+    };
+
+    // ── Borrar capítulo ──
+    window.borrarCapitulo = async () => {
+      if (!capEditando) return;
+      if (!confirm(`¿Borrar el Capítulo ${capEditando}? Esta acción no se puede deshacer.`)) return;
+
+      const btn = document.querySelector(".btn-modal.danger");
+      btn.disabled  = true;
+      btn.innerHTML = '<span class="spinner-inline" style="border-top-color:var(--accent)"></span> Borrando...';
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method:"POST", mode:"no-cors",
+          body: JSON.stringify({
+            action     : "borrarCapitulo",
+            idObra, idAutor,
+            numCapitulo: capEditando,
+          }),
+        });
+        clearCache();
+        cerrarModal();
+        setTimeout(() => render(), 1000);
+      } catch(e) {
+        document.getElementById("modalErr").textContent = "Error al borrar.";
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="fas fa-trash"></i> Borrar este capítulo';
+      }
+    };
+
+    // El botón de borrar en la card también abre el modal en modo edición
+    window.confirmarBorrado = (num) => abrirModal(num);
+
+    render();
+  </script>
+</body>
+</html>
