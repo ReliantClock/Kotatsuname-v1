@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sin conexión | KOTATSUNAME</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #0a0a0f;
+            color: #e8e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .logo { width: 120px; filter: drop-shadow(0 0 10px rgba(230, 62, 109, 0.5)); }
+        h1 { color: #e63e6d; letter-spacing: 3px; margin-top: 20px; }
+        p { color: #06b6d4; opacity: 0.8; }
+        .btn-retry {
+            margin-top: 30px;
+            padding: 10px 25px;
+            background: transparent;
+            border: 1px solid #06b6d4;
+            color: #06b6d4;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <img src="ICONO_192.png" alt="Logo" class="logo">
+    <h1>MODO OFFLINE</h1>
+    <p>Parece que has perdido la conexió.</p>
+    <button class="btn-retry" onclick="window.location.reload()">Reintentar conexión</button>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil de Autor | Kotatsu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="buscador.css">
+  <style>
+    .nav-btn{
+      display:inline-block;text-decoration:none;background:transparent;
+      padding:8px 18px;border-radius:5px;color:#fff;
+      font-family:var(--font-body);font-size:0.8rem;font-weight:600;
+      letter-spacing:0.1em;border:1px solid var(--accent);cursor:pointer;transition:all 0.3s;
+    }
+    .nav-btn:hover{background:var(--accent);box-shadow:0 0 15px var(--accent);}
+
+    .author-hero{
+      display:flex;align-items:center;gap:28px;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:20px;padding:28px;margin-bottom:36px;flex-wrap:wrap;
+      box-shadow:0 8px 30px rgba(0,0,0,0.3);
+    }
+    .author-avatar{
+      width:100px;height:100px;border-radius:50%;object-fit:cover;
+      border:3px solid var(--accent);flex-shrink:0;background:var(--surface2);
+    }
+    .author-avatar-ph{
+      width:100px;height:100px;border-radius:50%;flex-shrink:0;background:var(--surface2);
+      border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:2.5rem;
+    }
+    .author-info .role{color:var(--accent3);font-size:0.65rem;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:6px;}
+    .author-info h1{
+      font-family:var(--font-display);font-size:clamp(1.3rem,3vw,2rem);
+      background:linear-gradient(135deg,#fff,var(--accent) 60%,var(--accent2));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      margin-bottom:8px;
+    }
+    .author-info .stats{color:var(--text-muted);font-size:0.85rem;}
+
+    .section-label{
+      font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;
+      color:var(--text-muted);margin-bottom:20px;display:block;
+      border-bottom:1px solid var(--border);padding-bottom:10px;
+    }
+
+    .obras-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px;
+    }
+
+    .empty{text-align:center;padding:60px 20px;color:var(--text-muted);}
+    .empty-icon{font-size:3rem;display:block;margin-bottom:12px;opacity:0.4;}
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <div class="wrapper">
+    <nav style="padding:16px 0 28px;display:flex;justify-content:space-between;align-items:center;">
+      <a href="index.html" class="nav-btn">Biblioteca</a>
+    </nav>
+
+    <div class="author-hero" id="authorHero">
+      <div class="author-avatar-ph">👤</div>
+      <div class="author-info">
+        <p class="role">Autor</p>
+        <h1 id="authorName">Cargando...</h1>
+        <p class="stats" id="authorStats"></p>
+      </div>
+    </div>
+
+    <span class="section-label">Obras publicadas</span>
+    <div class="obras-grid" id="obrasGrid">
+      <!-- Se rellena con JS -->
+    </div>
+  </div>
+
+  <!-- MODAL de obra -->
+  <div id="modal" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-cover" id="modalCover"></div>
+      <div class="modal-content">
+        <div class="modal-badge" id="modalBadge">Escrito Original</div>
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="modal-tags" id="modalTags"></div>
+        <p class="modal-sinopsis" id="modalSinopsis"></p>
+        <div class="modal-footer">
+          <span class="modal-seasons" id="modalSeasons"></span>
+          <div class="modal-btns" id="modalBtns"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { loadEscritos } from "./escritos_data.js";
+
+    const params   = new URLSearchParams(window.location.search);
+    const autorId  = params.get("id");
+    const modal    = document.getElementById("modal");
+
+    function openModal(item) {
+      document.getElementById("modalTitle").textContent    = item.titulo;
+      document.getElementById("modalBadge").textContent    = `Autor: ${item.autor}`;
+      document.getElementById("modalSinopsis").textContent = item.sinopsis;
+      document.getElementById("modalCover").innerHTML      = item.cover
+        ? `<img src="${item.cover}" alt="${item.titulo}" />` : "";
+      document.getElementById("modalTags").innerHTML       = item.generos
+        .map(g => `<span class="modal-tag">${g}</span>`).join("");
+      document.getElementById("modalSeasons").textContent  = `${item.capitulos} capítulos`;
+      document.getElementById("modalBtns").innerHTML       =
+        `<a href="escritos_capitulos.html?id=${item.id}" class="modal-btn modal-btn--manga">Ver Capítulos</a>`;
+      modal.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+    function closeModal() {
+      modal.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+    document.getElementById("modalClose").addEventListener("click", closeModal);
+    modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+    const SCRIPT_URL = "hhttps://script.google.com/macros/s/AKfycbxlwm_htimcLqGW7p5HQvdgqwY1V7tlr3oEt5vl6FMZ8j6TGyB3V8t4Dwd2t8vU9AZA/exec";
+
+    async function getFotoAutor(idAutor) {
+      try {
+        const res  = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain" },
+          body: JSON.stringify({ action: "getAutorInfo", idAutor }),
+        });
+        const data = await res.json();
+        // Verificar que el Sheet encontró al autor y tiene foto
+        if (data.status === "success" && data.foto) return data.foto;
+        return "";
+      } catch {
+        return "";
+      }
+    }
+
+    async function cargar() {
+      if (!autorId) { document.getElementById("authorName").textContent = "Autor no encontrado"; return; }
+
+      // Cargar obras y foto del autor en paralelo
+      const [todos, foto] = await Promise.all([
+        loadEscritos(),
+        getFotoAutor(autorId),
+      ]);
+
+      const obras = todos.filter(o => String(o.id_autor) === String(autorId)
+                                   && (o.aprobacion||"").toLowerCase() !== "suspension"
+                                   && (o.aprobacion||"").toLowerCase() !== "rechazado");
+
+      if (!obras.length) {
+        document.getElementById("authorName").textContent = "Autor no encontrado";
+        document.getElementById("obrasGrid").innerHTML    = `<div class="empty"><span class="empty-icon"></span>Este autor no tiene obras publicadas.</div>`;
+        return;
+      }
+
+      const autorNombre = obras[0].autor;
+      document.title = `${autorNombre} — Kotatsuname`;
+      document.getElementById("authorName").textContent  = autorNombre;
+      document.getElementById("authorStats").textContent = `${obras.length} obra${obras.length !== 1 ? "s" : ""} publicada${obras.length !== 1 ? "s" : ""}`;
+
+      // Mostrar foto si existe
+      if (foto) {
+        const img     = document.createElement("img");
+        img.className = "author-avatar";
+        img.alt       = autorNombre;
+        img.src       = foto;
+        img.onerror   = () => img.replaceWith(document.querySelector(".author-avatar-ph") || img);
+        document.querySelector(".author-avatar-ph").replaceWith(img);
+      }
+
+      // Grid de obras
+      const ogrid = document.getElementById("obrasGrid");
+      ogrid.innerHTML = "";
+      obras.forEach((item, i) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.animationDelay = `${i * 50}ms`;
+        const genresHtml = item.generos.slice(0, 2).map(g => `<span class="card-genre">${g}</span>`).join("");
+        card.innerHTML = `
+          <div class="card-cover">
+            ${item.cover ? `<img class="card-cover-img" src="${item.cover}" alt="${item.titulo}" loading="lazy">` : `<span></span>`}
+        </div>
+          <div class="card-body">
+            <div class="card-title">${item.titulo}</div>
+            <div class="card-meta">${genresHtml}</div>
+            <div class="card-seasons">${item.capitulos} caps.</div>
+          </div>`;
+        card.addEventListener("click", () => openModal(item));
+        ogrid.appendChild(card);
+      });
+    }
+
+    cargar();
+  </script>
+</body>
+</html>

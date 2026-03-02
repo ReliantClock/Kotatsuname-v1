@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Portal de Acceso | Kotatsu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="buscador.css">
+  <style>
+    :root {
+      --bg:#0a0a0f;--surface:#12121c;--border:#2a2a3e;
+      --accent:#e63e6d;--accent3:#06b6d4;--text:#e8e8f0;
+      --text-muted:#6b6b8a;--glow:rgba(230,62,109,0.3);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex;min-height:100vh;}
+
+    .info-side{
+      flex:1;padding:3rem;display:flex;flex-direction:column;
+      justify-content:center;align-items:center;text-align:center;
+      border-right:1px solid var(--border);
+      background:radial-gradient(circle at 40% 50%,#1a1a28 0%,var(--bg) 70%);
+    }
+    .info-side h1{font-family:'Cinzel Decorative';font-size:5rem;color:var(--accent);line-height:1;}
+    .info-side p{color:var(--accent3);letter-spacing:8px;font-weight:700;margin-top:10px;}
+
+    /* Indicador de dominio */
+    .domain-indicator{
+      margin-top:20px;padding:8px 20px;border-radius:30px;
+      font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+      border:1px solid var(--border);color:var(--text-muted);
+      transition:all 0.3s;
+    }
+    .domain-indicator.user  {border-color:#4CAF50;color:#4CAF50;background:rgba(76,175,80,0.08);}
+    .domain-indicator.mod   {border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,0.08);}
+    .domain-indicator.admin {border-color:var(--accent3);color:var(--accent3);background:rgba(6,182,212,0.08);}
+    .domain-indicator.owner {border-color:var(--accent);color:var(--accent);background:rgba(230,62,109,0.08);}
+    .domain-indicator.invalid{border-color:#ff4444;color:#ff4444;background:rgba(255,68,68,0.08);}
+
+    .auth-side{width:480px;display:flex;align-items:center;justify-content:center;padding:20px;}
+    .auth-card{
+      width:100%;max-width:400px;background:var(--surface);
+      padding:2.5rem 2rem;border-radius:24px;border:1px solid var(--border);
+      box-shadow:0 20px 50px rgba(0,0,0,0.6);
+    }
+    .mobile-logo{display:none;text-align:center;margin-bottom:1.5rem;}
+    .mobile-logo h1{font-family:'Cinzel Decorative';font-size:2.2rem;color:var(--accent);}
+    .mobile-logo p{color:var(--accent3);letter-spacing:3px;font-size:0.7rem;font-weight:700;}
+
+    .input-group{margin-bottom:1.2rem;}
+    label{display:block;margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;font-weight:700;}
+    .input-wrapper{position:relative;}
+    .input-wrapper i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;transition:0.3s;}
+    input[type="text"],input[type="email"],input[type="password"]{
+      width:100%;padding:13px 14px 13px 42px;
+      background:rgba(26,26,40,0.6);border:1px solid var(--border);
+      border-radius:12px;color:#fff;
+      font-family:'Rajdhani';font-size:1rem;transition:0.3s;outline:none;
+    }
+    input:focus{border-color:var(--accent3);background:#1a1a28;box-shadow:0 0 12px rgba(6,182,212,0.1);}
+    #group-email{display:none;}
+    #group-user{display:none;}
+
+    .role-badge{
+      display:none;text-align:center;margin-bottom:1rem;
+      font-size:0.72rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+      padding:6px 14px;border-radius:20px;border:1px solid currentColor;
+    }
+
+    .error-msg{min-height:1.3rem;font-size:0.85rem;font-weight:600;text-align:center;margin-bottom:1rem;color:var(--accent);}
+
+    .btn-submit{
+      width:100%;padding:15px;margin-top:8px;
+      background:linear-gradient(135deg,var(--accent),#7c3aed);
+      border:none;border-radius:50px;color:#fff;font-weight:700;
+      font-family:'Rajdhani';font-size:1rem;text-transform:uppercase;
+      letter-spacing:1px;cursor:pointer;transition:0.3s;
+      box-shadow:0 8px 25px var(--glow);
+      display:flex;align-items:center;justify-content:center;gap:10px;
+    }
+    .btn-submit:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.1);}
+    .btn-submit:disabled{opacity:0.7;cursor:not-allowed;}
+
+    .spinner{width:18px;height:18px;border:3px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    .toggle{text-align:center;margin-top:24px;color:var(--text-muted);font-size:0.9rem;}
+    .toggle span{color:var(--accent3);cursor:pointer;font-weight:700;border-bottom:1px dashed var(--accent3);margin-left:5px;}
+
+    /* Tabs de modo */
+    .mode-tabs{display:flex;gap:0;margin-bottom:1.8rem;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+    .mode-tab{
+      flex:1;padding:10px;background:transparent;border:none;
+      color:var(--text-muted);font-family:'Rajdhani';font-size:0.8rem;font-weight:700;
+      letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:0.2s;
+    }
+    .mode-tab.active{background:var(--accent);color:#fff;}
+
+    @media(max-width:860px){
+      .auth-side{width:100%;}
+      .info-side{display:none;}
+      .mobile-logo{display:block;}
+    }
+    @media(max-width:480px){
+      .auth-card{background:transparent;border:none;box-shadow:none;padding:1.5rem 1rem;}
+      body{background:var(--surface);}
+    }
+  </style>
+</head>
+<body>
+  <section class="info-side">
+    <h1>KOTATSU</h1>
+    <p>PORTAL DE ACCESO</p>
+    <div class="domain-indicator" id="domainIndicator">Ingresa tu correo</div>
+  </section>
+
+  <section class="auth-side">
+    <div class="auth-card">
+      <div class="mobile-logo">
+        <h1>KOTATSUNAME</h1>
+        <p>PORTAL DE ACCESO</p>
+      </div>
+
+      <!-- Tabs Iniciar / Registrarse -->
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tabLogin"   onclick="setTab('login')">Iniciar Sesión</button>
+        <button class="mode-tab"        id="tabReg"     onclick="setTab('registro')">Registrarse</button>
+      </div>
+
+      <div class="role-badge" id="roleBadge"></div>
+
+      <!-- Campo usuario (solo registro) -->
+      <div class="input-group" id="group-user">
+        <label>Nombre de Autor / Usuario</label>
+        <div class="input-wrapper">
+          <i class="fas fa-user-ninja"></i>
+          <input type="text" id="user" placeholder="Tu seudónimo" autocomplete="username" />
+        </div>
+      </div>
+
+      <!-- Email (siempre visible) -->
+      <div class="input-group">
+        <label>Correo Electrónico</label>
+        <div class="input-wrapper">
+          <i class="fas fa-envelope"></i>
+          <input type="email" id="email" placeholder="tu@correo.com" autocomplete="email" oninput="onEmailInput()" />
+        </div>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="input-group">
+        <label>Contraseña</label>
+        <div class="input-wrapper">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+      </div>
+
+      <div id="errMsg" class="error-msg"></div>
+
+      <button class="btn-submit" id="btnSubmit" onclick="enviar()">
+        <div class="spinner" id="spinner"></div>
+        <span id="btnTxt">Conectar</span>
+      </button>
+
+      <div class="toggle" id="toggleMsg">
+        ¿No tienes cuenta? <span onclick="setTab('registro')">Regístrate</span>
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    import { detectRole, saveSession, DOMAINS } from "./staff_auth.js";
+
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlwm_htimcLqGW7p5HQvdgqwY1V7tlr3oEt5vl6FMZ8j6TGyB3V8t4Dwd2t8vU9AZA/exec";
+    let currentTab = "login"; // "login" | "registro"
+
+    // Si ya está logueado, redirigir
+    const kttId   = localStorage.getItem("ktt_id");
+    const kttRole = localStorage.getItem("ktt_role") || "user";
+    if (kttId) {
+      const map = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
+      window.location.href = map[kttRole] || "panel_autor.html";
+    }
+
+    window.setTab = function(tab) {
+      currentTab = tab;
+      document.getElementById("tabLogin").classList.toggle("active", tab === "login");
+      document.getElementById("tabReg").classList.toggle("active",   tab === "registro");
+      document.getElementById("group-user").style.display = tab === "registro" ? "block" : "none";
+      document.getElementById("btnTxt").textContent  = tab === "registro" ? "Crear cuenta" : "Conectar";
+      document.getElementById("toggleMsg").innerHTML = tab === "registro"
+        ? '¿Ya tienes cuenta? <span onclick="setTab(\'login\')">Inicia sesión</span>'
+        : '¿No tienes cuenta? <span onclick="setTab(\'registro\')">Regístrate</span>';
+      setError("");
+    };
+
+    window.onEmailInput = function() {
+      const email = document.getElementById("email").value.trim();
+      const ind   = document.getElementById("domainIndicator");
+      const badge = document.getElementById("roleBadge");
+
+      if (!email || !email.includes("@")) {
+        ind.className   = "domain-indicator";
+        ind.textContent = "Ingresa tu correo";
+        badge.style.display = "none";
+        return;
+      }
+
+      const { role, label, valid } = detectRole(email);
+
+      if (!valid) {
+        ind.className   = "domain-indicator invalid";
+        ind.textContent = "Dominio no reconocido";
+        badge.style.display = "none";
+        return;
+      }
+
+      const labels = {
+        user:  "✦ Autor",
+        mod:   "🛡 Moderador",
+        admin: "⚙ Administrador",
+        owner: "👑 Dueño / Owner"
+      };
+      const colors = { user:"#4CAF50", mod:"#f59e0b", admin:"#06b6d4", owner:"#e63e6d" };
+
+      ind.className   = `domain-indicator ${role}`;
+      ind.textContent = labels[role];
+
+      badge.style.display = "block";
+      badge.style.color   = colors[role];
+      badge.style.borderColor = colors[role];
+      badge.style.background  = colors[role] + "14";
+      badge.textContent = labels[role];
+
+      // Solo usuarios comunes pueden registrarse
+      if (role !== "user" && currentTab === "registro") {
+        setTab("login");
+        setError("El staff no puede registrarse aquí.", "#f59e0b");
+      }
+    };
+
+    function setError(msg, color = "var(--accent)") {
+      const el = document.getElementById("errMsg");
+      el.style.color = color;
+      el.textContent = msg;
+    }
+
+    function setLoading(on) {
+      document.getElementById("btnSubmit").disabled = on;
+      document.getElementById("spinner").style.display = on ? "block" : "none";
+      document.getElementById("btnTxt").style.display  = on ? "none"  : "block";
+    }
+
+    window.enviar = async function() {
+      const email = document.getElementById("email").value.trim();
+      const p     = document.getElementById("pass").value.trim();
+      const u     = document.getElementById("user").value.trim();
+
+      if (!email || !p) { setError("Completa todos los campos."); return; }
+
+      const { role, label, valid } = detectRole(email);
+      if (!valid) { setError("Dominio de correo no válido."); return; }
+
+      if (currentTab === "registro") {
+        if (role !== "user") { setError("El staff solo puede ser creado por sus superiores."); return; }
+        if (!u) { setError("Ingresa tu nombre de autor."); return; }
+      }
+
+      setLoading(true);
+      setError("");
+
+      try {
+        const action = currentTab === "registro" ? "registro" : "login";
+        const body   = { action, user: u, pass: p, email };
+
+        // Para staff, usar acción especial
+        if (action === "login" && role !== "user") {
+          body.action   = "loginStaff";
+          body.rolReq   = role;
+        }
+
+        const res  = await fetch(SCRIPT_URL, {
+          method:"POST", headers:{"Content-Type":"text/plain"},
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+
+        if (data.status === "success") {
+          if (currentTab === "registro") {
+            setError("¡Registro exitoso! Ahora inicia sesión.", "var(--accent3)");
+            setTimeout(() => { setTab("login"); document.getElementById("pass").value = ""; }, 1500);
+          } else {
+            // Verificar si está suspendido
+            if (data.suspendido) {
+              localStorage.setItem("ktt_suspension_motivo", data.motivo || "");
+              localStorage.setItem("ktt_suspension_email",  email);
+              window.location.href = "suspendido.html";
+              return;
+            }
+
+            saveSession({
+              idAutor: data.idAutor || data.idStaff,
+              nombre:  data.nombre,
+              foto:    data.foto || "",
+              rol:     data.rol  || "user",
+              email,
+            });
+
+            const map = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
+            window.location.href = map[data.rol] || "panel_autor.html";
+          }
+        } else {
+          setError(data.message || "Credenciales incorrectas.");
+        }
+      } catch (err) {
+        setError("Error de conexión. Intenta de nuevo.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    document.addEventListener("keydown", e => { if (e.key === "Enter") window.enviar(); });
+  </script>
+</body>
+</html>

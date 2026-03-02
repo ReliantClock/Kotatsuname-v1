@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cuenta Suspendida | Kotatsu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="buscador.css">
+  <style>
+    body {
+      display:flex;align-items:center;justify-content:center;
+      min-height:100vh;background:var(--bg);font-family:'Rajdhani',sans-serif;
+    }
+    .susp-card {
+      max-width:480px;width:100%;margin:20px;
+      background:var(--surface);border:1px solid rgba(230,62,109,0.4);
+      border-radius:24px;padding:3rem 2.5rem;text-align:center;
+      box-shadow:0 0 60px rgba(230,62,109,0.12);
+      animation:fadeUp 0.6s ease both;
+    }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+    .susp-icon {
+      font-size:4rem;margin-bottom:1.5rem;
+      display:block;animation:pulse 2s ease infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+    .susp-title {
+      font-family:'Cinzel Decorative';font-size:1.5rem;
+      color:var(--accent);margin-bottom:0.5rem;letter-spacing:0.05em;
+    }
+    .susp-sub {
+      color:var(--text-muted);font-size:0.85rem;letter-spacing:0.15em;
+      text-transform:uppercase;margin-bottom:2rem;
+    }
+    .susp-motivo {
+      background:rgba(230,62,109,0.06);border:1px solid rgba(230,62,109,0.2);
+      border-radius:12px;padding:1.2rem 1.5rem;margin-bottom:2rem;
+      font-size:0.95rem;line-height:1.6;color:var(--text);text-align:left;
+    }
+    .susp-motivo strong {
+      display:block;color:var(--accent);font-size:0.7rem;
+      letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;
+    }
+
+    .susp-actions {display:flex;flex-direction:column;gap:12px;}
+    .btn-contact {
+      display:block;text-decoration:none;padding:14px;border-radius:50px;
+      font-family:'Rajdhani';font-weight:700;font-size:0.9rem;
+      text-transform:uppercase;letter-spacing:0.1em;transition:0.3s;text-align:center;
+    }
+    .btn-contact.primary {
+      background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;
+      box-shadow:0 6px 20px rgba(230,62,109,0.3);
+    }
+    .btn-contact.primary:hover{transform:translateY(-2px);filter:brightness(1.1);}
+    .btn-contact.secondary {
+      background:transparent;color:var(--accent3);
+      border:1px solid var(--accent3);
+    }
+    .btn-contact.secondary:hover{background:rgba(6,182,212,0.1);}
+    .btn-back {
+      background:none;border:none;color:var(--text-muted);
+      font-family:'Rajdhani';font-size:0.85rem;cursor:pointer;
+      margin-top:16px;display:block;width:100%;text-align:center;
+      transition:color 0.2s;
+    }
+    .btn-back:hover{color:var(--text);}
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <div class="susp-card">
+    <span class="susp-icon">🚫</span>
+    <h1 class="susp-title">Cuenta Suspendida</h1>
+    <p class="susp-sub">Tu acceso ha sido restringido</p>
+
+    <div class="susp-motivo">
+      <strong>Motivo de la suspensión</strong>
+      <span id="motivoTexto">No se proporcionó un motivo específico.</span>
+    </div>
+
+    <div class="susp-actions">
+      <a id="btnContactMod" href="mailto:staff@kotatsuname.com?subject=Apelacion%20de%20suspension" class="btn-contact primary">
+        ✉ Contactar al Staff
+      </a>
+      <a href="mailto:moderacion@kotatsuname.com?subject=Apelacion%20suspension%20cuenta" class="btn-contact secondary">
+        📋 Apelar Decisión
+      </a>
+    </div>
+
+    <button class="btn-back" onclick="volver()">← Volver al inicio</button>
+  </div>
+
+  <script>
+    const motivo = localStorage.getItem("ktt_suspension_motivo") || "";
+    const email  = localStorage.getItem("ktt_suspension_email")  || "";
+
+    document.getElementById("motivoTexto").textContent = motivo || "Incumplimiento de los términos de uso.";
+
+    if (email) {
+      document.getElementById("btnContactMod").href =
+        `mailto:staff@kotatsuname.com?subject=Apelacion%20de%20suspension&body=Mi%20cuenta:%20${encodeURIComponent(email)}%0A%0AMotivo%20indicado:%20${encodeURIComponent(motivo)}`;
+    }
+
+    function volver() {
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>
