@@ -17,174 +17,176 @@
     }
   </script>
   <style>
-    /* ═══════════════════════════════
-       NAVEGACIÓN FIJA (STICKY)
-    ═══════════════════════════════ */
-    .top-bar {
+    /* ── Sticky header (solo aplica a esta página) ── */
+    .sticky-header {
       position: sticky;
       top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 1000;
+      z-index: 999;
+      background: rgba(10,10,15,0.96);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      /* Rompe el padding del wrapper para ir de borde a borde */
+      margin: -48px -20px 24px;
+      padding: 10px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 16px;
-      background: rgba(10, 10, 15, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      box-sizing: border-box;
-    }
-
-    .top-bar-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .nav-logo-small {
-      font-family: 'Cinzel Decorative', cursive;
-      font-size: 0.9rem;
-      color: var(--accent);
-      letter-spacing: 0.1em;
-      cursor: pointer;
-      text-decoration: none;
-      transition: 0.3s;
-    }
-    .nav-logo-small:hover { text-shadow: 0 0 10px var(--accent); }
-
-   .refresh-btn {
-  text-decoration: none !important; /* Fuerza la eliminación del subrayado */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0; /* Evita que el símbolo cree espacio extra abajo */
-  outline: none;
-  color:var(--accent);
-}
-
-.refresh-btn:hover, 
-.refresh-btn:active, 
-.refresh-btn:focus {
-  text-decoration: none !important;
-  outline: none;
-}
-
-
-
-    .top-bar-right {
-      display: flex;
-      align-items: center;
       gap: 10px;
     }
-
-    .nav-btn {
-      text-decoration:none; background:transparent; padding:6px 12px; border-radius:5px; color:#fff; 
-      font-family:var(--font-body); font-size:0.75rem; font-weight:600; letter-spacing:0.08em; 
-      border:1px solid var(--accent); white-space:nowrap; cursor:pointer; transition:all 0.3s;
+    .sticky-left  { display:flex;align-items:center;gap:10px; }
+    .sticky-right { display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+    .sticky-brand {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      white-space: nowrap;
     }
-    .nav-btn:hover { background:var(--accent); box-shadow:0 0 15px var(--accent); }
+
+    /* Botones de nav (solo aquí, no afecta otros HTML) */
+    .nav-btn {
+      text-decoration:none;background:transparent;padding:7px 14px;
+      border-radius:5px;color:#fff;font-family:var(--font-body);
+      font-size:0.78rem;font-weight:600;letter-spacing:0.08em;
+      border:1px solid var(--accent);white-space:nowrap;
+      cursor:pointer;transition:all 0.3s;
+    }
+    .nav-btn:hover { background:var(--accent);box-shadow:0 0 15px var(--accent); }
+
+    .refresh-btn {
+      text-decoration:none;background:transparent;padding:7px 10px;
+      border-radius:50%;color:#fff;font-family:var(--font-body);
+      font-size:0.9rem;font-weight:600;border:1px solid var(--accent);
+      white-space:nowrap;cursor:pointer;transition:all 0.3s;line-height:1;
+    }
+    .refresh-btn:hover { background:var(--accent);box-shadow:0 0 15px var(--accent); }
 
     .user-chip {
-      display:none; align-items:center; gap:8px; background:var(--surface); 
-      border:1px solid var(--border); border-radius:50px; padding:4px 10px 4px 5px; 
-      cursor:pointer; transition:0.2s;
+      display:none;align-items:center;gap:8px;background:var(--surface);
+      border:1px solid var(--border);border-radius:50px;
+      padding:5px 12px 5px 6px;cursor:pointer;transition:0.2s;
     }
-    .user-chip img { width:24px; height:24px; border-radius:50%; object-fit:cover; border:1px solid var(--accent); }
-    .user-chip span { font-size: 0.75rem; font-weight:600; color:var(--text); }
+    .user-chip:hover { border-color:var(--accent); }
+    .user-chip img  { width:24px;height:24px;border-radius:50%;object-fit:cover;border:1px solid var(--accent); }
+    .user-chip span { font-size:0.78rem;font-weight:600;color:var(--text); }
 
-    .wrapper { padding-top: 10px; }
+    /* ── Carrusel ── */
+    .carousel-section  { margin-bottom:44px; }
+    .carousel-header   { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px; }
+    .carousel-title    { font-family:var(--font-display);font-size:0.82rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted); }
+    .carousel-controls { display:flex;gap:8px;align-items:center; }
+    .carousel-arrow    { background:none;border:1px solid var(--border);color:var(--text-muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.25rem;font-weight:700;line-height:1;transition:0.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .carousel-arrow:hover { border-color:var(--accent);color:var(--accent); }
+    .btn-shuffle       { background:none;border:1px solid var(--border);color:var(--accent3);font-family:var(--font-body);font-size:0.72rem;font-weight:700;padding:9px 12px;border-radius:20px;cursor:pointer;transition:0.25s;letter-spacing:0.1em;text-transform:uppercase; }
+    .btn-shuffle:hover { background:rgba(6,182,212,0.08);border-color:var(--accent3); }
+    .carousel-outer    { overflow:hidden;border-radius:14px;touch-action:pan-y;user-select:none;cursor:grab; }
+    .carousel-outer:active { cursor:grabbing; }
+    .carousel-track    { display:flex;gap:12px;transition:transform 0.42s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform; }
+    .carousel-track.no-anim { transition:none; }
+    .c-slide           { flex:0 0 auto;width:clamp(148px,31vw,228px);border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--surface);transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;cursor:pointer; }
+    .c-slide:hover     { transform:translateY(-5px);border-color:rgba(230,62,109,0.55);box-shadow:0 10px 28px rgba(230,62,109,0.18); }
+    .c-slide img       { width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:var(--surface2);pointer-events:none; }
+    .c-slide-ph        { width:100%;aspect-ratio:2/3;background:linear-gradient(135deg,var(--surface2),#1a1a28);display:flex;align-items:center;justify-content:center;font-size:2.8rem; }
+    .c-info            { padding:9px 11px 12px; }
+    .c-title           { font-size:0.83rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px; }
+    .c-meta            { display:flex;gap:5px;align-items:center;flex-wrap:wrap; }
+    .c-genre           { background:rgba(230,62,109,0.12);color:var(--accent);padding:1px 7px;border-radius:9px;border:1px solid rgba(230,62,109,0.25);font-size:0.6rem;font-weight:700;white-space:nowrap; }
+    .c-caps            { font-size:0.65rem;color:var(--text-muted);font-weight:600; }
+    .carousel-dots     { display:flex;gap:6px;justify-content:center;margin-top:11px;flex-wrap:wrap; }
+    .c-dot             { width:7px;height:7px;border-radius:50%;background:var(--border);border:none;padding:0;cursor:pointer;transition:all 0.25s;flex-shrink:0; }
+    .c-dot.active      { background:var(--accent);width:22px;border-radius:4px; }
+    .skeleton          { background:linear-gradient(90deg,var(--surface2) 25%,#1e1e2e 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.6s infinite;border-radius:12px; }
+    @keyframes shimmer { 0%{background-position:200% 0}100%{background-position:-200% 0} }
+    .skel-slide        { flex:0 0 clamp(148px,31vw,228px);aspect-ratio:2/3; }
 
-    /* ═══════════════════════════════
-       CARRUSEL (DISEÑO RESTAURADO)
-    ═══════════════════════════════ */
-    .carousel-section{margin-bottom:44px; margin-top: 20px;}
-    .carousel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;}
-    .carousel-title{font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);}
-    .carousel-controls{display:flex;gap:8px;align-items:center;}
-    .carousel-arrow{background:none;border:1px solid var(--border);color:var(--text-muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.25rem;font-weight:700;line-height:1;transition:0.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .carousel-arrow:hover{border-color:var(--accent);color:var(--accent);}
-    .btn-shuffle{background:none;border:1px solid var(--border);color:var(--accent3);font-family:var(--font-body);font-size:0.72rem;font-weight:700;padding:10px 12px;border-radius:20px;cursor:pointer;transition:0.25s;letter-spacing:0.1em;text-transform:uppercase;}
+    /* ── Toggle géneros ── */
+    .genres-collapsed .genre-extra { display:none !important; }
+    .genres-expanded  .genre-extra { display:inline-flex !important; }
 
-    .carousel-outer{overflow:hidden;border-radius:14px;touch-action:pan-y;user-select:none;cursor:grab;}
-    .carousel-track{display:flex;gap:12px;transition:transform 0.42s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;}
-    .carousel-track.no-anim { transition: none; }
+    /* ── PWA ── */
+    #pwaInstallBtn { display:none; }
 
-    /* Tarjetas del carrusel con diseño */
-    .c-slide{flex:0 0 auto;width:clamp(148px,31vw,228px);border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--surface);transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;cursor:pointer;}
-    .c-slide:hover{transform:translateY(-5px);border-color:rgba(230,62,109,0.55);box-shadow:0 10px 28px rgba(230,62,109,0.18);}
-    .c-slide img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:var(--surface2);pointer-events:none;}
-    .c-slide-ph{width:100%;aspect-ratio:2/3;background:linear-gradient(135deg,var(--surface2),#1a1a28);display:flex;align-items:center;justify-content:center;font-size:2.8rem;}
-    
-    .c-info{padding:9px 11px 12px;}
-    .c-title{font-size:0.83rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px;}
-    .c-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
-    .c-genre{background:rgba(230,62,109,0.12);color:var(--accent);padding:1px 7px;border-radius:9px;border:1px solid rgba(230,62,109,0.25);font-size:0.6rem;font-weight:700;white-space:nowrap;}
-    .c-caps{font-size:0.65rem;color:var(--text-muted);font-weight:600;}
-
-    .carousel-dots{display:flex;gap:6px;justify-content:center;margin-top:11px;flex-wrap:wrap;}
-    .c-dot{width:7px;height:7px;border-radius:50%;background:var(--border);border:none;padding:0;cursor:pointer;transition:all 0.25s;flex-shrink:0;}
-    .c-dot.active{background:var(--accent);width:22px;border-radius:4px;}
-
-    /* Otros estilos */
-    .genres-collapsed .genre-extra{display:none;}
-    .genres-expanded  .genre-extra{display:inline-flex;}
-    #pwaInstallBtn{display:none;}
-
-    .guide-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:10000;align-items:center;justify-content:center;padding:20px;}
-    .guide-overlay.active{display:flex;}
-    .guide-card{background:var(--surface);border:1px solid var(--accent);width:100%;max-width:400px;padding:25px;border-radius:var(--radius);position:relative;box-shadow:0 10px 30px rgba(0,0,0,0.5);}
-    .btn-apk { background: #00c853 !important; border-color: #00c853 !important; }
-    .hidden-btn { display: none !important; }
+    .guide-overlay {
+      display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);
+      z-index:10000;justify-content:center;align-items:flex-start;
+      padding:20px;overflow-y:auto;
+    }
+    .guide-overlay.active { display:flex; }
+    .guide-card {
+      background:var(--surface);border:1px solid var(--accent);
+      width:100%;max-width:400px;padding:25px;
+      border-radius:var(--radius);position:relative;
+      box-shadow:0 10px 30px rgba(0,0,0,0.5);margin:auto;
+    }
+    .guide-title  { font-family:var(--font-display);color:var(--accent);margin-bottom:20px;font-size:1.1rem;text-align:center; }
+    .guide-step   { display:flex;gap:15px;margin-bottom:15px;align-items:flex-start; }
+    .step-num     { background:var(--accent);color:#fff;min-width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0; }
+    .guide-step p { margin:0;font-family:var(--font-body);color:var(--text);line-height:1.4; }
+    .guide-close  { position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem; }
   </style>
 </head>
 <body>
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
 
-  <div class="top-bar">
-    <div class="top-bar-left">
-      <a href="index.html" class="refresh-btn" title="Volver al Inicio">&#8635;</a>
-      <span class="nav-logo-small" onclick="resetAllFilters()">KOTATSUNAME</span>
-    </div>
-    <div class="top-bar-right">
-      <div class="user-chip" id="userChip" onclick="irAlPanel()">
-        <img id="chipAvatar" src="data:image/svg+xml,<svg viewBox='0 0 1 1' fill='%231a1a28' xmlns='http://www.w3.org/2000/svg'><rect width='1' height='1'/></svg>" alt="Avatar" />
-        <span id="chipName">Usuario</span>
-      </div>
-      <a href="registrarse.html" class="nav-btn" id="btnAcceso">&#128100; Acceder</a>
-      <button id="pwaInstallBtn" class="nav-btn">INSTALAR APP</button>
-    </div>
-  </div>
-
   <div class="wrapper">
+
+    <!-- ══ STICKY HEADER ══ -->
+    <div class="sticky-header">
+      <div class="sticky-left">
+        <a href="index.html" class="refresh-btn" title="Inicio">&#8635;</a>
+        <span class="sticky-brand">KOTATSUNAME</span>
+      </div>
+      <div class="sticky-right">
+        <div class="user-chip" id="userChip" onclick="irAlPanel()">
+          <img id="chipAvatar"
+            src="data:image/svg+xml,<svg viewBox='0 0 1 1' fill='%231a1a28' xmlns='http://www.w3.org/2000/svg'><rect width='1' height='1'/></svg>"
+            alt="Avatar" />
+          <span id="chipName">Usuario</span>        <a href="registrarse.html" class="nav-btn" id="btnAcceso">&#128100; Acceder</a>
+        <button id="pwaInstallBtn" class="nav-btn">APP</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- HEADER DECORATIVO -->
     <header class="header">
       <h1 class="logo">&#26665; BIBLIOTECA KOTATSU</h1>
       <p class="tagline">Crónicas, relatos y leyendas originales</p>
     </header>
 
+    <!-- ══ CARRUSEL DESTACADAS ══ -->
     <section class="carousel-section" id="recSection">
       <div class="carousel-header">
         <span class="carousel-title">&#10022; Destacadas</span>
         <div class="carousel-controls">
-          <button class="carousel-arrow" onclick="carouselPrev()">&#8249;</button>
-          <button class="carousel-arrow" onclick="carouselNext()">&#8250;</button>
-          <button class="btn-shuffle" onclick="shuffleCarousel()">&#8635; </button>
+          <button class="carousel-arrow" onclick="carouselPrev()" aria-label="Anterior">&#8249;</button>
+          <button class="carousel-arrow" onclick="carouselNext()" aria-label="Siguiente">&#8250;</button>
+          <button class="btn-shuffle" onclick="shuffleCarousel()">&#8635;</button>
         </div>
       </div>
       <div class="carousel-outer" id="carouselOuter">
         <div class="carousel-track" id="carouselTrack">
-          </div>
+          <div class="skeleton skel-slide"></div>
+          <div class="skeleton skel-slide"></div>
+          <div class="skeleton skel-slide"></div>
+          <div class="skeleton skel-slide"></div>
+          <div class="skeleton skel-slide"></div>
+        </div>
       </div>
       <div class="carousel-dots" id="carouselDots"></div>
     </section>
 
+    <!-- BARRA DE BÚSQUEDA -->
     <div class="search-bar">
       <span class="search-icon"></span>
       <input type="text" id="searchInput" placeholder="Buscar por título o autor..." autocomplete="off" />
       <button id="clearBtn" class="clear-btn" title="Limpiar">&#10005;</button>
     </div>
 
+    <!-- FILTROS -->
     <div class="filters-panel">
       <div class="filter-group">
         <div class="filter-label-row">
@@ -200,34 +202,56 @@
           <button class="tag" data-filter="genero" data-value="acción">Acción</button>
           <button class="tag" data-filter="genero" data-value="misterio">Misterio</button>
           <button class="tag" data-filter="genero" data-value="drama">Drama</button>
-          </div>
+          <button class="tag genre-extra" data-filter="genero" data-value="aventura">Aventura</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="psicológico">Psicológico</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="one-shot">One-shot</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="poesía">Poesía</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="ciencia-ficción">Sci-Fi</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="comedia">Comedia</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="histórico">Histórico</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="sobrenatural">Sobrenatural</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="suspenso">Suspenso</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="slice-of-life">Slice of Life</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="distopía">Distopía</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="mitología">Mitología</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="isekai">Isekai</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="cyberpunk">Cyberpunk</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="steampunk">Steampunk</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="LitRPG">LitRPG</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="harem">Harem</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="magia">Magia</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="deportes">Deportes</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="escolar">Escolar</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="yaoi">Yaoi</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="yuri">Yuri</button>
+          <button class="tag genre-extra" data-filter="genero" data-value="gore">Gore</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button id="resetFilters" class="reset-btn">&#8634; Resetear Flitros</button>
       </div>
     </div>
 
+    <!-- CONTADOR -->
     <div class="results-header">
       <span id="resultCount" class="result-count">Cargando biblioteca...</span>
     </div>
+
+    <!-- GRID PRINCIPAL -->
     <div id="resultsGrid" class="results-grid"></div>
+
+    <!-- EMPTY STATE -->
     <div id="emptyState" class="empty-state hidden">
-      <p>No se encontraron relatos...</p>
+      <span class="empty-icon"></span>
+      <p>No se encontraron relatos en los archivos...</p>
     </div>
-  </div>
 
-  <div id="pwaModal" class="guide-overlay">
-    <div class="guide-card">
-      <button class="guide-close" id="closeGuide" style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;cursor:pointer;font-size:1.2rem;">&#10005;</button>
-      <div class="guide-title" style="font-family:var(--font-display);color:var(--accent);margin-bottom:20px;font-size:1.1rem;text-align:center;">INSTALACIÓN</div>
-      <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.4; margin-bottom:15px;">Para una mejor experiencia, instala la aplicación en tu dispositivo.</p>
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        <button class="nav-btn" id="btnEntendido">ENTENDIDO</button>
-        <a href="#" class="nav-btn btn-apk hidden-btn" id="btnDownloadApk" style="text-align:center; text-decoration:none;">DESCARGAR APK</a>
-      </div>
-    </div>
-  </div>
+  </div><!-- /wrapper -->
 
-  <div id="modal" class="modal-backdrop">
+  <!-- ══ MODAL OBRA ══ -->
+  <div id="modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-box">
-      <button class="modal-close" id="modalClose">&#10005;</button>
+      <button class="modal-close" id="modalClose" aria-label="Cerrar">&#10005;</button>
       <div class="modal-cover" id="modalCover"></div>
       <div class="modal-content">
         <div class="modal-badge" id="modalBadge">Escrito Original</div>
@@ -242,45 +266,115 @@
     </div>
   </div>
 
+  <!-- ══ PWA MODAL ══ -->
+  <div id="pwaModal" class="guide-overlay">
+    <div class="guide-card">
+      <button class="guide-close" id="closeGuide">&#10005;</button>
+      <div class="guide-title">INSTALACIÓN</div>
+      <div class="guide-step">
+        <div class="step-num">1</div>
+        <p>Toca los <strong>tres puntos (&#8942;)</strong> en el navegador.</p>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">2</div>
+        <p>Selecciona <strong>"Agregar a la pantalla principal"</strong>.</p>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">3</div>
+        <p>Pulsa en <strong>"Instalar"</strong>.</p>
+      </div>
+      <!-- Botones dinámicos inyectados por JS -->
+      <div id="pwaActions" style="margin-top:20px;display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+  </div>
+
+  <!-- ══ SCRIPTS ══ -->
   <script>
-    (function(){
-      const id = localStorage.getItem("ktt_id");
-      if (id) {
-        document.getElementById("btnAcceso").style.display = "none";
-        document.getElementById("userChip").style.display = "flex";
-        document.getElementById("chipName").textContent = localStorage.getItem("ktt_user") || "Usuario";
-        if (localStorage.getItem("ktt_foto")) document.getElementById("chipAvatar").src = localStorage.getItem("ktt_foto");
+    /* ── PWA ── */
+    (function () {
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
+
+      const installBtn = document.getElementById('pwaInstallBtn');
+      const pwaModal   = document.getElementById('pwaModal');
+      const closeBtn   = document.getElementById('closeGuide');
+      const actions    = document.getElementById('pwaActions');
+
+      // Ya instalada → ocultar botón y salir
+      if (isStandalone) {
+        if (installBtn) installBtn.style.display = 'none';
+        return;
       }
 
-      const pwaBtn = document.getElementById('pwaInstallBtn');
-      const pwaModal = document.getElementById('pwaModal');
-      const btnE = document.getElementById('btnEntendido');
-      const btnA = document.getElementById('btnDownloadApk');
-      const closeG = document.getElementById('closeGuide');
+      if (installBtn) installBtn.style.display = 'inline-block';
 
-      const toggleAndClose = () => {
-        pwaModal.classList.remove('active');
-        let state = localStorage.getItem("pwa_btn_state") === "apk" ? "ok" : "apk";
-        localStorage.setItem("pwa_btn_state", state);
-      };
+      function getCount() { return parseInt(sessionStorage.getItem('pwaOpenCount') || '0', 10); }
+      function incCount() { sessionStorage.setItem('pwaOpenCount', String(getCount() + 1)); }
 
-      if(pwaBtn) pwaBtn.onclick = () => {
-        const isApk = localStorage.getItem("pwa_btn_state") === "apk";
-        btnE.classList.toggle('hidden-btn', isApk);
-        btnA.classList.toggle('hidden-btn', !isApk);
-        pwaModal.classList.add('active');
-      };
-      if(btnE) btnE.onclick = toggleAndClose;
-      if(btnA) btnA.onclick = toggleAndClose;
-      if(closeG) closeG.onclick = toggleAndClose;
+      function buildActions() {
+        if (!actions) return;
+        actions.innerHTML = '';
+        if (getCount() === 0) {
+          // Primera vez → solo "Entendido"
+          const btn = document.createElement('button');
+          btn.className   = 'nav-btn';
+          btn.style.width = '100%';
+          btn.textContent = 'ENTENDIDO';
+          btn.onclick     = cerrar;
+          actions.appendChild(btn);
+        } else {
+          // Siguientes veces → botón APK + cerrar
+          const apk = document.createElement('a');
+          apk.className     = 'nav-btn';
+          apk.style.cssText = 'width:100%;text-align:center;display:block;';
+          apk.href          = '#'; // ← pon aquí el link real del APK
+          apk.target        = '_blank';
+          apk.rel           = 'noopener';
+          apk.textContent   = 'DESCARGAR APK';
+          actions.appendChild(apk);
+
+          const cls = document.createElement('button');
+          cls.className     = 'nav-btn';
+          cls.style.cssText = 'width:100%;opacity:0.65;';
+          cls.textContent   = 'CERRAR';
+          cls.onclick       = cerrar;
+          actions.appendChild(cls);
+        }
+      }
+
+      function abrir() { buildActions(); pwaModal.classList.add('active'); }
+      function cerrar() { pwaModal.classList.remove('active'); incCount(); }
+
+      if (installBtn) installBtn.addEventListener('click', abrir);
+      if (closeBtn)   closeBtn.addEventListener('click', cerrar);
+      pwaModal.addEventListener('click', e => { if (e.target === pwaModal) cerrar(); });
     })();
 
-    window.irAlPanel = function() {
-      const role = localStorage.getItem("ktt_role") || "user";
-      const map  = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
-      window.location.href = map[role] || "panel_autor.html";
+    /* ── User chip ── */
+    (function () {
+      const id   = localStorage.getItem('ktt_id');
+      const user = localStorage.getItem('ktt_user');
+      const foto = localStorage.getItem('ktt_foto');
+      if (id) {
+        const btnAcceso = document.getElementById('btnAcceso');
+        if (btnAcceso) btnAcceso.style.display = 'none';
+        const chip = document.getElementById('userChip');
+        if (chip) chip.style.display = 'flex';
+        const nameEl = document.getElementById('chipName');
+        if (nameEl) nameEl.textContent = user || 'Usuario';
+        const avatarEl = document.getElementById('chipAvatar');
+        if (foto && avatarEl) avatarEl.src = foto;
+      }
+    })();
+
+    window.irAlPanel = function () {
+      const role = localStorage.getItem('ktt_role') || 'user';
+      const map  = { owner:'panel_owner.html', admin:'panel_admin.html', mod:'panel_mod.html' };
+      window.location.href = map[role] || 'panel_autor.html';
     };
   </script>
+
   <script type="module" src="escritos_buscador.js"></script>
 </body>
 </html>
