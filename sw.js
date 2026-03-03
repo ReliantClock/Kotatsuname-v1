@@ -19,6 +19,7 @@ const ASSETS = [
   '/panel_autor.html',
   '/panel_admin.html',
   '/manifest.json',
+  '/adit_autor.html',
   '/buscador.css',
   '/ICONO_192.png',
   '/ICONO_512.png',
