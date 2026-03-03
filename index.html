@@ -144,10 +144,10 @@
           <img id="chipAvatar"
             src="data:image/svg+xml,<svg viewBox='0 0 1 1' fill='%231a1a28' xmlns='http://www.w3.org/2000/svg'><rect width='1' height='1'/></svg>"
             alt="Avatar" />
-          <span id="chipName">Usuario</span>        <a href="registrarse.html" class="nav-btn" id="btnAcceso">&#128100; Acceder</a>
-        <button id="pwaInstallBtn" class="nav-btn">APP</button>
+          <span id="chipName">Usuario</span>
         </div>
-
+        <a href="registrarse.html" class="nav-btn" id="btnAcceso">Iniciar Sesión</a>
+        <button id="pwaInstallBtn" class="nav-btn">APP</button>
       </div>
     </div>
 
@@ -228,7 +228,7 @@
         </div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-        <button id="resetFilters" class="reset-btn">&#8634; Resetear Flitros</button>
+        <button id="resetFilters" class="reset-btn">&#8634; Resetear Biblioteca</button>
       </div>
     </div>
 
@@ -356,15 +356,22 @@
       const id   = localStorage.getItem('ktt_id');
       const user = localStorage.getItem('ktt_user');
       const foto = localStorage.getItem('ktt_foto');
-      if (id) {
-        const btnAcceso = document.getElementById('btnAcceso');
+
+      const btnAcceso = document.getElementById('btnAcceso');
+      const chip      = document.getElementById('userChip');
+
+      // Solo mostrar chip si hay un id real (no vacío, no null)
+      if (id && id.trim() !== '') {
         if (btnAcceso) btnAcceso.style.display = 'none';
-        const chip = document.getElementById('userChip');
         if (chip) chip.style.display = 'flex';
         const nameEl = document.getElementById('chipName');
-        if (nameEl) nameEl.textContent = user || 'Usuario';
+        if (nameEl) nameEl.textContent = (user && user.trim()) ? user : 'Usuario';
         const avatarEl = document.getElementById('chipAvatar');
-        if (foto && avatarEl) avatarEl.src = foto;
+        if (foto && foto.trim() && avatarEl) avatarEl.src = foto;
+      } else {
+        // Sin sesión: mostrar botón Acceder, ocultar chip
+        if (btnAcceso) btnAcceso.style.display = 'inline-block';
+        if (chip) chip.style.display = 'none';
       }
     })();
 
