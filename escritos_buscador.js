@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * escritos_buscador.js — Optimizado: Carrusel 6 & Lazy Load
+ * escritos_buscador.js — Restaurado y Corregido
  * ============================================================
  */
 import { loadEscritos } from "./escritos_data.js";
@@ -10,8 +10,7 @@ let filteredEscritos = [];
 const filters = { query: "", genero: "" };
 
 // Configuración de Lazy Load
-let itemsToShow = 12; 
-const increment = 10; // Cuántos cargar al hacer scroll
+const increment = 10; 
 
 const grid  = document.getElementById("resultsGrid");
 const count = document.getElementById("resultCount");
@@ -24,7 +23,6 @@ async function init() {
   count.textContent = "Cargando biblioteca...";
   const data = await loadEscritos();
   
-  // Solo mostrar obras aprobadas
   ESCRITOS = data.filter(e => {
     const ap = (e.aprobacion || "").toLowerCase();
     return ap === "aprobado" || ap === "true" || ap === "";
@@ -35,22 +33,11 @@ async function init() {
   renderRecomendadas();
   setupLazyLoad(); 
 
-  // Inyectar estilos para el efecto de "luces" (secuencial)
   const style = document.createElement("style");
   style.textContent = `
-    .card {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    .card.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .author-link {
-      color: var(--accent3); text-decoration: none; font-weight: 700;
-      border-bottom: 1px dashed var(--accent3); transition: 0.2s;
-    }
+    .card { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .card.visible { opacity: 1; transform: translateY(0); }
+    .author-link { color: var(--accent3); text-decoration: none; font-weight: 700; border-bottom: 1px dashed var(--accent3); transition: 0.2s; }
     .author-link:hover { color: #fff; border-bottom-color: #fff; }
     #lazy-sentinel { height: 50px; width: 100%; margin-top: 20px; }
   `;
@@ -58,7 +45,7 @@ async function init() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  CARRUSEL (LIMITADO A 6 PARA EVITAR LAG)
+//  CARRUSEL (TARJETAS CORREGIDAS)
 // ═══════════════════════════════════════════════════════
 let _cPicks  = [];   
 let _cIndex  = 0;    
@@ -67,7 +54,6 @@ let _cTimer  = null;
 function renderRecomendadas() {
   if (!ESCRITOS.length) return;
   _cIndex = 0;
-  // Solo escogemos 6 para mayor fluidez
   _cPicks = [...ESCRITOS].sort(() => Math.random() - 0.5).slice(0, 6);
   _cBuild();
 }
@@ -78,18 +64,33 @@ function _cBuild() {
   if (!track) return;
 
   track.innerHTML = _cPicks.map((item, i) => {
+    // CORRECCIÓN: Estructura interna idéntica a las tarjetas del grid
     const genre = item.generos[0] ? `<span class="c-genre">${item.generos[0]}</span>` : "";
     const caps  = `${item.capitulos} cap${item.capitulos !== 1 ? "s" : ""}`;
     const cover = item.cover
       ? `<img src="${item.cover}" alt="${item.titulo}" loading="lazy" onerror="this.outerHTML='<div class=\\'c-slide-ph\\'>&#128218;</div>'" />`
       : `<div class="c-slide-ph">&#128218;</div>`;
-    return `<div class="c-slide" data-i="${i}">${cover}<div class="c-info"><div class="c-title">${item.titulo}</div><div class="c-meta">${genre}<span class="c-caps">${caps}</span></div></div></div>`;
+      
+    return `
+      <div class="c-slide" data-i="${i}">
+        ${cover}
+        <div class="c-info">
+          <div class="c-title">${item.titulo}</div>
+          <div class="c-meta">
+            ${genre}
+            <span class="c-caps">${caps}</span>
+          </div>
+        </div>
+      </div>`;
   }).join("");
 
   if (dots) {
     dots.innerHTML = _cPicks.map((_, i) =>
-      `<button class="c-dot${i === 0 ? " active" : ""}" onclick="carouselGoTo(${i})" aria-label="Slide ${i+1}"></button>`
+      `<button class="c-dot${i === 0 ? " active" : ""}" data-idx="${i}" aria-label="Slide ${i+1}"></button>`
     ).join("");
+    dots.querySelectorAll(".c-dot").forEach(dot => {
+        dot.onclick = () => window.carouselGoTo(parseInt(dot.dataset.idx));
+    });
   }
 
   track.querySelectorAll(".c-slide").forEach(s =>
@@ -184,9 +185,25 @@ window.shuffleCarousel = function() {
 };
 
 // ─────────────────────────────────────────────
-//  LAZY LOAD Y EFECTO DE APARICIÓN SECUENCIAL
+//  RESET LÓGICO
 // ─────────────────────────────────────────────
+window.resetAllFilters = function() {
+  filters.query = "";
+  filters.genero = "";
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.value = "";
+    document.getElementById("clearBtn")?.classList.remove("visible");
+  }
+  document.querySelectorAll("#generoFilter .tag").forEach(t => {
+    t.classList.toggle("active", t.dataset.value === "");
+  });
+  applyFiltersAndRender();
+};
 
+// ─────────────────────────────────────────────
+//  FILTROS Y RENDER
+// ─────────────────────────────────────────────
 function applyFiltersAndRender() {
   filteredEscritos = ESCRITOS.filter(item => {
     const q = filters.query.toLowerCase();
@@ -204,15 +221,12 @@ function applyFiltersAndRender() {
 
 function renderNextBlock() {
   const start = grid.querySelectorAll(".card").length;
-  const end = Math.min(start + increment, filteredEscritos.length);
-  const chunk = filteredEscritos.slice(start, end);
+  const chunk = filteredEscritos.slice(start, start + increment);
 
   chunk.forEach((item, i) => {
     const card = document.createElement("div");
     card.className = "card";
-
-    const genresHtml = item.generos.slice(0, 3)
-      .map(g => `<span class="card-genre">${g}</span>`).join("");
+    const genresHtml = item.generos.slice(0, 3).map(g => `<span class="card-genre">${g}</span>`).join("");
 
     card.innerHTML = `
       <div class="card-cover">
@@ -227,29 +241,22 @@ function renderNextBlock() {
     
     card.addEventListener("click", () => openModal(item));
     grid.appendChild(card);
-
-    // EFECTO "ENCENDER LUCES": Delay progresivo para cada tarjeta del bloque
-    setTimeout(() => {
-      card.classList.add("visible");
-    }, i * 100); // 100ms de diferencia entre cada una
+    setTimeout(() => card.classList.add("visible"), i * 100);
   });
 }
 
 function setupLazyLoad() {
-  // Crear centinela si no existe
   let sentinel = document.getElementById("lazy-sentinel");
   if (!sentinel) {
     sentinel = document.createElement("div");
     sentinel.id = "lazy-sentinel";
     grid.after(sentinel);
   }
-
   const observer = new IntersectionObserver((entries) => {
     if (entries[0].isIntersecting && filteredEscritos.length > grid.querySelectorAll(".card").length) {
       renderNextBlock();
     }
   }, { rootMargin: "150px" });
-
   observer.observe(sentinel);
 }
 
@@ -309,9 +316,6 @@ function setupEventListeners() {
 
   document.getElementById("modalClose").addEventListener("click", closeModal);
   modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
-  document.getElementById("resetFilters").addEventListener("click", () => {
-    location.reload(); // Forma más limpia de resetear todo el estado
-  });
 }
 
 init();
