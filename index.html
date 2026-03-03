@@ -17,92 +17,72 @@
     }
   </script>
   <style>
-     .btn-refresh {
-      text-decoration:none;background:transparent;padding:8px 10px;border-radius: 100%;
-      color:#fff;font-family:var(--font-body);font-size:0.8rem;font-weight:600;
-      letter-spacing:0.08em;border:1px solid var(--accent);white-space:nowrap;
-      cursor:pointer;transition:all 0.3s;
-    }
-    .btn-refresh:hover{background:var(--accent);box-shadow:0 0 15px var(--accent);}
-
-    .nav-btn {
-      text-decoration:none;background:transparent;padding:8px 15px;border-radius:5px;
-      color:#fff;font-family:var(--font-body);font-size:0.8rem;font-weight:600;
-      letter-spacing:0.08em;border:1px solid var(--accent);white-space:nowrap;
-      cursor:pointer;transition:all 0.3s;
-    }
+    .nav-btn{text-decoration:none;background:transparent;padding:8px 15px;border-radius:5px;color:#fff;font-family:var(--font-body);font-size:0.8rem;font-weight:600;letter-spacing:0.08em;border:1px solid var(--accent);white-space:nowrap;cursor:pointer;transition:all 0.3s;}
     .nav-btn:hover{background:var(--accent);box-shadow:0 0 15px var(--accent);}
+       .refresh-btn{text-decoration:none;background:transparent;padding:8px 10px;border-radius:100%;color:#fff;font-family:var(--font-body);font-size:0.8rem;font-weight:600;letter-spacing:0.08em;border:1px solid var(--accent);white-space:nowrap;cursor:pointer;transition:all 0.3s;}
+       
+       
+    .refresh-btn:hover{background:var(--accent);box-shadow:0 0 15px var(--accent);}
 
-    .top-bar{
-      display:flex;align-items:center;justify-content:flex-end;gap:10px;
-      margin-bottom:16px;flex-wrap:wrap;
-    }
-
-    /* ── Usuario logueado ── */
-    .user-chip{
-      display:none;align-items:center;gap:8px;
-      background:var(--surface);border:1px solid var(--border);
-      border-radius:50px;padding:6px 14px 6px 8px;cursor:pointer;transition:0.2s;
-    }
+ .top-bar{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+    .user-chip{display:none;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:6px 14px 6px 8px;cursor:pointer;transition:0.2s;}
     .user-chip:hover{border-color:var(--accent);}
     .user-chip img{width:26px;height:26px;border-radius:50%;object-fit:cover;border:1px solid var(--accent);}
     .user-chip span{font-size:0.8rem;font-weight:600;color:var(--text);}
 
-    /* ── Recomendadas ── */
-    .rec-section{margin-bottom:40px;}
-    .rec-header{
-      display:flex;align-items:center;justify-content:space-between;
-      margin-bottom:16px;
-    }
-    .rec-title{
-      font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.2em;
-      text-transform:uppercase;color:var(--text-muted);
-    }
-    .rec-refresh{
-      background:none;border:1px solid var(--border);color:var(--accent3);
-      font-family:var(--font-body);font-size:0.72rem;font-weight:600;
-      padding:10px 12px;border-radius: 100%;cursor:pointer;transition:1s;
-      letter-spacing:0.1em;text-transform:uppercase;
-    }
-    .rec-refresh:hover{background:rgba(6,182,212,0.08);border-color:var(--accent3);}
+    /* ═══════════════════════════════
+       CARRUSEL
+    ═══════════════════════════════ */
+    .carousel-section{margin-bottom:44px;}
+    .carousel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;}
+    .carousel-title{font-family:var(--font-display);font-size:0.85rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);}
+    .carousel-controls{display:flex;gap:8px;align-items:center;}
+    .carousel-arrow{background:none;border:1px solid var(--border);color:var(--text-muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.25rem;font-weight:700;line-height:1;transition:0.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .carousel-arrow:hover{border-color:var(--accent);color:var(--accent);}
+    .btn-shuffle{background:none;border:1px solid var(--border);color:var(--accent3);font-family:var(--font-body);font-size:0.72rem;font-weight:700;padding:10px 12px;border-radius:20px;cursor:pointer;transition:0.25s;letter-spacing:0.1em;text-transform:uppercase;}
+    .btn-shuffle:hover{background:rgba(6,182,212,0.08);border-color:var(--accent3);}
 
-    .rec-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-      gap:16px;
-    }
+    /* Viewport */
+    .carousel-outer{overflow:hidden;border-radius:14px;touch-action:pan-y;user-select:none;cursor:grab;}
+    .carousel-outer:active{cursor:grabbing;}
+
+    /* Track */
+    .carousel-track{display:flex;gap:12px;transition:transform 0.42s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;}
+    .carousel-track.no-anim{transition:none;}
+
+    /* Slide individual */
+    .c-slide{flex:0 0 auto;width:clamp(148px,31vw,228px);border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--surface);transition:transform 0.2s,border-color 0.2s,box-shadow 0.2s;cursor:pointer;}
+    .c-slide:hover{transform:translateY(-5px);border-color:rgba(230,62,109,0.55);box-shadow:0 10px 28px rgba(230,62,109,0.18);}
+    .c-slide img{width:100%;aspect-ratio:2/3;object-fit:cover;display:block;background:var(--surface2);pointer-events:none;}
+    .c-slide-ph{width:100%;aspect-ratio:2/3;background:linear-gradient(135deg,var(--surface2),#1a1a28);display:flex;align-items:center;justify-content:center;font-size:2.8rem;}
+    .c-info{padding:9px 11px 12px;}
+    .c-title{font-size:0.83rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px;}
+    .c-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+    .c-genre{background:rgba(230,62,109,0.12);color:var(--accent);padding:1px 7px;border-radius:9px;border:1px solid rgba(230,62,109,0.25);font-size:0.6rem;font-weight:700;white-space:nowrap;}
+    .c-caps{font-size:0.65rem;color:var(--text-muted);font-weight:600;}
+
+    /* Dots */
+    .carousel-dots{display:flex;gap:6px;justify-content:center;margin-top:11px;flex-wrap:wrap;}
+    .c-dot{width:7px;height:7px;border-radius:50%;background:var(--border);border:none;padding:0;cursor:pointer;transition:all 0.25s;flex-shrink:0;}
+    .c-dot.active{background:var(--accent);width:22px;border-radius:4px;}
 
     /* Skeleton */
-    .skeleton{
-      background:linear-gradient(90deg,var(--surface2) 25%,#1e1e2e 50%,var(--surface2) 75%);
-      background-size:200% 100%;animation:shimmer 1.6s infinite;border-radius:12px;
-    }
+    .skeleton{background:linear-gradient(90deg,var(--surface2) 25%,#1e1e2e 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.6s infinite;border-radius:12px;}
     @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    .skel-card{height:280px;}
+    .skel-slide{flex:0 0 clamp(148px,31vw,228px);aspect-ratio:2/3;}
 
-    /* ── Géneros extra ── */
+    /* Géneros extra */
     .genres-collapsed .genre-extra{display:none;}
-    .genres-expanded .genre-extra{display:inline-flex;}
-
+    .genres-expanded  .genre-extra{display:inline-flex;}
     #pwaInstallBtn{display:none;}
 
     /* Guide modal */
-    .guide-overlay{
-      display:none;position:fixed;top:0;left:0;width:100%;height:100%;
-      background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:10000;
-      align-items:center;justify-content:center;padding:20px;
-    }
+    .guide-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:10000;align-items:center;justify-content:center;padding:20px;}
     .guide-overlay.active{display:flex;}
-    .guide-card{
-      background:var(--surface);border:1px solid var(--accent);width:100%;max-width:400px;
-      padding:25px;border-radius:var(--radius);position:relative;box-shadow:0 10px 30px rgba(0,0,0,0.5);
-    }
+    .guide-card{background:var(--surface);border:1px solid var(--accent);width:100%;max-width:400px;padding:25px;border-radius:var(--radius);position:relative;box-shadow:0 10px 30px rgba(0,0,0,0.5);}
     .guide-title{font-family:var(--font-display);color:var(--accent);margin-bottom:20px;font-size:1.2rem;text-align:center;}
     .guide-step{display:flex;gap:15px;margin-bottom:15px;align-items:flex-start;}
-    .step-num{
-      background:var(--accent);color:white;min-width:25px;height:25px;border-radius:50%;
-      display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.8rem;
-    }
+    .step-num{background:var(--accent);color:white;min-width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.8rem;}
     .guide-step p{margin:0;font-family:var(--font-body);color:var(--text);line-height:1.4;}
     .guide-close{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;}
   </style>
@@ -111,46 +91,50 @@
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
 
-  <div class="wrapper">
+  <div class="wrapper"><a href="index.html" class="refresh-btn">&#8635;</a>
 
-    <!-- Barra superior --><a href="index.html" class="btn-refresh">↻</a>
+    <!-- Barra superior -->
     <div class="top-bar">
-      <!-- Chip de usuario si está logueado -->
       <div class="user-chip" id="userChip" onclick="irAlPanel()">
         <img id="chipAvatar" src="data:image/svg+xml,<svg viewBox='0 0 1 1' fill='%231a1a28' xmlns='http://www.w3.org/2000/svg'><rect width='1' height='1'/></svg>" alt="Avatar" />
         <span id="chipName">Usuario</span>
       </div>
-      <!-- Botón acceso si no está logueado -->   
-      <a href="registrarse.html" class="nav-btn" id="btnAcceso">👤 Acceder</a>
+      <a href="registrarse.html" class="nav-btn" id="btnAcceso">&#128100; Acceder</a>
       <button id="pwaInstallBtn" class="nav-btn">INSTALAR APP</button>
     </div>
 
     <header class="header">
-      <h1 class="logo">⛩ BIBLIOTECA KOTATSU</h1>
+      <h1 class="logo">&#26665; BIBLIOTECA KOTATSU</h1>
       <p class="tagline">Crónicas, relatos y leyendas originales</p>
     </header>
 
-    <!-- ══ RECOMENDADAS ══ -->
-    <section class="rec-section" id="recSection">
-      <div class="rec-header">
-        <span class="rec-title">✦ Destacadas</span>
-        <button class="rec-refresh" onclick="shuffleRecomendadas()">↻</button>
-
+    <!-- ══ CARRUSEL DESTACADAS ══ -->
+    <section class="carousel-section" id="recSection">
+      <div class="carousel-header">
+        <span class="carousel-title">&#10022; Destacadas</span>
+        <div class="carousel-controls">
+          <button class="carousel-arrow" onclick="carouselPrev()" aria-label="Anterior">&#8249;</button>
+          <button class="carousel-arrow" onclick="carouselNext()" aria-label="Siguiente">&#8250;</button>
+          <button class="btn-shuffle" onclick="shuffleCarousel()">&#8635; </button>
+        </div>
       </div>
-      <div class="rec-grid" id="recGrid">
-        <!-- Skeletons mientras carga -->
-        <div class="skeleton skel-card"></div>
-        <div class="skeleton skel-card"></div>
-        <div class="skeleton skel-card"></div>
-        <div class="skeleton skel-card"></div>
+      <div class="carousel-outer" id="carouselOuter">
+        <div class="carousel-track" id="carouselTrack">
+          <div class="skeleton skel-slide"></div>
+          <div class="skeleton skel-slide"></div>
+          <div class="skeleton skel-slide"></div>
+          <div class="skeleton skel-slide"></div>
+          <div class="skeleton skel-slide"></div>
+        </div>
       </div>
+      <div class="carousel-dots" id="carouselDots"></div>
     </section>
 
     <!-- BARRA DE BÚSQUEDA -->
     <div class="search-bar">
       <span class="search-icon"></span>
       <input type="text" id="searchInput" placeholder="Buscar por título o autor..." autocomplete="off" />
-      <button id="clearBtn" class="clear-btn" title="Limpiar">✕</button>
+      <button id="clearBtn" class="clear-btn" title="Limpiar">&#10005;</button>
     </div>
 
     <!-- FILTROS -->
@@ -158,7 +142,7 @@
       <div class="filter-group">
         <div class="filter-label-row">
           <label class="filter-label">Género Literario</label>
-          <button class="genres-toggle" id="genresToggle">Ver todos ▾</button>
+          <button class="genres-toggle" id="genresToggle">Ver todos &#9662;</button>
         </div>
         <div class="tag-group genres-collapsed" id="generoFilter">
           <button class="tag active" data-filter="genero" data-value="">Todos</button>
@@ -194,10 +178,9 @@
           <button class="tag genre-extra" data-filter="genero" data-value="gore">Gore</button>
         </div>
       </div>
-
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-        <button id="resetFilters" class="reset-btn">↺ Resetear Biblioteca</button>
-        <a href="index.html" class="nav-btn">Refrescar</a>
+        <button id="resetFilters" class="reset-btn">&#8634; Resetear Biblioteca</button>
+
       </div>
     </div>
 
@@ -219,7 +202,7 @@
   <!-- MODAL -->
   <div id="modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-box">
-      <button class="modal-close" id="modalClose" aria-label="Cerrar">✕</button>
+      <button class="modal-close" id="modalClose" aria-label="Cerrar">&#10005;</button>
       <div class="modal-cover" id="modalCover"></div>
       <div class="modal-content">
         <div class="modal-badge" id="modalBadge">Escrito Original</div>
@@ -237,9 +220,9 @@
   <!-- PWA Modal -->
   <div id="pwaModal" class="guide-overlay">
     <div class="guide-card">
-      <button class="guide-close" id="closeGuide">✕</button>
+      <button class="guide-close" id="closeGuide">&#10005;</button>
       <div class="guide-title">INSTALACIÓN</div>
-      <div class="guide-step"><div class="step-num">1</div><p>Toca los <strong>tres puntos (⋮)</strong> en el navegador.</p></div>
+      <div class="guide-step"><div class="step-num">1</div><p>Toca los <strong>tres puntos (&#8942;)</strong> en el navegador.</p></div>
       <div class="guide-step"><div class="step-num">2</div><p>Selecciona <strong>"Agregar a la pantalla principal"</strong>.</p></div>
       <div class="guide-step"><div class="step-num">3</div><p>Pulsa en <strong>"Instalar"</strong>.</p></div>
       <div id="pwaActions" style="margin-top:20px;">
@@ -249,16 +232,13 @@
   </div>
 
   <script>
-    // ── PWA install ──
     (function(){
       const installBtn = document.getElementById('pwaInstallBtn');
       const modal      = document.getElementById('pwaModal');
       const closeBtn   = document.getElementById('closeGuide');
       const btnE       = document.getElementById('btnEntendido');
-
-      if (!window.matchMedia('(display-mode: standalone)').matches && installBtn) {
+      if (!window.matchMedia('(display-mode: standalone)').matches && installBtn)
         installBtn.style.display = 'inline-block';
-      }
       if (installBtn) installBtn.onclick = () => modal.classList.add('active');
       const cerrar = () => modal.classList.remove('active');
       if (closeBtn) closeBtn.onclick = cerrar;
@@ -266,13 +246,10 @@
       window.addEventListener('click', e => { if (e.target === modal) cerrar(); });
     })();
 
-    // ── Chip de usuario ──
     (function(){
       const id   = localStorage.getItem("ktt_id");
       const user = localStorage.getItem("ktt_user");
       const foto = localStorage.getItem("ktt_foto");
-      const role = localStorage.getItem("ktt_role") || "user";
-
       if (id) {
         document.getElementById("btnAcceso").style.display = "none";
         const chip = document.getElementById("userChip");
