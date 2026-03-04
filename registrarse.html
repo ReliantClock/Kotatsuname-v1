@@ -7,130 +7,202 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    :root{--bg:#0a0a0f;--surface:#12121c;--border:#2a2a3e;--accent:#e63e6d;--accent3:#06b6d4;--text:#e8e8f0;--text-muted:#6b6b8a;--glow:rgba(230,62,109,0.3);}
+    :root {
+      --bg:#0a0a0f;--surface:#12121c;--border:#2a2a3e;
+      --accent:#e63e6d;--accent3:#06b6d4;--text:#e8e8f0;
+      --text-muted:#6b6b8a;--glow:rgba(230,62,109,0.3);
+    }
     *{box-sizing:border-box;margin:0;padding:0;}
     body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex;min-height:100vh;}
 
     /* ── Botón flotante cuentas ── */
-    #accountsFloatBtn{
+    #accountsFloatBtn {
       position:fixed;top:14px;right:14px;z-index:1000;
-      background:var(--surface);border:1px solid var(--border);border-radius:50px;
-      padding:7px 14px 7px 8px;display:none;align-items:center;gap:8px;cursor:pointer;
-      transition:all .25s;box-shadow:0 4px 20px rgba(0,0,0,.5);
-      font-family:'Rajdhani';font-size:.8rem;font-weight:700;color:var(--text-muted);
-      text-transform:uppercase;letter-spacing:.08em;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:50px;padding:7px 14px 7px 8px;
+      display:none;align-items:center;gap:8px;cursor:pointer;
+      transition:all 0.25s;box-shadow:0 4px 20px rgba(0,0,0,0.5);
+      font-family:'Rajdhani';font-size:0.8rem;font-weight:700;
+      color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;
     }
-    #accountsFloatBtn:hover{border-color:var(--accent3);color:var(--accent3);box-shadow:0 4px 24px rgba(6,182,212,.25);}
-    .avatars-row{display:flex;align-items:center;}
+    #accountsFloatBtn:hover{border-color:var(--accent3);color:var(--accent3);box-shadow:0 4px 24px rgba(6,182,212,0.25);}
+    #accountsFloatBtn .avatars-row{display:flex;align-items:center;}
     .mini-avatar{
-      width:26px;height:26px;border-radius:50%;border:2px solid var(--border);background:var(--bg);
-      font-size:.6rem;font-weight:700;color:var(--accent3);display:flex;align-items:center;
-      justify-content:center;overflow:hidden;margin-left:-5px;flex-shrink:0;
+      width:26px;height:26px;border-radius:50%;border:2px solid var(--border);
+      background:var(--bg);font-size:0.6rem;font-weight:700;color:var(--accent3);
+      display:flex;align-items:center;justify-content:center;overflow:hidden;
+      margin-left:-5px;flex-shrink:0;
     }
     .mini-avatar:first-child{margin-left:0;}
     .mini-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 
-    /* ── Panel cuentas ── */
-    #accountsPanel{
-      position:fixed;top:56px;right:14px;z-index:999;background:var(--surface);
-      border:1px solid var(--border);border-radius:16px;padding:14px;width:292px;
-      box-shadow:0 16px 48px rgba(0,0,0,.75);display:none;flex-direction:column;gap:7px;
+    /* ── Panel de cuentas ── */
+    #accountsPanel {
+      position:fixed;top:56px;right:14px;z-index:999;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:16px;padding:14px;width:290px;
+      box-shadow:0 16px 48px rgba(0,0,0,0.75);
+      display:none;flex-direction:column;gap:7px;
     }
-    #accountsPanel.open{display:flex;animation:slideDown .18s ease;}
-    @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-    .panel-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:2px;}
-    .panel-title-txt{font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);}
-    .panel-close-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.9rem;padding:2px 4px;transition:.2s;}
+    #accountsPanel.open{display:flex;animation:slideDown 0.18s ease;}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+
+    .panel-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:2px;
+    }
+    .panel-title-txt{font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);}
+    .panel-close-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.9rem;padding:2px 4px;transition:0.2s;}
     .panel-close-btn:hover{color:var(--accent);}
+
     #chipsContainer{max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:2px;}
     #chipsContainer::-webkit-scrollbar{width:3px;}
+    #chipsContainer::-webkit-scrollbar-track{background:transparent;}
     #chipsContainer::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-    .account-chip{display:flex;align-items:center;gap:9px;padding:9px 11px;background:rgba(26,26,40,.8);border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .18s;}
+
+    .account-chip {
+      display:flex;align-items:center;gap:9px;padding:9px 11px;
+      background:rgba(26,26,40,0.8);border-radius:10px;border:1px solid var(--border);
+      cursor:pointer;transition:all 0.18s;
+    }
     .account-chip:hover{border-color:var(--accent3);background:#1a1a28;}
-    .account-chip.is-active{border-color:rgba(76,175,80,.4);background:rgba(76,175,80,.04);}
-    .chip-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg);border:2px solid var(--border);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:var(--accent3);}
+    .account-chip.is-active{border-color:rgba(76,175,80,0.4);background:rgba(76,175,80,0.04);}
+    .chip-avatar{
+      width:34px;height:34px;border-radius:50%;background:var(--bg);
+      border:2px solid var(--border);flex-shrink:0;overflow:hidden;
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.85rem;font-weight:700;color:var(--accent3);
+    }
     .chip-avatar img{width:100%;height:100%;object-fit:cover;}
     .chip-info{flex:1;min-width:0;}
-    .chip-name{font-size:.85rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .chip-email{font-size:.62rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .chip-role-tag{font-size:.55rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:1px 7px;border-radius:20px;flex-shrink:0;}
-    .chip-role-tag.user{background:rgba(76,175,80,.15);color:#4CAF50;}
-    .chip-role-tag.mod{background:rgba(245,158,11,.15);color:#f59e0b;}
-    .chip-role-tag.admin{background:rgba(6,182,212,.15);color:#06b6d4;}
-    .chip-role-tag.owner{background:rgba(230,62,109,.15);color:#e63e6d;}
+    .chip-name{font-size:0.85rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .chip-email{font-size:0.62rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .chip-role-tag{font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:1px 7px;border-radius:20px;flex-shrink:0;}
+    .chip-role-tag.user  {background:rgba(76,175,80,0.15);color:#4CAF50;}
+    .chip-role-tag.mod   {background:rgba(245,158,11,0.15);color:#f59e0b;}
+    .chip-role-tag.admin {background:rgba(6,182,212,0.15);color:#06b6d4;}
+    .chip-role-tag.owner {background:rgba(230,62,109,0.15);color:#e63e6d;}
     .chip-active-dot{width:7px;height:7px;border-radius:50%;background:#4CAF50;flex-shrink:0;}
-    .chips-footer{font-size:.6rem;color:var(--text-muted);text-align:center;padding:4px 0 0;letter-spacing:.05em;}
+    .chips-footer{font-size:0.6rem;color:var(--text-muted);text-align:center;padding:4px 0 0;letter-spacing:0.05em;}
     .chips-footer.at-limit{color:#f59e0b;}
 
     /* ── Info side ── */
-    .info-side{flex:1;padding:3rem;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border-right:1px solid var(--border);background:radial-gradient(circle at 40% 50%,#1a1a28 0%,var(--bg) 70%);}
+    .info-side{
+      flex:1;padding:3rem;display:flex;flex-direction:column;
+      justify-content:center;align-items:center;text-align:center;
+      border-right:1px solid var(--border);
+      background:radial-gradient(circle at 40% 50%,#1a1a28 0%,var(--bg) 70%);
+    }
     .info-side h1{font-family:'Cinzel Decorative';font-size:5rem;color:var(--accent);line-height:1;}
     .info-side .tagline{color:var(--accent3);letter-spacing:8px;font-weight:700;margin-top:10px;}
-    .domain-indicator{margin-top:20px;padding:8px 20px;border-radius:30px;font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;border:1px solid var(--border);color:var(--text-muted);transition:all .3s;}
-    .domain-indicator.user{border-color:#4CAF50;color:#4CAF50;background:rgba(76,175,80,.08);}
-    .domain-indicator.mod{border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.08);}
-    .domain-indicator.admin{border-color:var(--accent3);color:var(--accent3);background:rgba(6,182,212,.08);}
-    .domain-indicator.owner{border-color:var(--accent);color:var(--accent);background:rgba(230,62,109,.08);}
-    .domain-indicator.invalid{border-color:#ff4444;color:#ff4444;background:rgba(255,68,68,.08);}
+    .domain-indicator{
+      margin-top:20px;padding:8px 20px;border-radius:30px;
+      font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+      border:1px solid var(--border);color:var(--text-muted);transition:all 0.3s;
+    }
+    .domain-indicator.user  {border-color:#4CAF50;color:#4CAF50;background:rgba(76,175,80,0.08);}
+    .domain-indicator.mod   {border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,0.08);}
+    .domain-indicator.admin {border-color:var(--accent3);color:var(--accent3);background:rgba(6,182,212,0.08);}
+    .domain-indicator.owner {border-color:var(--accent);color:var(--accent);background:rgba(230,62,109,0.08);}
+    .domain-indicator.invalid{border-color:#ff4444;color:#ff4444;background:rgba(255,68,68,0.08);}
 
     /* ── Auth side ── */
     .auth-side{width:480px;display:flex;align-items:center;justify-content:center;padding:20px;}
-    .auth-card{width:100%;max-width:400px;background:var(--surface);padding:2.5rem 2rem;border-radius:24px;border:1px solid var(--border);box-shadow:0 20px 50px rgba(0,0,0,.6);}
+    .auth-card{
+      width:100%;max-width:400px;background:var(--surface);
+      padding:2.5rem 2rem;border-radius:24px;border:1px solid var(--border);
+      box-shadow:0 20px 50px rgba(0,0,0,0.6);
+    }
     .mobile-logo{display:none;text-align:center;margin-bottom:1.5rem;}
     .mobile-logo h1{font-family:'Cinzel Decorative';font-size:2.2rem;color:var(--accent);}
-    .mobile-logo .tagline{color:var(--accent3);letter-spacing:3px;font-size:.7rem;font-weight:700;}
-    #deviceNotice{display:none;margin-bottom:1.4rem;padding:11px 13px;background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.22);border-radius:11px;font-size:.78rem;color:var(--accent3);line-height:1.5;text-align:center;}
+    .mobile-logo .tagline{color:var(--accent3);letter-spacing:3px;font-size:0.7rem;font-weight:700;}
+
+    #deviceNotice{
+      display:none;margin-bottom:1.4rem;padding:11px 13px;
+      background:rgba(6,182,212,0.07);border:1px solid rgba(6,182,212,0.22);
+      border-radius:11px;font-size:0.78rem;color:var(--accent3);
+      line-height:1.5;text-align:center;
+    }
     #deviceNotice i{font-size:1.1rem;margin-bottom:5px;display:block;}
+
     .input-group{margin-bottom:1.15rem;}
-    label{display:block;margin-bottom:7px;font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;font-weight:700;}
+    label{display:block;margin-bottom:7px;font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;font-weight:700;}
     .input-wrapper{position:relative;}
-    .input-wrapper .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:.85rem;}
-    input[type="text"],input[type="email"],input[type="password"]{width:100%;padding:12px 12px 12px 40px;background:rgba(26,26,40,.6);border:1px solid var(--border);border-radius:11px;color:#fff;font-family:'Rajdhani';font-size:1rem;transition:.3s;outline:none;}
-    input:focus{border-color:var(--accent3);background:#1a1a28;box-shadow:0 0 10px rgba(6,182,212,.1);}
-    .role-badge{display:none;text-align:center;margin-bottom:1rem;font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:5px 13px;border-radius:20px;border:1px solid currentColor;}
-    .error-msg{min-height:1.2rem;font-size:.83rem;font-weight:600;text-align:center;margin-bottom:.9rem;color:var(--accent);}
-    .btn-submit{width:100%;padding:14px;margin-top:6px;background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;border-radius:50px;color:#fff;font-weight:700;font-family:'Rajdhani';font-size:1rem;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:.3s;box-shadow:0 8px 25px var(--glow);display:flex;align-items:center;justify-content:center;gap:10px;}
+    .input-wrapper .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:0.85rem;}
+    input[type="text"],input[type="email"],input[type="password"]{
+      width:100%;padding:12px 12px 12px 40px;
+      background:rgba(26,26,40,0.6);border:1px solid var(--border);
+      border-radius:11px;color:#fff;font-family:'Rajdhani';font-size:1rem;
+      transition:0.3s;outline:none;
+    }
+    input:focus{border-color:var(--accent3);background:#1a1a28;box-shadow:0 0 10px rgba(6,182,212,0.1);}
+
+    .role-badge{
+      display:none;text-align:center;margin-bottom:1rem;
+      font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+      padding:5px 13px;border-radius:20px;border:1px solid currentColor;
+    }
+    .error-msg{min-height:1.2rem;font-size:0.83rem;font-weight:600;text-align:center;margin-bottom:0.9rem;color:var(--accent);}
+    .btn-submit{
+      width:100%;padding:14px;margin-top:6px;
+      background:linear-gradient(135deg,var(--accent),#7c3aed);
+      border:none;border-radius:50px;color:#fff;font-weight:700;
+      font-family:'Rajdhani';font-size:1rem;text-transform:uppercase;
+      letter-spacing:1px;cursor:pointer;transition:0.3s;
+      box-shadow:0 8px 25px var(--glow);
+      display:flex;align-items:center;justify-content:center;gap:10px;
+    }
     .btn-submit:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.1);}
-    .btn-submit:disabled{opacity:.7;cursor:not-allowed;}
-    .spinner{width:17px;height:17px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .toggle{text-align:center;margin-top:22px;color:var(--text-muted);font-size:.88rem;}
+    .btn-submit:disabled{opacity:0.7;cursor:not-allowed;}
+    .spinner{width:17px;height:17px;border:3px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    .toggle{text-align:center;margin-top:22px;color:var(--text-muted);font-size:0.88rem;}
     .toggle span{color:var(--accent3);cursor:pointer;font-weight:700;border-bottom:1px dashed var(--accent3);margin-left:4px;}
+
     .mode-tabs{display:flex;margin-bottom:1.7rem;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-    .mode-tab{flex:1;padding:9px;background:transparent;border:none;color:var(--text-muted);font-family:'Rajdhani';font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:.2s;}
+    .mode-tab{
+      flex:1;padding:9px;background:transparent;border:none;
+      color:var(--text-muted);font-family:'Rajdhani';font-size:0.78rem;font-weight:700;
+      letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:0.2s;
+    }
     .mode-tab.active{background:var(--accent);color:#fff;}
-    .mode-tab:disabled{opacity:.32;cursor:not-allowed;pointer-events:none;}
+    .mode-tab:disabled{opacity:0.32;cursor:not-allowed;pointer-events:none;}
+
     #group-user{display:none;}
 
-    @media(max-width:860px){.auth-side{width:100%;}.info-side{display:none;}.mobile-logo{display:block;}}
-    @media(max-width:480px){.auth-card{background:transparent;border:none;box-shadow:none;padding:1.5rem 1rem;}body{background:var(--surface);}}
+    @media(max-width:860px){
+      .auth-side{width:100%;}
+      .info-side{display:none;}
+      .mobile-logo{display:block;}
+    }
+    @media(max-width:480px){
+      .auth-card{background:transparent;border:none;box-shadow:none;padding:1.5rem 1rem;}
+      body{background:var(--surface);}
+    }
   </style>
 </head>
 <body>
 
-  <!-- Botón flotante cuentas -->
-  <button id="accountsFloatBtn">
+  <button id="accountsFloatBtn" onclick="togglePanel(event)">
     <div class="avatars-row" id="avatarsRow"></div>
     <span id="accountsBtnLabel">Mis cuentas</span>
   </button>
 
-  <!-- Panel de cuentas -->
   <div id="accountsPanel">
     <div class="panel-header">
-      <span class="panel-title-txt"><i class="fas fa-id-card" style="margin-right:5px"></i>Cuentas · este dispositivo</span>
-      <button class="panel-close-btn" id="btnClosePanel"><i class="fas fa-times"></i></button>
+      <span class="panel-title-txt"><i class="fas fa-id-card" style="margin-right:5px;"></i>Cuentas · este dispositivo</span>
+      <button class="panel-close-btn" onclick="closePanel()"><i class="fas fa-times"></i></button>
     </div>
     <div id="chipsContainer"></div>
   </div>
 
-  <!-- Info side -->
   <section class="info-side">
     <h1>KOTATSU</h1>
     <p class="tagline">PORTAL DE ACCESO</p>
     <div class="domain-indicator" id="domainIndicator">Ingresa tu correo</div>
   </section>
 
-  <!-- Auth side -->
   <section class="auth-side">
     <div class="auth-card">
       <div class="mobile-logo">
@@ -139,8 +211,8 @@
       </div>
 
       <div class="mode-tabs">
-        <button class="mode-tab active" id="tabLogin">Iniciar Sesión</button>
-        <button class="mode-tab"        id="tabReg">Registrarse</button>
+        <button class="mode-tab active" id="tabLogin" onclick="setTab('login')">Iniciar Sesión</button>
+        <button class="mode-tab"        id="tabReg"   onclick="setTab('registro')">Registrarse</button>
       </div>
 
       <div id="deviceNotice">
@@ -155,7 +227,7 @@
         <label>Nombre de Autor / Usuario</label>
         <div class="input-wrapper">
           <i class="fas fa-user-ninja ico"></i>
-          <input type="text" id="user" placeholder="Tu seudónimo" autocomplete="username">
+          <input type="text" id="user" placeholder="Tu seudónimo" autocomplete="username" oninput="markTyping()" />
         </div>
       </div>
 
@@ -163,7 +235,8 @@
         <label>Correo Electrónico</label>
         <div class="input-wrapper">
           <i class="fas fa-envelope ico"></i>
-          <input type="email" id="email" placeholder="tu@correo.com" autocomplete="email">
+          <input type="email" id="email" placeholder="tu@correo.com" autocomplete="email"
+                 oninput="onEmailInput();markTyping();" />
         </div>
       </div>
 
@@ -171,435 +244,370 @@
         <label>Contraseña</label>
         <div class="input-wrapper">
           <i class="fas fa-lock ico"></i>
-          <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password">
+          <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password" oninput="markTyping()" />
         </div>
       </div>
 
       <div id="errMsg" class="error-msg"></div>
 
-      <button class="btn-submit" id="btnSubmit">
+      <button class="btn-submit" id="btnSubmit" onclick="enviar()">
         <div class="spinner" id="spinner"></div>
         <span id="btnTxt">Conectar</span>
       </button>
 
       <div class="toggle" id="toggleMsg">
-        ¿No tienes cuenta? <span id="toggleLink">Regístrate</span>
+        ¿No tienes cuenta? <span onclick="setTab('registro')">Regístrate</span>
       </div>
     </div>
   </section>
 
-<!--
-  ╔══════════════════════════════════════════════════════════╗
-  ║  SCRIPT PRINCIPAL — NO ES type="module" para evitar     ║
-  ║  bugs de scope con onclick y para que funcione en todos  ║
-  ║  los navegadores móviles sin problemas de timing         ║
-  ╚══════════════════════════════════════════════════════════╝
-  ktt_storage.js se carga primero como script normal
-  (exporta KttStorage como global y también como módulo ES)
--->
-<script src="./ktt_storage.js"></script>
-<script>
-/* ──────────────────────────────────────────────────────────
-   DETECCIÓN DE ROLES  (reemplaza con tu staff_auth.js real)
-────────────────────────────────────────────────────────── */
-function detectRole(email) {
-  const e = (email || "").toLowerCase();
-  if (e.endsWith("@kots-stf-owner.kotatsuname.com")) return { role:"owner", valid:true };
-  if (e.endsWith("@kots-stf-adm.com"))               return { role:"admin", valid:true };
-  if (e.endsWith("@kots-stf-mod.com"))                return { role:"mod",   valid:true };
-  if (e.endsWith("@gmail.com"))                       return { role:"user",  valid:true };
-  return { role:null, valid:false };
-}
+<script type="module">
+  // ─── Reemplaza estos imports con los tuyos reales ───
+  // import { detectRole, saveSession } from "./staff_auth.js";
 
-/* ──────────────────────────────────────────────────────────
-   CONFIG
-────────────────────────────────────────────────────────── */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlwm_htimcLqGW7p5HQvdgqwY1V7tlr3oEt5vl6FMZ8j6TGyB3V8t4Dwd2t8vU9AZA/exec";
-const PANEL_MAP  = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
+  function detectRole(email) {
+    const e = email.toLowerCase();
+    if (e.endsWith("@kots-stf-owner.kotatsuname.com")) return { role:"owner", valid:true };
+    if (e.endsWith("@kots-stf-adm.com"))               return { role:"admin", valid:true };
+    if (e.endsWith("@kots-stf-mod.com"))                return { role:"mod",   valid:true };
+    if (e.endsWith("@gmail.com"))                       return { role:"user",  valid:true };
+    return { role:null, valid:false };
+  }
+  function saveSession({ idAutor, nombre, foto, rol, email }) {
+    localStorage.setItem("ktt_id",    idAutor);
+    localStorage.setItem("ktt_role",  rol);
+    localStorage.setItem("ktt_user",  nombre);
+    localStorage.setItem("ktt_foto",  foto || "");
+    localStorage.setItem("ktt_email", email);
+  }
 
-/* ──────────────────────────────────────────────────────────
-   ESTADO
-────────────────────────────────────────────────────────── */
-let currentTab       = "login";
-let deviceRegistered = false;
-let deviceAccounts   = [];
-let isTyping         = false;
-let typingTimer      = null;
+  // ─── Config ───
+  const SCRIPT_URL     = "https://script.google.com/macros/s/AKfycbxlwm_htimcLqGW7p5HQvdgqwY1V7tlr3oEt5vl6FMZ8j6TGyB3V8t4Dwd2t8vU9AZA/exec";
+  const KEY_REGISTERED = "ktt_device_registered";
+  const KEY_ACCOUNTS   = "ktt_device_accounts";
+  const MAX_ACCOUNTS   = 15;   // ← máximo de sesiones guardadas por dispositivo
 
-/* ──────────────────────────────────────────────────────────
-   BOTÓN ATRÁS → index.html
-   FIX: pushState SOLO se hace después de confirmar que NO
-   hay sesión activa ni redirección pendiente.
-   Se usa un flag para no interceptar la navegación propia.
-────────────────────────────────────────────────────────── */
-let _ownNavigation = false;   // true cuando NOSOTROS redirigimos
+  // ─── Estado ───
+  let currentTab       = "login";
+  let deviceRegistered = false;
+  let deviceAccounts   = [];
+  let isTyping         = false;
+  let typingTimer      = null;
+  let navigating       = false;   // evita pop doble al redirigir
 
-function _setupBackButton() {
-  // Solo instalar el listener una vez, y solo si llegamos aquí
-  // sin sesión activa (el init() lo verifica antes de llamar esto)
-  history.replaceState({ kttPage: "registrarse" }, "");
+  // ═══════════════════════════════════════════════
+  //  BOTÓN "ATRÁS" → index.html
+  //  Excepto si el usuario está escribiendo
+  // ═══════════════════════════════════════════════
+  history.pushState({ ktt: true }, "");   // estado centinela
 
-  window.addEventListener("popstate", function onPop(evt) {
-    if (_ownNavigation) return;   // lo disparamos nosotros, ignorar
+  window.addEventListener("popstate", () => {
+    if (navigating) return;              // ya estamos redirigiendo
     if (isTyping) {
-      // El usuario está escribiendo → restaurar estado y no navegar
-      history.pushState({ kttPage: "registrarse" }, "");
+      // Restaura el estado para que el botón atrás siga funcionando
+      history.pushState({ ktt: true }, "");
       return;
     }
-    // Redirigir a inicio
-    _ownNavigation = true;
-    window.removeEventListener("popstate", onPop);
+    navigating = true;
     window.location.href = "index.html";
   });
-}
 
-function _markTyping() {
-  isTyping = true;
-  clearTimeout(typingTimer);
-  typingTimer = setTimeout(() => { isTyping = false; }, 2500);
-}
+  window.markTyping = function () {
+    isTyping = true;
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(() => { isTyping = false; }, 2000);
+  };
 
-/* ──────────────────────────────────────────────────────────
-   INIT — espera a que IndexedDB esté lista antes de renderizar
-   FIX PRINCIPAL: todo ocurre dentro del async init para
-   evitar race conditions de lectura async vs render sync.
-────────────────────────────────────────────────────────── */
-async function init() {
-  // 1. Iniciar storage (migra LS→IDB si es necesario)
-  await KttStorage.init();
+  // ═══════════════════════════════════════════════
+  //  INIT
+  // ═══════════════════════════════════════════════
+  function init() {
+    deviceRegistered = localStorage.getItem(KEY_REGISTERED) === "true";
+    try { deviceAccounts = JSON.parse(localStorage.getItem(KEY_ACCOUNTS) || "[]"); }
+    catch { deviceAccounts = []; }
+    if (!Array.isArray(deviceAccounts)) deviceAccounts = [];
 
-  // 2. Verificar sesión ACTIVA de forma síncrona (LS como caché)
-  //    Si existe → redirigir ANTES de mostrar nada (evita flash)
-  const sess = KttStorage.getSessionSync();
-  if (sess && sess.id) {
-    _ownNavigation = true;
-    window.location.replace(PANEL_MAP[sess.role] || "panel_autor.html");
-    return;   // ← STOP. No continuar init.
+    // Redirigir si sesión activa
+    const kttId   = localStorage.getItem("ktt_id");
+    const kttRole = localStorage.getItem("ktt_role") || "user";
+    if (kttId) {
+      navigating = true;
+      const map = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
+      window.location.href = map[kttRole] || "panel_autor.html";
+      return;
+    }
+
+    applyDeviceRestrictions();
+    renderFloatBtn();
+    renderChips();
   }
 
-  // 3. Leer estado del dispositivo desde IDB (ahora sí es seguro)
-  deviceRegistered = await KttStorage.isRegistered();
-  deviceAccounts   = await KttStorage.getAccounts();
-
-  // 4. Solo aquí instalar el listener de "atrás"
-  _setupBackButton();
-
-  // 5. Renderizar UI
-  applyDeviceRestrictions();
-  renderFloatBtn();
-  renderChips();
-  bindEvents();
-
-  // 6. Pre-rellenar email si viene de cambio de cuenta
-  const prefill = sessionStorage.getItem("ktt_prefill_email");
-  if (prefill) {
-    sessionStorage.removeItem("ktt_prefill_email");
-    document.getElementById("email").value = prefill;
-    updateDomainIndicator(prefill);
+  // ═══════════════════════════════════════════════
+  //  RESTRICCIONES POR DISPOSITIVO
+  // ═══════════════════════════════════════════════
+  function applyDeviceRestrictions() {
+    const tabReg = document.getElementById("tabReg");
+    const notice = document.getElementById("deviceNotice");
+    const toggle = document.getElementById("toggleMsg");
+    if (deviceRegistered) {
+      tabReg.disabled      = true;
+      notice.style.display = "block";
+      toggle.style.display = "none";
+      setTab("login", true);
+    } else {
+      tabReg.disabled      = false;
+      notice.style.display = "none";
+      toggle.style.display = "block";
+    }
   }
-}
 
-/* ──────────────────────────────────────────────────────────
-   BIND EVENTS — todos los listeners se añaden aquí,
-   NO como atributos onclick en el HTML (más robusto)
-────────────────────────────────────────────────────────── */
-function bindEvents() {
-  document.getElementById("tabLogin").addEventListener("click", () => setTab("login"));
-  document.getElementById("tabReg").addEventListener("click",   () => setTab("registro"));
-  document.getElementById("toggleLink").addEventListener("click", () => {
-    setTab(currentTab === "login" ? "registro" : "login");
-  });
-  document.getElementById("btnSubmit").addEventListener("click", enviar);
-  document.getElementById("accountsFloatBtn").addEventListener("click", e => {
-    e.stopPropagation();
-    document.getElementById("accountsPanel").classList.toggle("open");
-  });
-  document.getElementById("btnClosePanel").addEventListener("click", closePanel);
-  document.getElementById("email").addEventListener("input", () => {
-    _markTyping();
-    updateDomainIndicator(document.getElementById("email").value.trim());
-  });
-  document.getElementById("user").addEventListener("input", _markTyping);
-  document.getElementById("pass").addEventListener("input", _markTyping);
-  document.addEventListener("keydown", e => { if (e.key === "Enter") enviar(); });
+  // ═══════════════════════════════════════════════
+  //  BOTÓN FLOTANTE (muestra hasta 3 avatares)
+  // ═══════════════════════════════════════════════
+  function renderFloatBtn() {
+    const btn = document.getElementById("accountsFloatBtn");
+    if (deviceAccounts.length === 0) { btn.style.display = "none"; return; }
+    btn.style.display = "flex";
+
+    const row = document.getElementById("avatarsRow");
+    row.innerHTML = "";
+    deviceAccounts.slice(0, 3).forEach(acc => {
+      const el = document.createElement("div");
+      el.className = "mini-avatar";
+      if (acc.foto) {
+        const img = document.createElement("img");
+        img.src = acc.foto;
+        img.onerror = () => { el.innerHTML = ""; el.textContent = (acc.nombre||"?")[0].toUpperCase(); };
+        el.appendChild(img);
+      } else {
+        el.textContent = (acc.nombre||"?")[0].toUpperCase();
+      }
+      row.appendChild(el);
+    });
+
+    document.getElementById("accountsBtnLabel").textContent =
+      deviceAccounts.length === 1 ? deviceAccounts[0].nombre : `${deviceAccounts.length} cuentas`;
+  }
+
+  // ═══════════════════════════════════════════════
+  //  CHIPS EN EL PANEL  (scroll, hasta 15)
+  // ═══════════════════════════════════════════════
+  function renderChips() {
+    const container = document.getElementById("chipsContainer");
+    container.innerHTML = "";
+
+    if (deviceAccounts.length === 0) {
+      container.innerHTML = `<p style="font-size:.78rem;color:var(--text-muted);text-align:center;padding:10px 0;">Sin sesiones previas.</p>`;
+      return;
+    }
+
+    const roleLabels  = { user:"Autor", mod:"Moderador", admin:"Admin", owner:"Owner" };
+    const activeEmail = localStorage.getItem("ktt_email") || "";
+
+    deviceAccounts.forEach(acc => {
+      const chip     = document.createElement("div");
+      const isActive = acc.email === activeEmail;
+      chip.className = `account-chip${isActive ? " is-active" : ""}`;
+      chip.title     = "Clic para rellenar sesión";
+      const initial   = (acc.nombre||"?")[0].toUpperCase();
+      const roleLabel = roleLabels[acc.rol] || "Autor";
+      chip.innerHTML = `
+        <div class="chip-avatar">
+          ${acc.foto
+            ? `<img src="${acc.foto}" alt="${esc(acc.nombre)}" onerror="this.parentElement.textContent='${initial}'">`
+            : initial}
+        </div>
+        <div class="chip-info">
+          <div class="chip-name">${esc(acc.nombre)}</div>
+          <div class="chip-email">${esc(acc.email)}</div>
+        </div>
+        <span class="chip-role-tag ${acc.rol||"user"}">${roleLabel}</span>
+        ${isActive ? `<div class="chip-active-dot" title="Sesión activa"></div>` : ""}
+      `;
+      chip.onclick = () => {
+        closePanel();
+        setTab("login", true);
+        document.getElementById("email").value = acc.email;
+        document.getElementById("pass").focus();
+        onEmailInput();
+      };
+      container.appendChild(chip);
+    });
+
+    // Footer con contador
+    const footer = document.createElement("p");
+    const atLimit = deviceAccounts.length >= MAX_ACCOUNTS;
+    footer.className = `chips-footer${atLimit ? " at-limit" : ""}`;
+    footer.textContent = atLimit
+      ? `Límite de ${MAX_ACCOUNTS} cuentas alcanzado`
+      : `${deviceAccounts.length} / ${MAX_ACCOUNTS} sesiones guardadas`;
+    container.appendChild(footer);
+  }
+
+  window.togglePanel = function (e) { e && e.stopPropagation(); document.getElementById("accountsPanel").classList.toggle("open"); };
+  window.closePanel  = function ()  { document.getElementById("accountsPanel").classList.remove("open"); };
+
   document.addEventListener("click", e => {
     const panel = document.getElementById("accountsPanel");
     const btn   = document.getElementById("accountsFloatBtn");
-    if (panel.classList.contains("open") && !panel.contains(e.target) && !btn.contains(e.target)) {
+    if (panel.classList.contains("open") && !panel.contains(e.target) && !btn.contains(e.target))
       panel.classList.remove("open");
-    }
   });
-}
 
-/* ──────────────────────────────────────────────────────────
-   RESTRICCIONES POR DISPOSITIVO
-────────────────────────────────────────────────────────── */
-function applyDeviceRestrictions() {
-  const tabReg = document.getElementById("tabReg");
-  const notice = document.getElementById("deviceNotice");
-  const toggle = document.getElementById("toggleMsg");
-  if (deviceRegistered) {
-    tabReg.disabled      = true;
-    notice.style.display = "block";
-    toggle.style.display = "none";
-    setTab("login", true);
-  } else {
-    tabReg.disabled      = false;
-    notice.style.display = "none";
-    toggle.style.display = "block";
-  }
-}
+  // ═══════════════════════════════════════════════
+  //  TABS
+  // ═══════════════════════════════════════════════
+  window.setTab = function (tab, force = false) {
+    if (tab === "registro" && deviceRegistered && !force) {
+      setError("Este dispositivo ya tiene una cuenta. Usa otro dispositivo.", "var(--accent3)");
+      return;
+    }
+    currentTab = tab;
+    document.getElementById("tabLogin").classList.toggle("active", tab === "login");
+    document.getElementById("tabReg").classList.toggle("active",   tab === "registro");
+    document.getElementById("group-user").style.display = tab === "registro" ? "block" : "none";
+    document.getElementById("btnTxt").textContent = tab === "registro" ? "Crear cuenta" : "Conectar";
+    if (!deviceRegistered) {
+      document.getElementById("toggleMsg").innerHTML = tab === "registro"
+        ? `¿Ya tienes cuenta? <span onclick="setTab('login')">Inicia sesión</span>`
+        : `¿No tienes cuenta? <span onclick="setTab('registro')">Regístrate</span>`;
+    }
+    setError("");
+  };
 
-/* ──────────────────────────────────────────────────────────
-   TABS
-────────────────────────────────────────────────────────── */
-function setTab(tab, force) {
-  if (tab === "registro" && deviceRegistered && !force) {
-    setError("Este dispositivo ya tiene una cuenta. Usa otro dispositivo.", "var(--accent3)");
-    return;
+  // ═══════════════════════════════════════════════
+  //  INDICADOR DE DOMINIO
+  // ═══════════════════════════════════════════════
+  window.onEmailInput = function () {
+    const email = document.getElementById("email").value.trim();
+    const ind   = document.getElementById("domainIndicator");
+    const badge = document.getElementById("roleBadge");
+
+    if (!email || !email.includes("@")) {
+      ind.className = "domain-indicator"; ind.textContent = "Ingresa tu correo";
+      badge.style.display = "none"; return;
+    }
+
+    const { role, valid } = detectRole(email);
+    if (!valid) {
+      ind.className = "domain-indicator invalid"; ind.textContent = "Dominio no reconocido";
+      badge.style.display = "none"; return;
+    }
+
+    const labels = { user:"✦ Autor", mod:"🛡 Moderador", admin:"⚙ Administrador", owner:"👑 Owner" };
+    const colors = { user:"#4CAF50", mod:"#f59e0b", admin:"#06b6d4", owner:"#e63e6d" };
+    ind.className = `domain-indicator ${role}`; ind.textContent = labels[role];
+    badge.style.display = "block";
+    badge.style.color = badge.style.borderColor = colors[role];
+    badge.style.background = colors[role] + "14";
+    badge.textContent = labels[role];
+
+    if (role !== "user" && currentTab === "registro") {
+      setTab("login", true); setError("El staff no puede registrarse aquí.", "#f59e0b");
+    }
+  };
+
+  // ═══════════════════════════════════════════════
+  //  HELPERS UI
+  // ═══════════════════════════════════════════════
+  function setError(msg, color = "var(--accent)") {
+    const el = document.getElementById("errMsg"); el.style.color = color; el.textContent = msg;
   }
-  currentTab = tab;
-  document.getElementById("tabLogin").classList.toggle("active", tab === "login");
-  document.getElementById("tabReg").classList.toggle("active",   tab === "registro");
-  document.getElementById("group-user").style.display = tab === "registro" ? "block" : "none";
-  document.getElementById("btnTxt").textContent = tab === "registro" ? "Crear cuenta" : "Conectar";
-  if (!deviceRegistered) {
-    const lnk = document.getElementById("toggleLink");
-    const msg  = document.getElementById("toggleMsg");
-    if (tab === "registro") {
-      msg.innerHTML = '¿Ya tienes cuenta? <span id="toggleLink">Inicia sesión</span>';
+  function setLoading(on) {
+    document.getElementById("btnSubmit").disabled = on;
+    document.getElementById("spinner").style.display = on ? "block" : "none";
+    document.getElementById("btnTxt").style.display  = on ? "none"  : "block";
+  }
+  function esc(str) {
+    return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  // ═══════════════════════════════════════════════
+  //  GUARDAR CUENTA (máximo MAX_ACCOUNTS = 15)
+  //  Si ya existe el email, actualiza. Si hay
+  //  espacio, añade. Si está lleno, descarta el
+  //  registro más antiguo (FIFO) para hacer lugar.
+  // ═══════════════════════════════════════════════
+  function addAccountToDevice({ nombre, email, foto, rol }) {
+    const idx = deviceAccounts.findIndex(a => a.email === email);
+    if (idx >= 0) {
+      Object.assign(deviceAccounts[idx], { nombre, foto: foto||"", rol: rol||"user" });
     } else {
-      msg.innerHTML = '¿No tienes cuenta? <span id="toggleLink">Regístrate</span>';
-    }
-    // Re-bind después de cambiar innerHTML
-    document.getElementById("toggleLink").addEventListener("click", () => {
-      setTab(currentTab === "login" ? "registro" : "login");
-    });
-  }
-  setError("");
-}
-
-/* ──────────────────────────────────────────────────────────
-   INDICADOR DE DOMINIO
-────────────────────────────────────────────────────────── */
-function updateDomainIndicator(email) {
-  const ind   = document.getElementById("domainIndicator");
-  const badge = document.getElementById("roleBadge");
-
-  if (!email || !email.includes("@")) {
-    ind.className = "domain-indicator"; ind.textContent = "Ingresa tu correo";
-    badge.style.display = "none"; return;
-  }
-  const { role, valid } = detectRole(email);
-  if (!valid) {
-    ind.className = "domain-indicator invalid"; ind.textContent = "Dominio no reconocido";
-    badge.style.display = "none"; return;
-  }
-  const labels = { user:"✦ Autor", mod:"🛡 Moderador", admin:"⚙ Administrador", owner:"👑 Owner" };
-  const colors = { user:"#4CAF50", mod:"#f59e0b", admin:"#06b6d4", owner:"#e63e6d" };
-  ind.className = `domain-indicator ${role}`; ind.textContent = labels[role];
-  badge.style.display = "block";
-  badge.style.color = badge.style.borderColor = colors[role];
-  badge.style.background = colors[role] + "14";
-  badge.textContent = labels[role];
-
-  if (role !== "user" && currentTab === "registro") {
-    setTab("login", true);
-    setError("El staff no puede registrarse aquí.", "#f59e0b");
-  }
-}
-
-/* ──────────────────────────────────────────────────────────
-   BOTÓN FLOTANTE
-────────────────────────────────────────────────────────── */
-function renderFloatBtn() {
-  const btn = document.getElementById("accountsFloatBtn");
-  if (!deviceAccounts || deviceAccounts.length === 0) { btn.style.display = "none"; return; }
-  btn.style.display = "flex";
-
-  const row = document.getElementById("avatarsRow");
-  row.innerHTML = "";
-  deviceAccounts.slice(0, 3).forEach(acc => {
-    const el = document.createElement("div");
-    el.className = "mini-avatar";
-    if (acc.foto) {
-      const img = document.createElement("img");
-      img.src = acc.foto;
-      img.onerror = () => { el.innerHTML = ""; el.textContent = (acc.nombre||"?")[0].toUpperCase(); };
-      el.appendChild(img);
-    } else {
-      el.textContent = (acc.nombre||"?")[0].toUpperCase();
-    }
-    row.appendChild(el);
-  });
-
-  document.getElementById("accountsBtnLabel").textContent =
-    deviceAccounts.length === 1 ? deviceAccounts[0].nombre : `${deviceAccounts.length} cuentas`;
-}
-
-/* ──────────────────────────────────────────────────────────
-   CHIPS EN EL PANEL
-────────────────────────────────────────────────────────── */
-function renderChips() {
-  const container = document.getElementById("chipsContainer");
-  container.innerHTML = "";
-
-  if (!deviceAccounts || deviceAccounts.length === 0) {
-    container.innerHTML = `<p style="font-size:.78rem;color:var(--text-muted);text-align:center;padding:10px 0">Sin sesiones previas.</p>`;
-    return;
-  }
-
-  const roleLabels = { user:"Autor", mod:"Moderador", admin:"Admin", owner:"Owner" };
-  // Sesión activa la sabemos por LS (sync)
-  const sess = KttStorage.getSessionSync();
-  const activeEmail = sess ? sess.email : "";
-
-  deviceAccounts.forEach(acc => {
-    const chip     = document.createElement("div");
-    const isActive = acc.email === activeEmail;
-    chip.className = `account-chip${isActive ? " is-active" : ""}`;
-    chip.title     = "Toca para iniciar sesión rápido";
-    const initial  = (acc.nombre||"?")[0].toUpperCase();
-    chip.innerHTML = `
-      <div class="chip-avatar">
-        ${acc.foto
-          ? `<img src="${_esc(acc.foto)}" alt="" onerror="this.parentElement.textContent='${initial}'">`
-          : initial}
-      </div>
-      <div class="chip-info">
-        <div class="chip-name">${_esc(acc.nombre)}</div>
-        <div class="chip-email">${_esc(acc.email)}</div>
-      </div>
-      <span class="chip-role-tag ${acc.rol||"user"}">${roleLabels[acc.rol]||"Autor"}</span>
-      ${isActive ? `<div class="chip-active-dot" title="Sesión activa"></div>` : ""}
-    `;
-    chip.addEventListener("click", () => {
-      closePanel();
-      setTab("login", true);
-      document.getElementById("email").value = acc.email;
-      updateDomainIndicator(acc.email);
-      document.getElementById("pass").focus();
-    });
-    container.appendChild(chip);
-  });
-
-  const footer = document.createElement("p");
-  const atLimit = deviceAccounts.length >= KttStorage.MAX_ACCS;
-  footer.className = `chips-footer${atLimit ? " at-limit" : ""}`;
-  footer.textContent = atLimit
-    ? `Límite de ${KttStorage.MAX_ACCS} cuentas alcanzado`
-    : `${deviceAccounts.length} / ${KttStorage.MAX_ACCS} sesiones guardadas`;
-  container.appendChild(footer);
-}
-
-function closePanel() {
-  document.getElementById("accountsPanel").classList.remove("open");
-}
-
-/* ──────────────────────────────────────────────────────────
-   HELPERS UI
-────────────────────────────────────────────────────────── */
-function setError(msg, color) {
-  const el = document.getElementById("errMsg");
-  el.style.color = color || "var(--accent)";
-  el.textContent = msg || "";
-}
-function setLoading(on) {
-  document.getElementById("btnSubmit").disabled = on;
-  document.getElementById("spinner").style.display = on ? "block" : "none";
-  document.getElementById("btnTxt").style.display  = on ? "none"  : "block";
-}
-function _esc(str) {
-  return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-/* ──────────────────────────────────────────────────────────
-   ENVIAR (registro / login)
-────────────────────────────────────────────────────────── */
-async function enviar() {
-  const email = (document.getElementById("email").value || "").trim();
-  const pass  = (document.getElementById("pass").value  || "").trim();
-  const user  = (document.getElementById("user").value  || "").trim();
-
-  if (!email || !pass) { setError("Completa todos los campos."); return; }
-  const { role, valid } = detectRole(email);
-  if (!valid) { setError("Dominio de correo no válido."); return; }
-
-  if (currentTab === "registro") {
-    if (deviceRegistered) { setError("Este dispositivo ya tiene una cuenta.", "var(--accent3)"); return; }
-    if (role !== "user")  { setError("El staff solo puede ser creado por sus superiores."); return; }
-    if (!user)            { setError("Ingresa tu nombre de autor."); return; }
-  }
-
-  setLoading(true); setError("");
-
-  try {
-    const body = { action: currentTab === "registro" ? "registro" : "login", user, pass, email };
-    if (body.action === "login" && role !== "user") {
-      body.action = "loginStaff";
-      body.rolReq = role;
-    }
-
-    const res  = await fetch(SCRIPT_URL, { method:"POST", headers:{"Content-Type":"text/plain"}, body: JSON.stringify(body) });
-    const data = await res.json();
-
-    if (data.status === "success") {
-
-      // ── REGISTRO EXITOSO ──
-      if (currentTab === "registro") {
-        await KttStorage.setRegistered();
-        deviceRegistered = true;
-        setError("¡Registro exitoso! Ahora inicia sesión.", "var(--accent3)");
-        applyDeviceRestrictions();
-        setTimeout(() => {
-          setTab("login", true);
-          document.getElementById("pass").value = "";
-        }, 1500);
-        return;
+      if (deviceAccounts.length >= MAX_ACCOUNTS) {
+        deviceAccounts.shift();   // elimina el más antiguo
       }
-
-      // ── SUSPENDIDO ──
-      if (data.suspendido) {
-        localStorage.setItem("ktt_suspension_motivo", data.motivo || "");
-        localStorage.setItem("ktt_suspension_email",  email);
-        _ownNavigation = true;
-        window.location.href = "suspendido.html";
-        return;
-      }
-
-      // ── LOGIN EXITOSO ──
-      const nombre = data.nombre || user;
-      const foto   = data.foto   || "";
-      const rol    = data.rol    || "user";
-      const idSess = data.idAutor || data.idStaff || "";
-
-      // Guardar sesión (sync en LS + async en IDB)
-      KttStorage.saveSessionSync({ idAutor: idSess, nombre, foto, rol, email });
-
-      // Guardar cuenta en historial del dispositivo (async)
-      deviceAccounts = await KttStorage.addAccount({ nombre, email, foto, rol });
-
-      // Navegar
-      _ownNavigation = true;
-      window.location.href = PANEL_MAP[rol] || "panel_autor.html";
-
-    } else {
-      setError(data.message || "Credenciales incorrectas.");
+      deviceAccounts.push({ nombre, email, foto: foto||"", rol: rol||"user" });
     }
-  } catch (err) {
-    console.error(err);
-    setError("Error de conexión. Intenta de nuevo.");
-  } finally {
-    setLoading(false);
+    localStorage.setItem(KEY_ACCOUNTS, JSON.stringify(deviceAccounts));
+    renderFloatBtn();
+    renderChips();
   }
-}
 
-/* ──────────────────────────────────────────────────────────
-   ARRANCAR
-────────────────────────────────────────────────────────── */
-// Usamos DOMContentLoaded para garantizar que el DOM existe
-// antes de que init() intente leer elementos
-document.addEventListener("DOMContentLoaded", () => { init(); });
+  // ═══════════════════════════════════════════════
+  //  ENVIAR
+  // ═══════════════════════════════════════════════
+  window.enviar = async function () {
+    const email = document.getElementById("email").value.trim();
+    const p     = document.getElementById("pass").value.trim();
+    const u     = document.getElementById("user").value.trim();
+
+    if (!email || !p) { setError("Completa todos los campos."); return; }
+    const { role, valid } = detectRole(email);
+    if (!valid) { setError("Dominio de correo no válido."); return; }
+
+    if (currentTab === "registro") {
+      if (deviceRegistered) { setError("Este dispositivo ya tiene una cuenta.", "var(--accent3)"); return; }
+      if (role !== "user")  { setError("El staff solo puede ser creado por sus superiores."); return; }
+      if (!u)               { setError("Ingresa tu nombre de autor."); return; }
+    }
+
+    setLoading(true); setError("");
+
+    try {
+      const body = { action: currentTab === "registro" ? "registro" : "login", user: u, pass: p, email };
+      if (body.action === "login" && role !== "user") { body.action = "loginStaff"; body.rolReq = role; }
+
+      const res  = await fetch(SCRIPT_URL, { method:"POST", headers:{"Content-Type":"text/plain"}, body: JSON.stringify(body) });
+      const data = await res.json();
+
+      if (data.status === "success") {
+        if (currentTab === "registro") {
+          localStorage.setItem(KEY_REGISTERED, "true");
+          deviceRegistered = true;
+          setError("¡Registro exitoso! Ahora inicia sesión.", "var(--accent3)");
+          applyDeviceRestrictions();
+          setTimeout(() => { setTab("login", true); document.getElementById("pass").value = ""; }, 1500);
+          return;
+        }
+
+        if (data.suspendido) {
+          localStorage.setItem("ktt_suspension_motivo", data.motivo || "");
+          localStorage.setItem("ktt_suspension_email",  email);
+          navigating = true;
+          window.location.href = "suspendido.html";
+          return;
+        }
+
+        const nombre = data.nombre || u;
+        const foto   = data.foto   || "";
+        const rol    = data.rol    || "user";
+        const idSess = data.idAutor || data.idStaff;
+
+        saveSession({ idAutor: idSess, nombre, foto, rol, email });
+        addAccountToDevice({ nombre, email, foto, rol });
+
+        navigating = true;
+        const map = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
+        window.location.href = map[rol] || "panel_autor.html";
+      } else {
+        setError(data.message || "Credenciales incorrectas.");
+      }
+    } catch { setError("Error de conexión. Intenta de nuevo."); }
+    finally  { setLoading(false); }
+  };
+
+  document.addEventListener("keydown", e => { if (e.key === "Enter") window.enviar(); });
+  init();
 </script>
 </body>
 </html>
