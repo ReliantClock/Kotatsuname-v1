@@ -3,177 +3,280 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Perfil de Autor | Kotatsu</title>
+  <title>Editar Autor | Kotatsu Staff</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="buscador.css">
   <style>
-    .nav-btn{display:inline-block;text-decoration:none;background:transparent;padding:8px 18px;border-radius:5px;color:#fff;font-family:var(--font-body);font-size:0.8rem;font-weight:600;letter-spacing:0.1em;border:1px solid var(--accent);cursor:pointer;transition:all 0.3s;}
+    /* ── Bloqueo ── */
+    #authGuard{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:12px;}
+    #authGuard p{color:var(--text-muted);font-family:'Rajdhani';font-size:0.9rem;letter-spacing:0.1em;}
+
+    /* ── Sticky nav ── */
+    .sticky-nav{
+      position:sticky;top:0;z-index:200;
+      background:rgba(10,10,15,0.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--border);
+      padding:10px 16px;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      /* compensar el padding del wrapper */
+      margin:0 -16px 24px;
+    }
+    .sticky-left{display:flex;align-items:center;gap:10px;}
+    .sticky-right{display:flex;align-items:center;gap:8px;}
+
+    .nav-btn{display:inline-block;text-decoration:none;background:transparent;padding:7px 14px;border-radius:5px;color:#fff;font-family:'Rajdhani';font-size:0.78rem;font-weight:600;letter-spacing:0.1em;border:1px solid var(--accent);cursor:pointer;transition:all 0.3s;white-space:nowrap;}
     .nav-btn:hover{background:var(--accent);box-shadow:0 0 15px var(--accent);}
 
-    .author-hero{display:flex;align-items:center;gap:28px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:36px;flex-wrap:wrap;box-shadow:0 8px 30px rgba(0,0,0,0.3);}
-    .author-avatar{width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);flex-shrink:0;background:var(--surface2);}
-    .author-avatar-ph{width:100px;height:100px;border-radius:50%;flex-shrink:0;background:var(--surface2);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:2.5rem;}
-    .author-info .role{color:var(--accent3);font-size:0.65rem;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:6px;}
-    .author-info h1{font-family:var(--font-display);font-size:clamp(1.3rem,3vw,2rem);background:linear-gradient(135deg,#fff,var(--accent) 60%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
-    .author-info .stats{color:var(--text-muted);font-size:0.85rem;}
+    /* Chip de sesión */
+    .session-chip{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:5px 12px 5px 5px;cursor:default;}
+    .session-chip img{width:26px;height:26px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);flex-shrink:0;}
+    .session-chip-ph{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.75rem;flex-shrink:0;}
+    .session-chip span{font-size:0.75rem;font-weight:600;color:var(--text);white-space:nowrap;}
+    .role-badge{font-size:0.58rem;font-weight:700;padding:2px 6px;border-radius:8px;text-transform:uppercase;white-space:nowrap;}
+    .role-owner{color:var(--accent);background:rgba(230,62,109,0.1);border:1px solid var(--accent);}
+    .role-admin{color:var(--accent3);background:rgba(6,182,212,0.08);border:1px solid var(--accent3);}
+    .role-mod  {color:#f59e0b;background:rgba(245,158,11,0.08);border:1px solid #f59e0b;}
 
-    .section-label{font-size:0.75rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin-bottom:20px;display:block;border-bottom:1px solid var(--border);padding-bottom:10px;}
+    /* ── Hero autor ── */
+    .author-hero{display:flex;align-items:center;gap:22px;background:var(--surface);border:1px solid rgba(230,62,109,0.25);border-radius:18px;padding:22px;margin-bottom:22px;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,0.3);}
+    .author-avatar{width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);flex-shrink:0;background:var(--surface2);}
+    .author-avatar-ph{width:88px;height:88px;border-radius:50%;flex-shrink:0;background:var(--surface2);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:2.2rem;}
+    .author-info .role-lbl{color:var(--accent3);font-size:0.62rem;letter-spacing:3px;font-weight:700;text-transform:uppercase;margin-bottom:5px;}
+    .author-info h1{font-family:'Cinzel Decorative';font-size:clamp(1.1rem,3vw,1.7rem);background:linear-gradient(135deg,#fff,var(--accent) 60%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:5px;}
+    .author-info .stats{color:var(--text-muted);font-size:0.82rem;}
+    .badge-estado{display:inline-block;font-size:0.6rem;font-weight:700;padding:2px 9px;border-radius:20px;margin-left:7px;text-transform:uppercase;vertical-align:middle;}
+    .badge-activo{color:#4CAF50;background:rgba(76,175,80,0.1);border:1px solid #4CAF50;}
+    .badge-suspendido{color:var(--accent);background:rgba(230,62,109,0.1);border:1px solid var(--accent);}
 
-    .obras-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:18px;}
-    .empty{text-align:center;padding:60px 20px;color:var(--text-muted);}
-    .empty-icon{font-size:3rem;display:block;margin-bottom:12px;opacity:0.4;}
+    /* ── Tabs ── */
+    .page-tabs{display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:22px;}
+    .page-tab{flex:1;padding:10px 8px;background:transparent;border:none;color:var(--text-muted);font-family:'Rajdhani';font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:0.2s;}
+    .page-tab.active{background:rgba(230,62,109,0.1);color:var(--accent);border-bottom:2px solid var(--accent);}
 
-    /* Panel de edición del autor (solo visible desde owner) */
-    .owner-panel{background:var(--surface);border:1px solid rgba(230,62,109,0.35);border-radius:16px;padding:20px;margin-bottom:28px;}
-    .owner-panel h3{font-family:'Cinzel Decorative';color:var(--accent);font-size:0.85rem;margin:0 0 16px;}
-    .owner-section{margin-bottom:18px;}
-    .owner-section label{display:block;font-size:0.65rem;color:var(--text-muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
-    .owner-row{display:flex;gap:8px;flex-wrap:wrap;}
-    .owner-row input,.owner-row select{flex:1;min-width:0;background:#0a0a0f;border:1px solid var(--border);padding:9px 12px;border-radius:9px;color:#fff;font-family:'Rajdhani';font-size:0.88rem;outline:none;transition:0.2s;box-sizing:border-box;}
-    .owner-row input:focus,.owner-row select:focus{border-color:var(--accent);}
-    .owner-row select option{background:#1a1a28;}
-    .owner-row .btn-o{background:var(--accent);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-weight:700;font-family:'Rajdhani';cursor:pointer;font-size:0.82rem;white-space:nowrap;transition:0.2s;}
-    .owner-row .btn-o:hover{filter:brightness(1.1);}
-    .owner-row .btn-o.secondary{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
-    .owner-row .btn-o.secondary:hover{border-color:var(--accent3);color:var(--accent3);}
-    .owner-row .btn-o.danger{background:transparent;color:#ff4444;border:1px solid #ff4444;}
-    .owner-row .btn-o.danger:hover{background:#ff4444;color:#fff;}
-    .owner-feedback{font-size:0.78rem;margin-top:6px;min-height:1em;}
-    .owner-feedback.ok {color:#4CAF50;}
-    .owner-feedback.err{color:var(--accent);}
+    /* ── Cards horizontales de obras ── */
+    .item-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:11px;margin-bottom:8px;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;}
+    .item-card:hover{border-color:rgba(230,62,109,0.45);box-shadow:0 4px 18px rgba(230,62,109,0.12);}
+    .item-cover{width:42px;height:60px;border-radius:6px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;}
+    .item-cover img{width:100%;height:100%;object-fit:cover;border-radius:5px;}
+    .item-info{flex:1;min-width:0;}
+    .item-info h4{margin:0 0 3px;color:#fff;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .item-info small{color:var(--text-muted);font-size:0.68rem;}
+    .badge-ap{display:inline-block;font-size:0.56rem;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:5px;text-transform:uppercase;vertical-align:middle;}
+    .ap-aprobado  {color:#4CAF50;background:rgba(76,175,80,0.1);border:1px solid #4CAF50;}
+    .ap-pendiente {color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid #f59e0b;}
+    .ap-suspension{color:var(--accent);background:rgba(230,62,109,0.1);border:1px solid var(--accent);}
+    .ap-revision  {color:var(--accent3);background:rgba(6,182,212,0.1);border:1px solid var(--accent3);}
+    .item-arrow{color:var(--text-muted);font-size:0.8rem;flex-shrink:0;}
 
-    /* Lista de capítulos editable */
-    .caps-edit-list{display:flex;flex-direction:column;gap:7px;margin-top:6px;}
-    .cap-edit-row{display:flex;gap:6px;align-items:center;}
-    .cap-edit-row .cap-num{font-size:0.7rem;color:var(--text-muted);min-width:28px;font-weight:700;}
-    .cap-edit-row input{flex:1;min-width:0;background:#0a0a0f;border:1px solid var(--border);padding:7px 10px;border-radius:8px;color:#fff;font-family:'Rajdhani';font-size:0.82rem;outline:none;transition:0.2s;box-sizing:border-box;}
-    .cap-edit-row input:focus{border-color:var(--accent);}
-    .cap-edit-row .btn-del{background:none;border:1px solid #ff4444;color:#ff4444;border-radius:6px;padding:4px 7px;cursor:pointer;font-size:0.7rem;transition:0.2s;flex-shrink:0;}
-    .cap-edit-row .btn-del:hover{background:#ff4444;color:#fff;}
-    .btn-add-cap{background:none;border:1px dashed var(--border);color:var(--text-muted);border-radius:8px;padding:7px;width:100%;cursor:pointer;font-family:'Rajdhani';font-size:0.78rem;transition:0.2s;margin-top:4px;}
+    /* ── Panel lateral capítulos ── */
+    .caps-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:499;display:none;}
+    .caps-overlay.open{display:block;}
+    .caps-side{position:fixed;top:0;right:-100%;width:min(380px,100%);height:100%;background:#0e0e18;border-left:1px solid var(--border);z-index:500;display:flex;flex-direction:column;transition:right 0.35s cubic-bezier(0.4,0,0.2,1);box-shadow:-10px 0 40px rgba(0,0,0,0.5);}
+    .caps-side.open{right:0;}
+    .caps-side-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-shrink:0;}
+    .caps-side-cover{width:44px;height:62px;border-radius:7px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.2rem;overflow:hidden;}
+    .caps-side-cover img{width:100%;height:100%;object-fit:cover;border-radius:6px;}
+    .caps-side-title{font-size:0.88rem;font-weight:700;color:#fff;line-height:1.3;flex:1;min-width:0;}
+    .caps-side-meta{font-size:0.66rem;color:var(--text-muted);margin-top:3px;}
+    .btn-close-caps{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem;padding:4px;transition:0.2s;flex-shrink:0;}
+    .btn-close-caps:hover{color:var(--accent);}
+    .caps-side-list{overflow-y:auto;flex:1;padding:12px 14px;}
+    .cap-item{display:flex;align-items:center;gap:11px;padding:10px 11px;border:1px solid var(--border);border-radius:10px;margin-bottom:7px;cursor:pointer;transition:0.2s;text-decoration:none;}
+    .cap-item:hover{border-color:var(--accent);background:rgba(230,62,109,0.05);}
+    .cap-num-badge{width:30px;height:30px;border-radius:7px;background:rgba(230,62,109,0.12);border:1px solid rgba(230,62,109,0.25);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:var(--accent);flex-shrink:0;}
+    .cap-name-text{font-size:0.83rem;color:#fff;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .caps-side-empty{text-align:center;padding:40px 20px;color:var(--text-muted);}
+
+    /* ── Edición ── */
+    .section-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;}
+    .section-card h3{font-family:'Cinzel Decorative';color:var(--accent);font-size:0.8rem;margin:0 0 14px;display:flex;align-items:center;gap:7px;}
+    .field{margin-bottom:11px;}
+    .field label{display:block;font-size:0.62rem;color:var(--text-muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+    .field input,.field textarea,.field select{width:100%;background:#0a0a0f;border:1px solid var(--border);padding:9px 11px;border-radius:9px;color:#fff;font-family:'Rajdhani';font-size:0.87rem;outline:none;transition:0.2s;box-sizing:border-box;}
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);}
+    .field textarea{resize:vertical;min-height:68px;}
+    .field select option{background:#1a1a28;}
+    .frow{display:flex;gap:8px;flex-wrap:wrap;}
+    .frow .field{flex:1;min-width:130px;}
+    .btn-save{background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;border:none;padding:10px 18px;border-radius:9px;font-family:'Rajdhani';font-weight:700;font-size:0.85rem;cursor:pointer;transition:0.2s;white-space:nowrap;}
+    .btn-save:hover{filter:brightness(1.1);}
+    .btn-danger{background:transparent;color:#ff4444;border:1px solid #ff4444;padding:9px 16px;border-radius:9px;font-family:'Rajdhani';font-weight:700;font-size:0.83rem;cursor:pointer;transition:0.2s;white-space:nowrap;}
+    .btn-danger:hover{background:#ff4444;color:#fff;}
+    .feedback{font-size:0.78rem;margin-top:7px;min-height:1em;}
+    .feedback.ok{color:#4CAF50;}
+    .feedback.err{color:var(--accent);}
+
+    .obra-select-wrap select{width:100%;background:#0a0a0f;border:1px solid var(--border);padding:9px 11px;border-radius:9px;color:#fff;font-family:'Rajdhani';font-size:0.87rem;outline:none;transition:0.2s;margin-bottom:12px;box-sizing:border-box;}
+    .obra-select-wrap select:focus{border-color:var(--accent);}
+    .obra-select-wrap select option{background:#1a1a28;}
+    .obra-edit-panel{display:none;}
+    .obra-edit-panel.visible{display:block;}
+
+    .caps-list{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
+    .cap-row{display:flex;gap:5px;align-items:center;}
+    .cap-row .cap-lbl{font-size:0.68rem;color:var(--text-muted);min-width:28px;font-weight:700;flex-shrink:0;}
+    .cap-row input{flex:1;min-width:0;background:#0a0a0f;border:1px solid var(--border);padding:6px 9px;border-radius:7px;color:#fff;font-family:'Rajdhani';font-size:0.8rem;outline:none;transition:0.2s;box-sizing:border-box;}
+    .cap-row input:focus{border-color:var(--accent);}
+    .cap-row .btn-del-cap{background:none;border:1px solid #ff4444;color:#ff4444;border-radius:6px;padding:4px 7px;cursor:pointer;font-size:0.68rem;transition:0.2s;flex-shrink:0;}
+    .cap-row .btn-del-cap:hover{background:#ff4444;color:#fff;}
+    .btn-add-cap{background:none;border:1px dashed var(--border);color:var(--text-muted);border-radius:8px;padding:7px;width:100%;cursor:pointer;font-family:'Rajdhani';font-size:0.76rem;transition:0.2s;margin-top:4px;box-sizing:border-box;}
     .btn-add-cap:hover{border-color:var(--accent3);color:var(--accent3);}
 
-    /* Obra seleccionada para editar */
-    .obra-select-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
-    .obra-select-row select{flex:1;min-width:0;background:#0a0a0f;border:1px solid var(--border);padding:9px 12px;border-radius:9px;color:#fff;font-family:'Rajdhani';font-size:0.88rem;outline:none;transition:0.2s;}
-    .obra-select-row select:focus{border-color:var(--accent);}
-    .obra-select-row select option{background:#1a1a28;}
-    .obra-edit-panel{display:none;margin-top:12px;}
-    .obra-edit-panel.visible{display:block;}
+    .empty{text-align:center;padding:50px 20px;color:var(--text-muted);border:1px dashed var(--border);border-radius:12px;}
   </style>
 </head>
 <body>
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
 
-  <div class="wrapper">
-    <nav style="padding:16px 0 28px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
-      <a id="btnVolver" href="index.html" class="nav-btn">Volver</a>
-      <!-- Se añade el botón de volver al panel del owner si viene desde allá -->
-    </nav>
-
-    <!-- Hero del autor -->
-    <div class="author-hero" id="authorHero">
-      <div class="author-avatar-ph">👤</div>
-      <div class="author-info">
-        <p class="role">Autor</p>
-        <h1 id="authorName">Cargando...</h1>
-        <p class="stats" id="authorStats"></p>
-      </div>
-    </div>
-
-    <!-- Panel de edición del owner (oculto por defecto) -->
-    <div class="owner-panel" id="ownerPanel" style="display:none;">
-      <h3>Edición del Dueño</h3>
-
-      <!-- Cambiar foto del autor -->
-      <div class="owner-section">
-        <label>Foto del Autor</label>
-        <div class="owner-row">
-          <input type="text" id="ownerFotoInput" placeholder="Link Google Drive de la foto...">
-          <button class="btn-o" onclick="ownerCambiarFoto()">Actualizar Foto</button>
-        </div>
-        <p class="owner-feedback" id="fbFoto"></p>
-      </div>
-
-      <!-- Suspender / Activar autor -->
-      <div class="owner-section">
-        <label>Estado del Autor</label>
-        <div class="owner-row">
-          <input type="text" id="ownerMotivoEstado" placeholder="Motivo de la acción...">
-          <button class="btn-o danger" id="btnSuspender" onclick="ownerCambiarEstado('suspender')">Suspender</button>
-          <button class="btn-o secondary" id="btnActivar" onclick="ownerCambiarEstado('activar')" style="display:none;">Activar</button>
-        </div>
-        <p class="owner-feedback" id="fbEstado"></p>
-      </div>
-
-      <!-- Editar obras del autor -->
-      <div class="owner-section">
-        <label>Editar Obras del Autor</label>
-        <div class="obra-select-row">
-          <select id="obraSelect" onchange="cargarObraEditar()">
-            <option value="">— Selecciona una obra —</option>
-          </select>
-        </div>
-        <div class="obra-edit-panel" id="obraEditPanel">
-          <!-- Metadatos -->
-          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;">
-            <div class="owner-row">
-              <input type="text" id="oeTitulo" placeholder="Título">
-              <input type="text" id="oeCover" placeholder="Portada (link Drive o ID)">
-            </div>
-            <div class="owner-row">
-              <select id="oeAprobacion">
-                <option value="aprobado">Aprobado</option>
-                <option value="pendiente">Pendiente</option>
-                <option value="suspension">Suspendido</option>
-                <option value="revision">En revisión</option>
-              </select>
-              <select id="oeEstadoObra">
-                <option value="en emisión">En emisión</option>
-                <option value="completado">Completado</option>
-                <option value="en pausa">En pausa</option>
-              </select>
-            </div>
-            <textarea id="oeSinopsis" placeholder="Sinopsis..." style="background:#0a0a0f;border:1px solid var(--border);border-radius:9px;padding:10px;color:#fff;font-family:'Rajdhani';font-size:0.88rem;outline:none;resize:vertical;min-height:70px;box-sizing:border-box;width:100%;transition:0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-          </div>
-
-          <!-- Capítulos -->
-          <label style="display:block;font-size:0.65rem;color:var(--text-muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Capítulos</label>
-          <div class="caps-edit-list" id="capsEditList"></div>
-          <button class="btn-add-cap" onclick="agregarCapEditar()">+ Agregar capítulo</button>
-
-          <div class="owner-row" style="margin-top:14px;">
-            <button class="btn-o" onclick="guardarObraEditar()">Guardar Cambios</button>
-            <button class="btn-o danger" onclick="confirmarEliminarObra()">Eliminar Obra</button>
-          </div>
-          <p class="owner-feedback" id="fbObra"></p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Obras publicadas -->
-    <span class="section-label" id="sectionLabel">Obras publicadas</span>
-    <div class="obras-grid" id="obrasGrid"></div>
+  <!-- Bloqueo hasta verificar sesión -->
+  <div id="authGuard">
+    <i class="fas fa-spinner fa-spin" style="font-size:1.8rem;color:var(--accent);"></i>
+    <p>Verificando sesión...</p>
   </div>
 
-  <!-- Modal de obra (público) -->
-  <div id="modal" class="modal-backdrop" role="dialog" aria-modal="true">
-    <div class="modal-box">
-      <button class="modal-close" id="modalClose">✕</button>
-      <div class="modal-cover" id="modalCover"></div>
-      <div class="modal-content">
-        <div class="modal-badge" id="modalBadge">Escrito Original</div>
-        <h2 class="modal-title" id="modalTitle"></h2>
-        <div class="modal-tags" id="modalTags"></div>
-        <p class="modal-sinopsis" id="modalSinopsis"></p>
-        <div class="modal-footer">
-          <span class="modal-seasons" id="modalSeasons"></span>
-          <div class="modal-btns" id="modalBtns"></div>
+  <div id="pageContent" style="display:none;">
+    <div class="wrapper">
+
+      <!-- ══ STICKY NAV ══ -->
+      <div class="sticky-nav">
+        <div class="sticky-left">
+          <a id="btnVolver" href="#" class="nav-btn">Panel</a>
+        </div>
+        <div class="sticky-right">
+          <!-- Chip de sesión con foto -->
+          <div class="session-chip">
+            <div id="chipAvatarWrap" class="session-chip-ph">👤</div>
+            <span id="chipNombre">Staff</span>
+            <span id="chipRolBadge" class="role-badge"></span>
+          </div>
         </div>
       </div>
+
+      <!-- Hero -->
+      <div class="author-hero">
+        <div id="avatarWrap" class="author-avatar-ph">👤</div>
+        <div class="author-info">
+          <p class="role-lbl">Autor</p>
+          <h1 id="authorName">Cargando...</h1>
+          <p class="stats" id="authorStats"></p>
+          <p style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;" id="authorEmail"></p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="page-tabs">
+        <button class="page-tab active" id="tabObras"  onclick="switchTab('obras')">
+          <i class="fas fa-book"></i> Obras
+        </button>
+        <button class="page-tab"        id="tabEditar" onclick="switchTab('editar')">
+          <i class="fas fa-pen"></i> Editar
+        </button>
+      </div>
+
+      <!-- ══ TAB: OBRAS ══ -->
+      <div id="panelObras">
+        <div id="obrasList"></div>
+      </div>
+
+      <!-- ══ TAB: EDITAR ══ -->
+      <div id="panelEditar" style="display:none;">
+
+        <!-- Foto -->
+        <div class="section-card">
+          <h3><i class="fas fa-camera"></i> Foto del Autor</h3>
+          <div class="field">
+            <label>Link de imagen (Google Drive)</label>
+            <input type="text" id="inputFoto" placeholder="https://drive.google.com/file/d/...">
+          </div>
+          <button class="btn-save" onclick="guardarFoto()">Actualizar Foto</button>
+          <p class="feedback" id="fbFoto"></p>
+        </div>
+
+        <!-- Estado (solo owner y admin) -->
+        <div class="section-card" id="seccionEstado">
+          <h3><i class="fas fa-user-shield"></i> Estado del Autor</h3>
+          <div class="field">
+            <label>Motivo de la acción</label>
+            <input type="text" id="inputMotivo" placeholder="Describe el motivo...">
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-danger" id="btnSuspender" onclick="cambiarEstado('suspender')">
+              <i class="fas fa-ban"></i> Suspender
+            </button>
+            <button class="btn-save" id="btnActivar" onclick="cambiarEstado('activar')" style="display:none;">
+              <i class="fas fa-check"></i> Activar
+            </button>
+          </div>
+          <p class="feedback" id="fbEstado"></p>
+        </div>
+
+        <!-- Editar obras -->
+        <div class="section-card">
+          <h3><i class="fas fa-pencil"></i> Editar Obras</h3>
+          <div class="obra-select-wrap">
+            <select id="obraSelect" onchange="cargarObraEditar()">
+              <option value="">— Selecciona una obra —</option>
+            </select>
+          </div>
+          <div class="obra-edit-panel" id="obraEditPanel">
+            <div class="frow">
+              <div class="field"><label>Título</label><input type="text" id="oeTitulo"></div>
+              <div class="field"><label>Portada (Drive ID o link)</label><input type="text" id="oeCover"></div>
+            </div>
+            <div class="frow">
+              <div class="field">
+                <label>Aprobación</label>
+                <select id="oeAprobacion">
+                  <option value="aprobado">Aprobado</option>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="suspension">Suspendido</option>
+                  <option value="revision">En revisión</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Estado emisión</label>
+                <select id="oeEstado">
+                  <option value="en emisión">En emisión</option>
+                  <option value="completado">Completado</option>
+                  <option value="en pausa">En pausa</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Sinopsis</label>
+              <textarea id="oeSinopsis"></textarea>
+            </div>
+            <div class="field">
+              <label>Capítulos</label>
+              <div class="caps-list" id="capsEditList"></div>
+              <button class="btn-add-cap" onclick="agregarCap()">+ Agregar capítulo</button>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+              <button class="btn-save"   onclick="guardarObra()"><i class="fas fa-floppy-disk"></i> Guardar</button>
+              <button class="btn-danger" onclick="eliminarObra()"><i class="fas fa-trash"></i> Eliminar</button>
+            </div>
+            <p class="feedback" id="fbObra"></p>
+          </div>
+        </div>
+
+      </div><!-- /panelEditar -->
+    </div><!-- /wrapper -->
+  </div><!-- /pageContent -->
+
+  <!-- Panel lateral de capítulos -->
+  <div class="caps-overlay" id="capsOverlay" onclick="cerrarCaps()"></div>
+  <div class="caps-side" id="capsSide">
+    <div class="caps-side-header">
+      <div class="caps-side-cover" id="capsCover"></div>
+      <div style="flex:1;min-width:0;">
+        <div class="caps-side-title" id="capsTitle"></div>
+        <div class="caps-side-meta"  id="capsMeta"></div>
+      </div>
+      <button class="btn-close-caps" onclick="cerrarCaps()"><i class="fas fa-xmark"></i></button>
     </div>
+    <div class="caps-side-list" id="capsSideList"></div>
   </div>
 
   <script type="module">
@@ -181,215 +284,256 @@
 
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlwm_htimcLqGW7p5HQvdgqwY1V7tlr3oEt5vl6FMZ8j6TGyB3V8t4Dwd2t8vU9AZA/exec";
 
-    const params    = new URLSearchParams(window.location.search);
-    const autorId   = params.get("id");
-    const fromOwner = params.get("from") === "owner";
-    const modal     = document.getElementById("modal");
+    // ── Verificación de rol ──
+    const staffId     = localStorage.getItem("ktt_id")    || "";
+    const staffRol    = localStorage.getItem("ktt_role")  || "";
+    const staffNombre = localStorage.getItem("ktt_user")  || "Staff";
+    const staffFoto   = localStorage.getItem("ktt_foto")  || "";
+    const rolesOK     = ["owner", "admin", "mod"];
 
-    // ── Volver: si viene del panel owner, volver allá ──
-    if (fromOwner) {
-      const btn = document.getElementById("btnVolver");
-      btn.href        = "panel_owner.html";
-      btn.textContent = "Panel";
+    if (!staffId || !rolesOK.includes(staffRol)) {
+      window.location.replace("registrarse.html");
+    } else {
+      document.getElementById("authGuard").style.display   = "none";
+      document.getElementById("pageContent").style.display = "block";
     }
 
-    // ── Modal de obra ──
-    function openModal(item) {
-      document.getElementById("modalTitle").textContent    = item.titulo;
-      document.getElementById("modalBadge").textContent    = `Autor: ${item.autor}`;
-      document.getElementById("modalSinopsis").textContent = item.sinopsis;
-      document.getElementById("modalCover").innerHTML      = item.cover
-        ? `<img src="${item.cover}" alt="${item.titulo}" />` : "";
-      document.getElementById("modalTags").innerHTML       = item.generos
-        .map(g => `<span class="modal-tag">${g}</span>`).join("");
-      document.getElementById("modalSeasons").textContent  = `${item.capitulos} capítulos`;
-      document.getElementById("modalBtns").innerHTML       =
-        `<a href="escritos_capitulos.html?id=${item.id}" class="modal-btn modal-btn--manga">Ver Capítulos</a>`;
-      modal.classList.add("open");
-      document.body.style.overflow = "hidden";
-    }
-    function closeModal() {
-      modal.classList.remove("open");
-      document.body.style.overflow = "";
-    }
-    document.getElementById("modalClose").addEventListener("click", closeModal);
-    modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
-    document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+    // ── Sticky nav: chip de sesión ──
+    const panelMap = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
+    document.getElementById("btnVolver").href = panelMap[staffRol] || "registrarse.html";
 
-    // ── Datos globales ──
-    let obrasDatos = []; // todas las obras del autor (con caps)
+    document.getElementById("chipNombre").textContent = staffNombre;
+    const chipBadge = document.getElementById("chipRolBadge");
+    chipBadge.textContent = staffRol;
+    chipBadge.className   = `role-badge role-${staffRol}`;
+
+    // Foto del staff en el chip
+    if (staffFoto) {
+      const img     = document.createElement("img");
+      img.src       = staffFoto;
+      img.alt       = staffNombre;
+      img.onerror   = () => {};
+      document.getElementById("chipAvatarWrap").replaceWith(img);
+    }
+
+    // Mods no pueden suspender/activar
+    if (staffRol === "mod") {
+      document.getElementById("seccionEstado").style.display = "none";
+    }
+
+    // URL params
+    const params  = new URLSearchParams(window.location.search);
+    const autorId = params.get("id");
+    if (!autorId) window.location.replace(panelMap[staffRol] || "registrarse.html");
+
+    // Estado global
+    let obrasDatos  = [];
     let autorEstado = "activo";
 
-    // ── Cargar autor ──
-    async function getFotoAutor(id) {
+    // ── Tabs ──
+    window.switchTab = function(tab) {
+      const esObras = tab === "obras";
+      document.getElementById("panelObras").style.display  = esObras ? "block" : "none";
+      document.getElementById("panelEditar").style.display = esObras ? "none"  : "block";
+      document.getElementById("tabObras").classList.toggle("active",  esObras);
+      document.getElementById("tabEditar").classList.toggle("active", !esObras);
+    };
+
+    // ── Panel lateral de capítulos ──
+    window.abrirCaps = function(idObra) {
+      const o = obrasDatos.find(x => String(x.id) === String(idObra));
+      if (!o) return;
+
+      const cov = document.getElementById("capsCover");
+      cov.innerHTML = o.cover
+        ? `<img src="${o.cover}" alt="${o.titulo}" onerror="this.parentElement.textContent=''">`
+        : "";
+
+      document.getElementById("capsTitle").textContent = o.titulo;
+      document.getElementById("capsMeta").textContent  =
+        `${o.capitulos} cap${o.capitulos !== 1 ? "s" : ""} · ${o.autor}`;
+
+      const list = document.getElementById("capsSideList");
+      const caps = Array.isArray(o.caps) ? o.caps : [];
+
+      if (!caps.length) {
+        list.innerHTML = `<div class="caps-side-empty">Sin capítulos registrados.</div>`;
+      } else {
+        list.innerHTML = "";
+        caps.forEach((c, idx) => {
+          const a       = document.createElement("a");
+          a.className   = "cap-item";
+          // Abre libro_capitulo.html igual que el flujo público
+          a.href        = `libro_capitulo.html?id=${o.id}&num=${c.numero}&gnum=${idx + 1}&nombre=${encodeURIComponent(c.nombre || "")}`;
+          a.innerHTML   = `
+            <div class="cap-num-badge">${c.numero}</div>
+            <div class="cap-name-text">${c.nombre || `Capítulo ${c.numero}`}</div>
+            <i class="fas fa-chevron-right" style="color:var(--text-muted);font-size:0.72rem;margin-left:auto;flex-shrink:0;"></i>`;
+          list.appendChild(a);
+        });
+      }
+
+      document.getElementById("capsSide").classList.add("open");
+      document.getElementById("capsOverlay").classList.add("open");
+      document.body.style.overflow = "hidden";
+    };
+
+    window.cerrarCaps = function() {
+      document.getElementById("capsSide").classList.remove("open");
+      document.getElementById("capsOverlay").classList.remove("open");
+      document.body.style.overflow = "";
+    };
+
+    // ── Info del autor ──
+    async function getAutorInfo(id) {
       try {
-        const res  = await fetch(SCRIPT_URL, {
+        const r = await fetch(SCRIPT_URL, {
           method:"POST", headers:{"Content-Type":"text/plain"},
           body: JSON.stringify({ action:"getAutorInfo", idAutor: id }),
         });
-        const data = await res.json();
-        if (data.status === "success") return data;
-        return {};
+        return await r.json();
       } catch { return {}; }
     }
 
+    // ── Carga principal ──
     async function cargar() {
-      if (!autorId) { document.getElementById("authorName").textContent = "Autor no encontrado"; return; }
+      const [todos, info] = await Promise.all([loadEscritos(), getAutorInfo(autorId)]);
 
-      const [todos, autorInfo] = await Promise.all([
-        loadEscritos(),
-        getFotoAutor(autorId),
-      ]);
+      obrasDatos  = todos.filter(o => String(o.id_autor) === String(autorId));
+      autorEstado = (info.estado || "activo").toLowerCase();
 
-      // Todas las obras del autor (sin filtrar suspendidas, para que el owner vea todo)
-      const todasLasObras = todos.filter(o => String(o.id_autor) === String(autorId));
-      // Las visibles al público
-      const obrasPublicas = todasLasObras.filter(o => {
-        const ap = (o.aprobacion||"").toLowerCase();
-        return ap !== "suspension" && ap !== "rechazado";
-      });
+      const nombre = obrasDatos[0]?.autor || info.nombre || "Autor desconocido";
+      document.title = `${nombre} — Staff Kotatsu`;
 
-      obrasDatos = todasLasObras; // el owner ve todas
+      document.getElementById("authorName").innerHTML =
+        `${nombre} <span class="badge-estado ${autorEstado === "suspendido" ? "badge-suspendido" : "badge-activo"}">${autorEstado}</span>`;
+      document.getElementById("authorStats").textContent =
+        `${obrasDatos.length} obra${obrasDatos.length !== 1 ? "s" : ""} en total`;
+      document.getElementById("authorEmail").textContent =
+        info.email ? `${info.email}` : "";
 
-      if (!todasLasObras.length && !autorInfo.nombre) {
-        document.getElementById("authorName").textContent = "Autor no encontrado";
-        document.getElementById("obrasGrid").innerHTML    = `<div class="empty"><span class="empty-icon"></span>Sin obras publicadas.</div>`;
-        return;
-      }
-
-      const autorNombre = (todasLasObras[0]?.autor) || autorInfo.nombre || "Autor";
-      autorEstado = (autorInfo.estado || "activo").toLowerCase();
-
-      document.title = `${autorNombre} — Kotatsuname`;
-      document.getElementById("authorName").textContent  = autorNombre;
-      document.getElementById("authorStats").textContent = `${obrasPublicas.length} obra${obrasPublicas.length !== 1 ? "s" : ""} publicada${obrasPublicas.length !== 1 ? "s" : ""}`;
-
-      if (autorInfo.foto) {
+      // Avatar del autor
+      if (info.foto) {
         const img     = document.createElement("img");
         img.className = "author-avatar";
-        img.alt       = autorNombre;
-        img.src       = autorInfo.foto;
+        img.src       = info.foto;
+        img.alt       = nombre;
         img.onerror   = () => {};
-        document.querySelector(".author-avatar-ph").replaceWith(img);
+        document.getElementById("avatarWrap").replaceWith(img);
       }
 
-      // ── Panel del owner ──
-      if (fromOwner) {
-        const panel = document.getElementById("ownerPanel");
-        panel.style.display = "block";
-
-        // Botones suspender/activar según estado actual
-        document.getElementById("btnSuspender").style.display = autorEstado === "suspendido" ? "none"         : "inline-block";
-        document.getElementById("btnActivar").style.display   = autorEstado === "suspendido" ? "inline-block" : "none";
-
-        // Poblar selector de obras
-        const sel = document.getElementById("obraSelect");
-        obrasDatos.forEach(o => {
-          const opt   = document.createElement("option");
-          opt.value   = o.id;
-          opt.textContent = `#${o.id} — ${o.titulo}`;
-          sel.appendChild(opt);
-        });
-
-        // Label sección muestra todas las obras
-        document.getElementById("sectionLabel").textContent = "Todas las obras del autor";
+      // Botones estado
+      if (staffRol !== "mod") {
+        document.getElementById("btnSuspender").style.display = autorEstado === "suspendido" ? "none"        : "inline-flex";
+        document.getElementById("btnActivar").style.display   = autorEstado === "suspendido" ? "inline-flex" : "none";
       }
 
-      // ── Grid de obras ──
-      const obrasAMostrar = fromOwner ? todasLasObras : obrasPublicas;
-      const ogrid = document.getElementById("obrasGrid");
-      ogrid.innerHTML = "";
-      obrasAMostrar.forEach((item, i) => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.style.animationDelay = `${i * 50}ms`;
-        const genresHtml = item.generos.slice(0, 2).map(g => `<span class="card-genre">${g}</span>`).join("");
-        const ap = (item.aprobacion || "pendiente").toLowerCase();
-        const badge = fromOwner
-          ? `<span style="font-size:0.6rem;padding:1px 6px;border-radius:6px;margin-left:4px;font-weight:700;color:${ap==="aprobado"?"#4CAF50":ap==="suspension"?"var(--accent)":"#f59e0b"}">${ap}</span>`
-          : "";
-        card.innerHTML = `
-          <div class="card-cover">
-            ${item.cover ? `<img class="card-cover-img" src="${item.cover}" alt="${item.titulo}" loading="lazy">` : `<span>📖</span>`}
-          </div>
-          <div class="card-body">
-            <div class="card-title">${item.titulo}${badge}</div>
-            <div class="card-meta">${genresHtml}</div>
-            <div class="card-seasons">${item.capitulos} caps.</div>
-          </div>`;
-        card.addEventListener("click", () => openModal(item));
-        ogrid.appendChild(card);
+      // Selector obras (tab Editar)
+      const sel = document.getElementById("obraSelect");
+      sel.innerHTML = `<option value="">— Selecciona una obra —</option>`;
+      obrasDatos.forEach(o => {
+        const opt = document.createElement("option");
+        opt.value       = o.id;
+        opt.textContent = `#${o.id} — ${o.titulo} [${o.aprobacion||"pendiente"}]`;
+        sel.appendChild(opt);
       });
 
-      if (!obrasAMostrar.length) {
-        ogrid.innerHTML = `<div class="empty"><span class="empty-icon"></span>Sin obras.</div>`;
-      }
+      renderObras();
     }
 
-    // ── Owner: cambiar foto del autor ──
-    window.ownerCambiarFoto = async function() {
-      const val = document.getElementById("ownerFotoInput").value.trim();
+    // ── Render lista horizontal de obras ──
+    function renderObras() {
+      const el = document.getElementById("obrasList");
+      if (!obrasDatos.length) {
+        el.innerHTML = `<div class="empty">Este autor no tiene obras registradas.</div>`;
+        return;
+      }
+      el.innerHTML = "";
+      obrasDatos.forEach(o => {
+        const ap    = (o.aprobacion || "pendiente").toLowerCase();
+        const apCls = { aprobado:"ap-aprobado", pendiente:"ap-pendiente", suspension:"ap-suspension", revision:"ap-revision" }[ap] || "ap-pendiente";
+
+        const card = document.createElement("div");
+        card.className = "item-card";
+
+        const cover = o.cover
+          ? `<div class="item-cover"><img src="${o.cover}" alt="${o.titulo}" onerror="this.parentElement.textContent='📖'"></div>`
+          : `<div class="item-cover">📖</div>`;
+
+        card.innerHTML = `
+          ${cover}
+          <div class="item-info">
+            <h4>${o.titulo} <span class="badge-ap ${apCls}">${ap}</span></h4>
+            <small>${o.capitulos} cap${o.capitulos !== 1 ? "s" : ""} · ${(o.estado||"").toLowerCase()}</small>
+          </div>
+          <i class="fas fa-chevron-right item-arrow"></i>`;
+
+        card.addEventListener("click", () => window.abrirCaps(o.id));
+        el.appendChild(card);
+      });
+    }
+
+    // ── Guardar foto del autor ──
+    window.guardarFoto = async function() {
+      const val = document.getElementById("inputFoto").value.trim();
       const fb  = document.getElementById("fbFoto");
-      if (!val) { fb.textContent = "Ingresa un link."; fb.className = "owner-feedback err"; return; }
-      const match = val.match(/[-\w]{25,}/);
-      const url   = match
-        ? `https://wsrv.nl/?url=${encodeURIComponent(`https://drive.google.com/uc?export=view&id=${match[0]}`)}&w=300&output=webp`
+      if (!val) { fb.textContent = "Ingresa un link."; fb.className = "feedback err"; return; }
+      const m   = val.match(/[-\w]{25,}/);
+      const url = m
+        ? `https://wsrv.nl/?url=${encodeURIComponent(`https://drive.google.com/uc?export=view&id=${m[0]}`)}&w=300&output=webp`
         : val;
-      fb.textContent = "Guardando..."; fb.className = "owner-feedback";
+      fb.textContent = "Guardando..."; fb.className = "feedback";
       await fetch(SCRIPT_URL, { method:"POST", mode:"no-cors",
         body: JSON.stringify({ action:"cambiarFotoPersona", targetType:"autor", targetId: autorId, foto: url }),
       });
-      fb.textContent = "¡Foto actualizada!"; fb.className = "owner-feedback ok";
-      // Actualizar avatar en pantalla
-      const img = document.querySelector(".author-avatar, .author-avatar-ph");
-      if (img) { img.src = url; }
+      fb.textContent = "¡Foto actualizada!"; fb.className = "feedback ok";
+      const el = document.querySelector(".author-avatar, #avatarWrap");
+      if (el) el.src = url;
     };
 
-    // ── Owner: cambiar estado del autor ──
-    window.ownerCambiarEstado = async function(accion) {
-      const motivo = document.getElementById("ownerMotivoEstado").value.trim();
+    // ── Cambiar estado del autor ──
+    window.cambiarEstado = async function(accion) {
+      const motivo = document.getElementById("inputMotivo").value.trim();
       const fb     = document.getElementById("fbEstado");
-      if (!motivo) { fb.textContent = "El motivo es obligatorio."; fb.className = "owner-feedback err"; return; }
-      fb.textContent = "Aplicando..."; fb.className = "owner-feedback";
+      if (!motivo) { fb.textContent = "El motivo es obligatorio."; fb.className = "feedback err"; return; }
+      fb.textContent = "Aplicando..."; fb.className = "feedback";
       await fetch(SCRIPT_URL, { method:"POST", mode:"no-cors",
         body: JSON.stringify({ action:"cambiarEstadoPersona", targetType:"autor", targetId: autorId, nuevoEstado: accion, motivo }),
       });
-      fb.textContent = accion === "suspender" ? "¡Autor suspendido!" : "¡Autor activado!";
-      fb.className = "owner-feedback ok";
-      // Actualizar botones
       const susp = accion === "suspender";
-      document.getElementById("btnSuspender").style.display = susp ? "none"         : "inline-block";
-      document.getElementById("btnActivar").style.display   = susp ? "inline-block" : "none";
+      fb.textContent = susp ? "¡Autor suspendido!" : "¡Autor activado!";
+      fb.className   = "feedback ok";
+      document.getElementById("btnSuspender").style.display = susp ? "none"        : "inline-flex";
+      document.getElementById("btnActivar").style.display   = susp ? "inline-flex" : "none";
+      const h1 = document.getElementById("authorName");
+      h1.innerHTML = `${obrasDatos[0]?.autor || "Autor"} <span class="badge-estado ${susp?"badge-suspendido":"badge-activo"}">${susp?"suspendido":"activo"}</span>`;
     };
 
-    // ── Owner: cargar obra en panel edición ──
+    // ── Cargar obra en el editor ──
     window.cargarObraEditar = function() {
       const idObra = document.getElementById("obraSelect").value;
       const panel  = document.getElementById("obraEditPanel");
       if (!idObra) { panel.classList.remove("visible"); return; }
-
       const o = obrasDatos.find(x => String(x.id) === String(idObra));
       if (!o) return;
 
-      document.getElementById("oeTitulo").value     = o.titulo   || "";
-      document.getElementById("oeCover").value      = o.raw_cover|| "";
-      document.getElementById("oeSinopsis").value   = o.sinopsis || "";
-      document.getElementById("oeAprobacion").value = o.aprobacion || "pendiente";
-      document.getElementById("oeEstadoObra").value = (o.estado || "en emisión").toLowerCase();
+      document.getElementById("oeTitulo").value     = o.titulo    || "";
+      document.getElementById("oeCover").value      = o.raw_cover || "";
+      document.getElementById("oeSinopsis").value   = o.sinopsis  || "";
+      document.getElementById("oeAprobacion").value = o.aprobacion|| "pendiente";
+      document.getElementById("oeEstado").value     = (o.estado   || "en emisión").toLowerCase();
 
-      // Capítulos
       const list = document.getElementById("capsEditList");
       list.innerHTML = "";
-      const capsArr = Array.isArray(o.caps) ? o.caps : [];
-      capsArr.forEach(c => {
-        const row = document.createElement("div");
-        row.className    = "cap-edit-row";
-        row.dataset.num  = c.numero;
-        row.innerHTML    = `
-          <span class="cap-num">#${c.numero}</span>
-          <input class="cap-name" placeholder="Nombre" value="${(c.nombre||"").replace(/"/g,'&quot;')}">
-          <input class="cap-link" placeholder="Link Doc" value="${(c.rawLink||"").replace(/"/g,'&quot;')}">
-          <button class="btn-del" onclick="this.closest('.cap-edit-row').remove()">✕</button>`;
+      (Array.isArray(o.caps) ? o.caps : []).forEach(c => {
+        const row       = document.createElement("div");
+        row.className   = "cap-row";
+        row.dataset.num = c.numero;
+        row.innerHTML   = `
+          <span class="cap-lbl">#${c.numero}</span>
+          <input class="cap-name" placeholder="Nombre" value="${(c.nombre||"").replace(/"/g,"&quot;")}">
+          <input class="cap-link" placeholder="Link Doc" value="${(c.rawLink||"").replace(/"/g,"&quot;")}">
+          <button class="btn-del-cap" onclick="this.closest('.cap-row').remove()">✕</button>`;
         list.appendChild(row);
       });
 
@@ -397,78 +541,72 @@
       panel.classList.add("visible");
     };
 
-    // ── Agregar fila de capítulo ──
-    window.agregarCapEditar = function() {
+    // ── Agregar fila capítulo ──
+    window.agregarCap = function() {
       const list = document.getElementById("capsEditList");
-      const rows = list.querySelectorAll(".cap-edit-row");
-      const nums = Array.from(rows).map(r => parseInt(r.dataset.num||0, 10)).filter(Boolean);
+      const nums = Array.from(list.querySelectorAll(".cap-row"))
+        .map(r => parseInt(r.dataset.num||0, 10)).filter(Boolean);
       const next = nums.length ? Math.max(...nums) + 1 : 1;
-      if (next > MAX_CAPS) { alert(`Límite de ${MAX_CAPS} capítulos alcanzado.`); return; }
+      if (next > MAX_CAPS) { alert(`Límite de ${MAX_CAPS} capítulos.`); return; }
       const row       = document.createElement("div");
-      row.className   = "cap-edit-row";
+      row.className   = "cap-row";
       row.dataset.num = next;
       row.innerHTML   = `
-        <span class="cap-num">#${next}</span>
+        <span class="cap-lbl">#${next}</span>
         <input class="cap-name" placeholder="Nombre">
         <input class="cap-link" placeholder="Link Doc">
-        <button class="btn-del" onclick="this.closest('.cap-edit-row').remove()">✕</button>`;
+        <button class="btn-del-cap" onclick="this.closest('.cap-row').remove()">✕</button>`;
       list.appendChild(row);
     };
 
-    // ── Owner: guardar edición de obra ──
-    window.guardarObraEditar = async function() {
-      const idObra     = document.getElementById("obraSelect").value;
-      const fb         = document.getElementById("fbObra");
+    // ── Guardar obra ──
+    window.guardarObra = async function() {
+      const idObra = document.getElementById("obraSelect").value;
+      const fb     = document.getElementById("fbObra");
       if (!idObra) return;
-
       const titulo     = document.getElementById("oeTitulo").value.trim();
       const cover      = document.getElementById("oeCover").value.trim();
       const sinopsis   = document.getElementById("oeSinopsis").value.trim();
       const aprobacion = document.getElementById("oeAprobacion").value;
-      const estadoObra = document.getElementById("oeEstadoObra").value;
-      if (!titulo) { fb.textContent = "El título no puede estar vacío."; fb.className = "owner-feedback err"; return; }
+      const estado     = document.getElementById("oeEstado").value;
+      if (!titulo) { fb.textContent = "El título no puede estar vacío."; fb.className = "feedback err"; return; }
 
-      // Capítulos
       const capsPayload = {};
-      document.querySelectorAll("#capsEditList .cap-edit-row").forEach(row => {
+      document.querySelectorAll("#capsEditList .cap-row").forEach(row => {
         const num  = parseInt(row.dataset.num, 10);
         const name = row.querySelector(".cap-name")?.value.trim() || "";
         const link = row.querySelector(".cap-link")?.value.trim() || "";
         if (num && (name || link)) capsPayload[`cap${num}`] = `${name}|${link}`;
       });
 
-      fb.textContent = "Guardando..."; fb.className = "owner-feedback";
+      fb.textContent = "Guardando..."; fb.className = "feedback";
       await fetch(SCRIPT_URL, { method:"POST", mode:"no-cors",
         body: JSON.stringify({
-          action:"editarObraOwner", idOwner: localStorage.getItem("ktt_id"),
-          idObra, titulo, cover, sinopsis, aprobacion, estado: estadoObra,
-          ...capsPayload,
+          action:"editarObraOwner", idOwner: staffId,
+          idObra, titulo, cover, sinopsis, aprobacion, estado, ...capsPayload,
         }),
       });
-
-      fb.textContent = "¡Obra guardada!"; fb.className = "owner-feedback ok";
+      fb.textContent = "¡Guardado correctamente!"; fb.className = "feedback ok";
       clearCache();
     };
 
-    // ── Owner: eliminar obra ──
-    window.confirmarEliminarObra = async function() {
+    // ── Eliminar obra ──
+    window.eliminarObra = async function() {
       const idObra = document.getElementById("obraSelect").value;
       if (!idObra) return;
-      const nombre = obrasDatos.find(x => String(x.id) === String(idObra))?.titulo || idObra;
-      if (!confirm(`¿Eliminar la obra "${nombre}"? Esta acción es irreversible.`)) return;
+      const titulo = obrasDatos.find(x => String(x.id) === String(idObra))?.titulo || idObra;
+      if (!confirm(`¿Eliminar "${titulo}"? Esta acción es irreversible.`)) return;
       const fb = document.getElementById("fbObra");
-      fb.textContent = "Eliminando..."; fb.className = "owner-feedback";
+      fb.textContent = "Eliminando..."; fb.className = "feedback";
       await fetch(SCRIPT_URL, { method:"POST", mode:"no-cors",
-        body: JSON.stringify({ action:"eliminarObra", idOwner: localStorage.getItem("ktt_id"), targetId: idObra, motivo:"Eliminado desde perfil de autor" }),
+        body: JSON.stringify({ action:"eliminarObra", idOwner: staffId, targetId: idObra, motivo:"Eliminado desde staff" }),
       });
-      fb.textContent = "¡Obra eliminada!"; fb.className = "owner-feedback ok";
+      fb.textContent = "¡Obra eliminada!"; fb.className = "feedback ok";
       clearCache();
-      // Remover del selector y recargar grid
-      const opt = document.querySelector(`#obraSelect option[value="${idObra}"]`);
-      if (opt) opt.remove();
-      document.getElementById("obraEditPanel").classList.remove("visible");
       obrasDatos = obrasDatos.filter(x => String(x.id) !== String(idObra));
-      cargar();
+      document.querySelector(`#obraSelect option[value="${idObra}"]`)?.remove();
+      document.getElementById("obraEditPanel").classList.remove("visible");
+      renderObras();
     };
 
     cargar();
