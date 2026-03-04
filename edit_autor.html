@@ -8,27 +8,26 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="buscador.css">
   <style>
-    /* ── Bloqueo ── */
     #authGuard{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:12px;}
     #authGuard p{color:var(--text-muted);font-family:'Rajdhani';font-size:0.9rem;letter-spacing:0.1em;}
 
-    /* ── Sticky nav ── */
     .sticky-nav{
       position:sticky;top:0;z-index:200;
       background:rgba(10,10,15,0.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-      border-bottom:1px solid var(--border);
-      padding:10px 16px;
+      border-bottom:1px solid var(--border);padding:10px 16px;
       display:flex;align-items:center;justify-content:space-between;gap:10px;
-      /* compensar el padding del wrapper */
       margin:0 -16px 24px;
     }
     .sticky-left{display:flex;align-items:center;gap:10px;}
     .sticky-right{display:flex;align-items:center;gap:8px;}
 
-    .nav-btn{display:inline-block;text-decoration:none;background:transparent;padding:7px 14px;border-radius:5px;color:#fff;font-family:'Rajdhani';font-size:0.78rem;font-weight:600;letter-spacing:0.1em;border:1px solid var(--accent);cursor:pointer;transition:all 0.3s;white-space:nowrap;}
+    .nav-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;background:transparent;
+      padding:7px 14px;border-radius:5px;color:#fff;font-family:'Rajdhani';font-size:0.78rem;
+      font-weight:600;letter-spacing:0.1em;border:1px solid var(--accent);cursor:pointer;
+      transition:all 0.3s;white-space:nowrap;}
     .nav-btn:hover{background:var(--accent);box-shadow:0 0 15px var(--accent);}
 
-    /* Chip de sesión */
+    /* Chip nav */
     .session-chip{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:5px 12px 5px 5px;cursor:default;}
     .session-chip img{width:26px;height:26px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);flex-shrink:0;}
     .session-chip-ph{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.75rem;flex-shrink:0;}
@@ -38,7 +37,7 @@
     .role-admin{color:var(--accent3);background:rgba(6,182,212,0.08);border:1px solid var(--accent3);}
     .role-mod  {color:#f59e0b;background:rgba(245,158,11,0.08);border:1px solid #f59e0b;}
 
-    /* ── Hero autor ── */
+    /* Hero */
     .author-hero{display:flex;align-items:center;gap:22px;background:var(--surface);border:1px solid rgba(230,62,109,0.25);border-radius:18px;padding:22px;margin-bottom:22px;flex-wrap:wrap;box-shadow:0 6px 24px rgba(0,0,0,0.3);}
     .author-avatar{width:88px;height:88px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);flex-shrink:0;background:var(--surface2);}
     .author-avatar-ph{width:88px;height:88px;border-radius:50%;flex-shrink:0;background:var(--surface2);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:2.2rem;}
@@ -46,21 +45,30 @@
     .author-info h1{font-family:'Cinzel Decorative';font-size:clamp(1.1rem,3vw,1.7rem);background:linear-gradient(135deg,#fff,var(--accent) 60%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:5px;}
     .author-info .stats{color:var(--text-muted);font-size:0.82rem;}
     .badge-estado{display:inline-block;font-size:0.6rem;font-weight:700;padding:2px 9px;border-radius:20px;margin-left:7px;text-transform:uppercase;vertical-align:middle;}
-    .badge-activo{color:#4CAF50;background:rgba(76,175,80,0.1);border:1px solid #4CAF50;}
+    .badge-activo    {color:#4CAF50;background:rgba(76,175,80,0.1);border:1px solid #4CAF50;}
     .badge-suspendido{color:var(--accent);background:rgba(230,62,109,0.1);border:1px solid var(--accent);}
 
-    /* ── Tabs ── */
+    /* Tabs */
     .page-tabs{display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:22px;}
     .page-tab{flex:1;padding:10px 8px;background:transparent;border:none;color:var(--text-muted);font-family:'Rajdhani';font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:0.2s;}
     .page-tab.active{background:rgba(230,62,109,0.1);color:var(--accent);border-bottom:2px solid var(--accent);}
+    .page-tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,0.03);}
 
-    /* ── Cards horizontales de obras ── */
+    /* ── Aviso solo-lectura ── */
+    .readonly-notice{
+      display:flex;align-items:flex-start;gap:10px;
+      border-radius:12px;padding:13px 16px;margin-bottom:20px;
+      font-size:0.8rem;line-height:1.55;
+    }
+    .readonly-notice i{font-size:1rem;flex-shrink:0;margin-top:1px;}
+
+    /* Obras */
     .item-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:11px;margin-bottom:8px;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;}
     .item-card:hover{border-color:rgba(230,62,109,0.45);box-shadow:0 4px 18px rgba(230,62,109,0.12);}
     .item-cover{width:42px;height:60px;border-radius:6px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;overflow:hidden;}
     .item-cover img{width:100%;height:100%;object-fit:cover;border-radius:5px;}
     .item-info{flex:1;min-width:0;}
-    .item-info h4{margin:0 0 3px;color:#fff;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .item-info h4{margin:0 0 3px;color:#fff;font-size:0.88rem;word-break:break-word;line-height:1.35;}
     .item-info small{color:var(--text-muted);font-size:0.68rem;}
     .badge-ap{display:inline-block;font-size:0.56rem;font-weight:700;padding:2px 6px;border-radius:8px;margin-left:5px;text-transform:uppercase;vertical-align:middle;}
     .ap-aprobado  {color:#4CAF50;background:rgba(76,175,80,0.1);border:1px solid #4CAF50;}
@@ -69,7 +77,7 @@
     .ap-revision  {color:var(--accent3);background:rgba(6,182,212,0.1);border:1px solid var(--accent3);}
     .item-arrow{color:var(--text-muted);font-size:0.8rem;flex-shrink:0;}
 
-    /* ── Panel lateral capítulos ── */
+    /* Panel lateral caps */
     .caps-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:499;display:none;}
     .caps-overlay.open{display:block;}
     .caps-side{position:fixed;top:0;right:-100%;width:min(380px,100%);height:100%;background:#0e0e18;border-left:1px solid var(--border);z-index:500;display:flex;flex-direction:column;transition:right 0.35s cubic-bezier(0.4,0,0.2,1);box-shadow:-10px 0 40px rgba(0,0,0,0.5);}
@@ -88,7 +96,7 @@
     .cap-name-text{font-size:0.83rem;color:#fff;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .caps-side-empty{text-align:center;padding:40px 20px;color:var(--text-muted);}
 
-    /* ── Edición ── */
+    /* Edición */
     .section-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;}
     .section-card h3{font-family:'Cinzel Decorative';color:var(--accent);font-size:0.8rem;margin:0 0 14px;display:flex;align-items:center;gap:7px;}
     .field{margin-bottom:11px;}
@@ -99,9 +107,9 @@
     .field select option{background:#1a1a28;}
     .frow{display:flex;gap:8px;flex-wrap:wrap;}
     .frow .field{flex:1;min-width:130px;}
-    .btn-save{background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;border:none;padding:10px 18px;border-radius:9px;font-family:'Rajdhani';font-weight:700;font-size:0.85rem;cursor:pointer;transition:0.2s;white-space:nowrap;}
+    .btn-save{background:linear-gradient(135deg,var(--accent),#7c3aed);color:#fff;border:none;padding:10px 18px;border-radius:9px;font-family:'Rajdhani';font-weight:700;font-size:0.85rem;cursor:pointer;transition:0.2s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
     .btn-save:hover{filter:brightness(1.1);}
-    .btn-danger{background:transparent;color:#ff4444;border:1px solid #ff4444;padding:9px 16px;border-radius:9px;font-family:'Rajdhani';font-weight:700;font-size:0.83rem;cursor:pointer;transition:0.2s;white-space:nowrap;}
+    .btn-danger{background:transparent;color:#ff4444;border:1px solid #ff4444;padding:9px 16px;border-radius:9px;font-family:'Rajdhani';font-weight:700;font-size:0.83rem;cursor:pointer;transition:0.2s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
     .btn-danger:hover{background:#ff4444;color:#fff;}
     .feedback{font-size:0.78rem;margin-top:7px;min-height:1em;}
     .feedback.ok{color:#4CAF50;}
@@ -130,7 +138,6 @@
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
 
-  <!-- Bloqueo hasta verificar sesión -->
   <div id="authGuard">
     <i class="fas fa-spinner fa-spin" style="font-size:1.8rem;color:var(--accent);"></i>
     <p>Verificando sesión...</p>
@@ -139,13 +146,13 @@
   <div id="pageContent" style="display:none;">
     <div class="wrapper">
 
-      <!-- ══ STICKY NAV ══ -->
       <div class="sticky-nav">
         <div class="sticky-left">
-          <a id="btnVolver" href="#" class="nav-btn">Panel</a>
+          <a id="btnVolver" href="#" class="nav-btn">
+            <i class="fas fa-arrow-left" style="font-size:.7rem"></i>Panel
+          </a>
         </div>
         <div class="sticky-right">
-          <!-- Chip de sesión con foto -->
           <div class="session-chip">
             <div id="chipAvatarWrap" class="session-chip-ph">👤</div>
             <span id="chipNombre">Staff</span>
@@ -154,36 +161,39 @@
         </div>
       </div>
 
-      <!-- Hero -->
       <div class="author-hero">
         <div id="avatarWrap" class="author-avatar-ph">👤</div>
         <div class="author-info">
           <p class="role-lbl">Autor</p>
           <h1 id="authorName">Cargando...</h1>
-          <p class="stats" id="authorStats"></p>
+          <p class="stats"  id="authorStats"></p>
           <p style="font-size:0.7rem;color:var(--text-muted);margin-top:3px;" id="authorEmail"></p>
         </div>
       </div>
 
-      <!-- Tabs -->
+      <!--
+        TAB "Editar" existe en el DOM pero se oculta para admin y mod.
+        Owner ve las dos pestañas.
+      -->
       <div class="page-tabs">
         <button class="page-tab active" id="tabObras"  onclick="switchTab('obras')">
           <i class="fas fa-book"></i> Obras
         </button>
-        <button class="page-tab"        id="tabEditar" onclick="switchTab('editar')">
+        <button class="page-tab" id="tabEditar" onclick="switchTab('editar')">
           <i class="fas fa-pen"></i> Editar
         </button>
       </div>
 
-      <!-- ══ TAB: OBRAS ══ -->
+      <!-- ══ OBRAS ══ -->
       <div id="panelObras">
+        <!-- Aviso solo-lectura: visible para admin/mod, oculto para owner -->
+        <div class="readonly-notice" id="readonlyNotice" style="display:none;"></div>
         <div id="obrasList"></div>
       </div>
 
-      <!-- ══ TAB: EDITAR ══ -->
+      <!-- ══ EDITAR (solo owner) ══ -->
       <div id="panelEditar" style="display:none;">
 
-        <!-- Foto -->
         <div class="section-card">
           <h3><i class="fas fa-camera"></i> Foto del Autor</h3>
           <div class="field">
@@ -194,7 +204,6 @@
           <p class="feedback" id="fbFoto"></p>
         </div>
 
-        <!-- Estado (solo owner y admin) -->
         <div class="section-card" id="seccionEstado">
           <h3><i class="fas fa-user-shield"></i> Estado del Autor</h3>
           <div class="field">
@@ -212,7 +221,6 @@
           <p class="feedback" id="fbEstado"></p>
         </div>
 
-        <!-- Editar obras -->
         <div class="section-card">
           <h3><i class="fas fa-pencil"></i> Editar Obras</h3>
           <div class="obra-select-wrap">
@@ -265,7 +273,6 @@
     </div><!-- /wrapper -->
   </div><!-- /pageContent -->
 
-  <!-- Panel lateral de capítulos -->
   <div class="caps-overlay" id="capsOverlay" onclick="cerrarCaps()"></div>
   <div class="caps-side" id="capsSide">
     <div class="caps-side-header">
@@ -284,12 +291,12 @@
 
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlwm_htimcLqGW7p5HQvdgqwY1V7tlr3oEt5vl6FMZ8j6TGyB3V8t4Dwd2t8vU9AZA/exec";
 
-    // ── Verificación de rol ──
+    /* ── Verificar sesión ── */
     const staffId     = localStorage.getItem("ktt_id")    || "";
     const staffRol    = localStorage.getItem("ktt_role")  || "";
     const staffNombre = localStorage.getItem("ktt_user")  || "Staff";
     const staffFoto   = localStorage.getItem("ktt_foto")  || "";
-    const rolesOK     = ["owner", "admin", "mod"];
+    const rolesOK     = ["owner","admin","mod"];
 
     if (!staffId || !rolesOK.includes(staffRol)) {
       window.location.replace("registrarse.html");
@@ -298,40 +305,71 @@
       document.getElementById("pageContent").style.display = "block";
     }
 
-    // ── Sticky nav: chip de sesión ──
+    /* ── Nav ── */
     const panelMap = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
     document.getElementById("btnVolver").href = panelMap[staffRol] || "registrarse.html";
-
     document.getElementById("chipNombre").textContent = staffNombre;
     const chipBadge = document.getElementById("chipRolBadge");
     chipBadge.textContent = staffRol;
     chipBadge.className   = `role-badge role-${staffRol}`;
-
-    // Foto del staff en el chip
     if (staffFoto) {
-      const img     = document.createElement("img");
-      img.src       = staffFoto;
-      img.alt       = staffNombre;
-      img.onerror   = () => {};
+      const img = document.createElement("img");
+      img.src   = staffFoto; img.alt = staffNombre;
       document.getElementById("chipAvatarWrap").replaceWith(img);
     }
 
-    // Mods no pueden suspender/activar
-    if (staffRol === "mod") {
-      document.getElementById("seccionEstado").style.display = "none";
+    /* ══════════════════════════════════════════════════════
+       LÓGICA DE PERMISOS POR ROL
+       ──────────────────────────────────────────────────────
+       owner  → ve Obras + tab Editar (todo habilitado)
+       admin  → ve SOLO Obras + aviso azul; tab Editar oculta
+       mod    → ve SOLO Obras + aviso ámbar; tab Editar oculta
+    ═══════════════════════════════════════════════════════ */
+    const esOwner     = staffRol === "owner";
+    const esAdmin     = staffRol === "admin";
+    const esMod       = staffRol === "mod";
+    const soloLectura = esAdmin || esMod;
+
+    if (soloLectura) {
+      /* Ocultar tab Editar */
+      document.getElementById("tabEditar").style.display = "none";
+
+      /* Aviso visible con colores según rol */
+      const notice = document.getElementById("readonlyNotice");
+      notice.style.display = "flex";
+
+      if (esAdmin) {
+        notice.style.cssText += ";background:rgba(6,182,212,0.07);border:1px solid rgba(6,182,212,0.28);color:var(--accent3);";
+        notice.innerHTML = `
+          <i class="fas fa-eye" style="color:var(--accent3);margin-top:2px"></i>
+          <div>
+            <strong style="display:block;margin-bottom:2px;font-size:0.8rem">Vista de Administrador</strong>
+            Solo lectura. Puedes revisar las obras de este autor y ver sus capítulos.<br>
+            <span style="opacity:.7;font-size:.72rem">Para editar datos, accede como Owner.</span>
+          </div>`;
+      } else {
+        notice.style.cssText += ";background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.28);color:#f59e0b;";
+        notice.innerHTML = `
+          <i class="fas fa-eye" style="color:#f59e0b;margin-top:2px"></i>
+          <div>
+            <strong style="display:block;margin-bottom:2px;font-size:0.8rem">Vista de Moderador</strong>
+            Solo lectura. Puedes revisar las obras de este autor y ver sus capítulos.<br>
+            <span style="opacity:.7;font-size:.72rem">Para editar datos, accede como Admin u Owner.</span>
+          </div>`;
+      }
     }
 
-    // URL params
+    /* ── URL params ── */
     const params  = new URLSearchParams(window.location.search);
     const autorId = params.get("id");
     if (!autorId) window.location.replace(panelMap[staffRol] || "registrarse.html");
 
-    // Estado global
     let obrasDatos  = [];
     let autorEstado = "activo";
 
-    // ── Tabs ──
+    /* ── Tabs ── */
     window.switchTab = function(tab) {
+      if (soloLectura) tab = "obras";   // forzar obras para admin/mod
       const esObras = tab === "obras";
       document.getElementById("panelObras").style.display  = esObras ? "block" : "none";
       document.getElementById("panelEditar").style.display = esObras ? "none"  : "block";
@@ -339,7 +377,7 @@
       document.getElementById("tabEditar").classList.toggle("active", !esObras);
     };
 
-    // ── Panel lateral de capítulos ──
+    /* ── Panel lateral de capítulos ── */
     window.abrirCaps = function(idObra) {
       const o = obrasDatos.find(x => String(x.id) === String(idObra));
       if (!o) return;
@@ -348,31 +386,27 @@
       cov.innerHTML = o.cover
         ? `<img src="${o.cover}" alt="${o.titulo}" onerror="this.parentElement.textContent=''">`
         : "";
-
       document.getElementById("capsTitle").textContent = o.titulo;
       document.getElementById("capsMeta").textContent  =
         `${o.capitulos} cap${o.capitulos !== 1 ? "s" : ""} · ${o.autor}`;
 
       const list = document.getElementById("capsSideList");
       const caps = Array.isArray(o.caps) ? o.caps : [];
-
       if (!caps.length) {
         list.innerHTML = `<div class="caps-side-empty">Sin capítulos registrados.</div>`;
       } else {
         list.innerHTML = "";
         caps.forEach((c, idx) => {
-          const a       = document.createElement("a");
-          a.className   = "cap-item";
-          // Abre libro_capitulo.html igual que el flujo público
-          a.href        = `libro_capitulo.html?id=${o.id}&num=${c.numero}&gnum=${idx + 1}&nombre=${encodeURIComponent(c.nombre || "")}`;
-          a.innerHTML   = `
+          const a     = document.createElement("a");
+          a.className = "cap-item";
+          a.href      = `libro_capitulo.html?id=${o.id}&num=${c.numero}&gnum=${idx+1}&nombre=${encodeURIComponent(c.nombre||"")}`;
+          a.innerHTML = `
             <div class="cap-num-badge">${c.numero}</div>
             <div class="cap-name-text">${c.nombre || `Capítulo ${c.numero}`}</div>
             <i class="fas fa-chevron-right" style="color:var(--text-muted);font-size:0.72rem;margin-left:auto;flex-shrink:0;"></i>`;
           list.appendChild(a);
         });
       }
-
       document.getElementById("capsSide").classList.add("open");
       document.getElementById("capsOverlay").classList.add("open");
       document.body.style.overflow = "hidden";
@@ -384,7 +418,7 @@
       document.body.style.overflow = "";
     };
 
-    // ── Info del autor ──
+    /* ── Info del autor ── */
     async function getAutorInfo(id) {
       try {
         const r = await fetch(SCRIPT_URL, {
@@ -395,7 +429,7 @@
       } catch { return {}; }
     }
 
-    // ── Carga principal ──
+    /* ── Carga principal ── */
     async function cargar() {
       const [todos, info] = await Promise.all([loadEscritos(), getAutorInfo(autorId)]);
 
@@ -409,39 +443,34 @@
         `${nombre} <span class="badge-estado ${autorEstado === "suspendido" ? "badge-suspendido" : "badge-activo"}">${autorEstado}</span>`;
       document.getElementById("authorStats").textContent =
         `${obrasDatos.length} obra${obrasDatos.length !== 1 ? "s" : ""} en total`;
-      document.getElementById("authorEmail").textContent =
-        info.email ? `${info.email}` : "";
+      document.getElementById("authorEmail").textContent = info.email || "";
 
-      // Avatar del autor
       if (info.foto) {
         const img     = document.createElement("img");
         img.className = "author-avatar";
-        img.src       = info.foto;
-        img.alt       = nombre;
-        img.onerror   = () => {};
+        img.src       = info.foto; img.alt = nombre;
         document.getElementById("avatarWrap").replaceWith(img);
       }
 
-      // Botones estado
-      if (staffRol !== "mod") {
+      /* Cosas solo para owner */
+      if (esOwner) {
         document.getElementById("btnSuspender").style.display = autorEstado === "suspendido" ? "none"        : "inline-flex";
         document.getElementById("btnActivar").style.display   = autorEstado === "suspendido" ? "inline-flex" : "none";
-      }
 
-      // Selector obras (tab Editar)
-      const sel = document.getElementById("obraSelect");
-      sel.innerHTML = `<option value="">— Selecciona una obra —</option>`;
-      obrasDatos.forEach(o => {
-        const opt = document.createElement("option");
-        opt.value       = o.id;
-        opt.textContent = `#${o.id} — ${o.titulo} [${o.aprobacion||"pendiente"}]`;
-        sel.appendChild(opt);
-      });
+        const sel = document.getElementById("obraSelect");
+        sel.innerHTML = `<option value="">— Selecciona una obra —</option>`;
+        obrasDatos.forEach(o => {
+          const opt = document.createElement("option");
+          opt.value       = o.id;
+          opt.textContent = `#${o.id} — ${o.titulo} [${o.aprobacion||"pendiente"}]`;
+          sel.appendChild(opt);
+        });
+      }
 
       renderObras();
     }
 
-    // ── Render lista horizontal de obras ──
+    /* ── Render obras ── */
     function renderObras() {
       const el = document.getElementById("obrasList");
       if (!obrasDatos.length) {
@@ -452,14 +481,11 @@
       obrasDatos.forEach(o => {
         const ap    = (o.aprobacion || "pendiente").toLowerCase();
         const apCls = { aprobado:"ap-aprobado", pendiente:"ap-pendiente", suspension:"ap-suspension", revision:"ap-revision" }[ap] || "ap-pendiente";
-
-        const card = document.createElement("div");
+        const card  = document.createElement("div");
         card.className = "item-card";
-
         const cover = o.cover
           ? `<div class="item-cover"><img src="${o.cover}" alt="${o.titulo}" onerror="this.parentElement.textContent='📖'"></div>`
           : `<div class="item-cover">📖</div>`;
-
         card.innerHTML = `
           ${cover}
           <div class="item-info">
@@ -467,14 +493,19 @@
             <small>${o.capitulos} cap${o.capitulos !== 1 ? "s" : ""} · ${(o.estado||"").toLowerCase()}</small>
           </div>
           <i class="fas fa-chevron-right item-arrow"></i>`;
-
         card.addEventListener("click", () => window.abrirCaps(o.id));
         el.appendChild(card);
       });
     }
 
-    // ── Guardar foto del autor ──
+    /* ════════════════════════════════════════════════════════
+       FUNCIONES DE EDICIÓN — Solo accesibles para owner.
+       Admin y mod no pueden llegar a estos botones porque
+       el tab Editar está oculto y cada función hace guard.
+    ════════════════════════════════════════════════════════ */
+
     window.guardarFoto = async function() {
+      if (!esOwner) return;
       const val = document.getElementById("inputFoto").value.trim();
       const fb  = document.getElementById("fbFoto");
       if (!val) { fb.textContent = "Ingresa un link."; fb.className = "feedback err"; return; }
@@ -487,12 +518,12 @@
         body: JSON.stringify({ action:"cambiarFotoPersona", targetType:"autor", targetId: autorId, foto: url }),
       });
       fb.textContent = "¡Foto actualizada!"; fb.className = "feedback ok";
-      const el = document.querySelector(".author-avatar, #avatarWrap");
+      const el = document.querySelector(".author-avatar");
       if (el) el.src = url;
     };
 
-    // ── Cambiar estado del autor ──
     window.cambiarEstado = async function(accion) {
+      if (!esOwner) return;
       const motivo = document.getElementById("inputMotivo").value.trim();
       const fb     = document.getElementById("fbEstado");
       if (!motivo) { fb.textContent = "El motivo es obligatorio."; fb.className = "feedback err"; return; }
@@ -505,53 +536,48 @@
       fb.className   = "feedback ok";
       document.getElementById("btnSuspender").style.display = susp ? "none"        : "inline-flex";
       document.getElementById("btnActivar").style.display   = susp ? "inline-flex" : "none";
-      const h1 = document.getElementById("authorName");
-      h1.innerHTML = `${obrasDatos[0]?.autor || "Autor"} <span class="badge-estado ${susp?"badge-suspendido":"badge-activo"}">${susp?"suspendido":"activo"}</span>`;
+      document.getElementById("authorName").innerHTML =
+        `${obrasDatos[0]?.autor || "Autor"} <span class="badge-estado ${susp ? "badge-suspendido" : "badge-activo"}">${susp ? "suspendido" : "activo"}</span>`;
     };
 
-    // ── Cargar obra en el editor ──
     window.cargarObraEditar = function() {
+      if (!esOwner) return;
       const idObra = document.getElementById("obraSelect").value;
       const panel  = document.getElementById("obraEditPanel");
       if (!idObra) { panel.classList.remove("visible"); return; }
       const o = obrasDatos.find(x => String(x.id) === String(idObra));
       if (!o) return;
-
       document.getElementById("oeTitulo").value     = o.titulo    || "";
       document.getElementById("oeCover").value      = o.raw_cover || "";
       document.getElementById("oeSinopsis").value   = o.sinopsis  || "";
       document.getElementById("oeAprobacion").value = o.aprobacion|| "pendiente";
       document.getElementById("oeEstado").value     = (o.estado   || "en emisión").toLowerCase();
-
       const list = document.getElementById("capsEditList");
       list.innerHTML = "";
       (Array.isArray(o.caps) ? o.caps : []).forEach(c => {
-        const row       = document.createElement("div");
-        row.className   = "cap-row";
-        row.dataset.num = c.numero;
-        row.innerHTML   = `
+        const row     = document.createElement("div");
+        row.className = "cap-row"; row.dataset.num = c.numero;
+        row.innerHTML = `
           <span class="cap-lbl">#${c.numero}</span>
           <input class="cap-name" placeholder="Nombre" value="${(c.nombre||"").replace(/"/g,"&quot;")}">
           <input class="cap-link" placeholder="Link Doc" value="${(c.rawLink||"").replace(/"/g,"&quot;")}">
           <button class="btn-del-cap" onclick="this.closest('.cap-row').remove()">✕</button>`;
         list.appendChild(row);
       });
-
       document.getElementById("fbObra").textContent = "";
       panel.classList.add("visible");
     };
 
-    // ── Agregar fila capítulo ──
     window.agregarCap = function() {
+      if (!esOwner) return;
       const list = document.getElementById("capsEditList");
       const nums = Array.from(list.querySelectorAll(".cap-row"))
         .map(r => parseInt(r.dataset.num||0, 10)).filter(Boolean);
       const next = nums.length ? Math.max(...nums) + 1 : 1;
       if (next > MAX_CAPS) { alert(`Límite de ${MAX_CAPS} capítulos.`); return; }
-      const row       = document.createElement("div");
-      row.className   = "cap-row";
-      row.dataset.num = next;
-      row.innerHTML   = `
+      const row     = document.createElement("div");
+      row.className = "cap-row"; row.dataset.num = next;
+      row.innerHTML = `
         <span class="cap-lbl">#${next}</span>
         <input class="cap-name" placeholder="Nombre">
         <input class="cap-link" placeholder="Link Doc">
@@ -559,8 +585,8 @@
       list.appendChild(row);
     };
 
-    // ── Guardar obra ──
     window.guardarObra = async function() {
+      if (!esOwner) return;
       const idObra = document.getElementById("obraSelect").value;
       const fb     = document.getElementById("fbObra");
       if (!idObra) return;
@@ -570,7 +596,6 @@
       const aprobacion = document.getElementById("oeAprobacion").value;
       const estado     = document.getElementById("oeEstado").value;
       if (!titulo) { fb.textContent = "El título no puede estar vacío."; fb.className = "feedback err"; return; }
-
       const capsPayload = {};
       document.querySelectorAll("#capsEditList .cap-row").forEach(row => {
         const num  = parseInt(row.dataset.num, 10);
@@ -578,20 +603,16 @@
         const link = row.querySelector(".cap-link")?.value.trim() || "";
         if (num && (name || link)) capsPayload[`cap${num}`] = `${name}|${link}`;
       });
-
       fb.textContent = "Guardando..."; fb.className = "feedback";
       await fetch(SCRIPT_URL, { method:"POST", mode:"no-cors",
-        body: JSON.stringify({
-          action:"editarObraOwner", idOwner: staffId,
-          idObra, titulo, cover, sinopsis, aprobacion, estado, ...capsPayload,
-        }),
+        body: JSON.stringify({ action:"editarObraOwner", idOwner: staffId, idObra, titulo, cover, sinopsis, aprobacion, estado, ...capsPayload }),
       });
       fb.textContent = "¡Guardado correctamente!"; fb.className = "feedback ok";
       clearCache();
     };
 
-    // ── Eliminar obra ──
     window.eliminarObra = async function() {
+      if (!esOwner) return;
       const idObra = document.getElementById("obraSelect").value;
       if (!idObra) return;
       const titulo = obrasDatos.find(x => String(x.id) === String(idObra))?.titulo || idObra;
