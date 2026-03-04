@@ -13,7 +13,6 @@ const ASSETS = [
   '/escritos_buscador.js',
   '/escritos_data.js',
   '/staff_auth.js',
-  '/ktt_storage.js',
   '/perfil_autor.html',
   '/panel_owner.html',
   '/panel_mod.html',
