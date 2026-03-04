@@ -8,212 +8,194 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="buscador.css">
   <style>
-    body { margin:0; background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; }
+    body{margin:0;background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;}
 
     /* ── Nav ── */
-    .top-nav {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:12px 20px; border-bottom:1px solid var(--border);
-      background:rgba(10,10,15,0.9); backdrop-filter:blur(12px);
-      position:sticky; top:0; z-index:50; gap:10px;
+    .top-nav{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:10px 18px;border-bottom:1px solid var(--border);
+      background:rgba(10,10,15,0.92);backdrop-filter:blur(12px);
+      position:sticky;top:0;z-index:50;gap:10px;
     }
-    .top-nav .brand { font-family:'Cinzel Decorative'; color:var(--accent); font-size:1.2rem; flex-shrink:0; }
-    .top-nav .nav-links { display:flex; gap:8px; align-items:center; }
+    .nav-left{display:flex;align-items:center;gap:10px;flex-shrink:0;}
 
-    .btn-home {
-      text-decoration:none; background:transparent; padding:7px 14px;
-      border-radius:6px; color:var(--text-muted); font-family:'Rajdhani';
-      font-size:0.78rem; font-weight:700; letter-spacing:0.08em;
-      border:1px solid var(--border); transition:0.2s; white-space:nowrap;
+    /* Marca → index.html */
+    .brand{
+      font-family:'Cinzel Decorative';color:var(--accent);font-size:1.05rem;
+      cursor:pointer;transition:opacity .2s;text-decoration:none;
+      display:inline-flex;align-items:center;gap:6px;
     }
-    .btn-home:hover { border-color:var(--accent3); color:var(--accent3); }
+    .brand:hover{opacity:.75;}
+    .brand-home-icon{font-size:.65rem;color:var(--text-muted);}
 
-    .btn-refresh {
-      background:transparent; padding:7px 13px; border-radius:6px;
-      color:var(--accent); font-family:'Rajdhani'; font-size:0.78rem; font-weight:700;
-      border:1px solid var(--accent); transition:all 0.3s; cursor:pointer; white-space:nowrap;
+    /* ── Chip de sesión ── */
+    .session-chip-wrap{position:relative;}
+    .session-chip{
+      display:flex;align-items:center;gap:8px;padding:5px 12px 5px 6px;
+      background:rgba(26,26,40,.8);border:1px solid var(--border);
+      border-radius:50px;cursor:pointer;transition:all .2s;
+      font-family:'Rajdhani';font-size:.78rem;font-weight:700;
     }
-    .btn-refresh:hover { background:var(--accent); color:#fff; box-shadow:0 0 15px rgba(230,62,109,0.4); }
-
-    .logout {
-      background:none; border:none; color:var(--text-muted);
-      cursor:pointer; font-size:1.1rem; transition:color 0.2s; padding:4px 6px;
+    .session-chip:hover{border-color:var(--accent3);box-shadow:0 0 12px rgba(6,182,212,.15);}
+    .session-chip.open{border-color:var(--accent3);}
+    .sc-avatar{
+      width:28px;height:28px;border-radius:50%;object-fit:cover;
+      border:2px solid rgba(6,182,212,.45);background:var(--bg);
+      display:flex;align-items:center;justify-content:center;
+      font-size:.7rem;font-weight:700;color:var(--accent3);overflow:hidden;flex-shrink:0;
     }
-    .logout:hover { color:var(--accent); }
+    .sc-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .sc-name{max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text);}
+    .sc-caret{font-size:.6rem;color:var(--text-muted);transition:transform .2s;margin-left:2px;}
+    .session-chip.open .sc-caret{transform:rotate(180deg);}
 
-    /* Animación del icono de refresh */
-    @keyframes spinOnce { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
-    .spinning { animation:spinOnce 0.6s ease; }
+    /* ── Dropdown sesiones ── */
+    .session-dropdown{
+      position:absolute;top:calc(100% + 8px);right:0;
+      background:#12121e;border:1px solid var(--border);
+      border-radius:14px;padding:10px;width:260px;
+      box-shadow:0 16px 40px rgba(0,0,0,.75);
+      display:none;flex-direction:column;gap:6px;z-index:200;
+    }
+    .session-dropdown.open{display:flex;animation:sdDown .15s ease;}
+    @keyframes sdDown{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+    .sd-header{font-size:.58rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:2px;}
+    .sd-accounts{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;}
+    .sd-accounts::-webkit-scrollbar{width:3px;}
+    .sd-accounts::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+    .sd-chip{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(26,26,40,.9);border-radius:9px;border:1px solid var(--border);cursor:pointer;transition:.18s;}
+    .sd-chip:hover{border-color:var(--accent3);background:#1a1a28;}
+    .sd-chip.active-chip{border-color:rgba(6,182,212,.35);background:rgba(6,182,212,.04);}
+    .sd-av{width:30px;height:30px;border-radius:50%;background:var(--bg);border:2px solid var(--border);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--accent3);}
+    .sd-av img{width:100%;height:100%;object-fit:cover;}
+    .sd-info{flex:1;min-width:0;}
+    .sd-name{font-size:.82rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .sd-email{font-size:.6rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .sd-role{font-size:.52rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border-radius:20px;flex-shrink:0;}
+    .sd-role.user {background:rgba(76,175,80,.15);color:#4CAF50;}
+    .sd-role.mod  {background:rgba(245,158,11,.15);color:#f59e0b;}
+    .sd-role.admin{background:rgba(6,182,212,.15);color:#06b6d4;}
+    .sd-role.owner{background:rgba(230,62,109,.15);color:#e63e6d;}
+    .sd-active-dot{width:6px;height:6px;border-radius:50%;background:#4CAF50;flex-shrink:0;}
+    .sd-divider{height:1px;background:var(--border);margin:2px 0;}
+    .sd-action{
+      display:flex;align-items:center;gap:8px;padding:7px 10px;
+      border-radius:9px;border:none;background:transparent;
+      font-family:'Rajdhani';font-size:.75rem;font-weight:700;cursor:pointer;
+      transition:.18s;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;width:100%;
+    }
+    .sd-action:hover{color:var(--accent);background:rgba(230,62,109,.06);}
+    .sd-action i{font-size:.8rem;}
+
+    /* ── Nav right ── */
+    .nav-right{display:flex;gap:8px;align-items:center;}
+    .btn-refresh{background:transparent;padding:7px 12px;border-radius:6px;color:var(--accent);font-family:'Rajdhani';font-size:.75rem;font-weight:700;border:1px solid var(--accent);transition:all .3s;cursor:pointer;white-space:nowrap;}
+    .btn-refresh:hover{background:var(--accent);color:#fff;box-shadow:0 0 15px rgba(230,62,109,.4);}
+    @keyframes spinOnce{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    .spinning{animation:spinOnce .6s ease;}
 
     /* ── Layout ── */
-    .container { max-width:900px; margin:0 auto; padding:24px 16px 80px; }
+    .container{max-width:900px;margin:0 auto;padding:24px 16px 80px;}
 
     /* ── Perfil ── */
-    .profile-card {
-      display:flex; align-items:center; gap:20px;
-      background:var(--surface); border:1px solid var(--border);
-      border-radius:20px; padding:20px 24px;
-      box-shadow:0 8px 30px rgba(0,0,0,0.3); flex-wrap:wrap;
-    }
-    .avatar-wrap { position:relative; width:90px; height:90px; flex-shrink:0; }
-    .avatar-wrap img {
-      width:100%; height:100%; border-radius:50%;
-      object-fit:cover; border:3px solid var(--accent3);
-      background:#1a1a28; display:block;
-    }
-    .avatar-btn {
-      position:absolute; bottom:1px; right:1px;
-      width:26px; height:26px; border-radius:50%;
-      background:var(--accent); border:2px solid var(--surface);
-      color:#fff; font-size:0.65rem; cursor:pointer;
-      display:flex; align-items:center; justify-content:center; transition:0.2s;
-    }
-    .avatar-btn:hover { transform:scale(1.1); }
-    .profile-info { flex:1; min-width:0; }
-    .profile-info .role { color:var(--accent3); font-size:0.62rem; letter-spacing:3px; font-weight:700; text-transform:uppercase; }
-    .profile-info h2   { color:#fff; margin:4px 0 0; font-size:1.3rem; }
-    .profile-info .pid { color:var(--text-muted); font-size:0.68rem; margin-top:4px; font-family:monospace; word-break:break-all; }
+    .profile-card{display:flex;align-items:center;gap:20px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:20px 24px;box-shadow:0 8px 30px rgba(0,0,0,.3);flex-wrap:wrap;}
+    .avatar-wrap{position:relative;width:90px;height:90px;flex-shrink:0;}
+    .avatar-wrap img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid var(--accent3);background:#1a1a28;display:block;}
+    .avatar-btn{position:absolute;bottom:1px;right:1px;width:26px;height:26px;border-radius:50%;background:var(--accent);border:2px solid var(--surface);color:#fff;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;}
+    .avatar-btn:hover{transform:scale(1.1);}
+    .profile-info{flex:1;min-width:0;}
+    .profile-info .role{color:var(--accent3);font-size:.62rem;letter-spacing:3px;font-weight:700;text-transform:uppercase;}
+    .profile-info h2{color:#fff;margin:4px 0 0;font-size:1.3rem;}
+    .profile-info .pid{color:var(--text-muted);font-size:.68rem;margin-top:4px;font-family:monospace;word-break:break-all;}
 
     /* ── Drawer foto ── */
-    .photo-drawer {
-      background:#12121e; border:1px solid var(--border); border-top:none;
-      border-radius:0 0 20px 20px; max-height:0; overflow:hidden;
-      transition:max-height 0.4s,padding 0.3s,opacity 0.3s; opacity:0;
-    }
-    .photo-drawer.open { max-height:140px; padding:16px 24px; opacity:1; }
-    .photo-drawer label {
-      font-size:0.68rem; color:var(--text-muted); font-weight:700;
-      letter-spacing:2px; text-transform:uppercase; display:block; margin-bottom:8px;
-    }
-    .photo-row { display:flex; gap:8px; }
-    .photo-row input {
-      flex:1; min-width:0; background:#0a0a0f; border:1px solid var(--border);
-      padding:10px 12px; border-radius:10px; color:#fff; outline:none;
-      font-family:'Rajdhani'; font-size:0.9rem; transition:0.2s;
-    }
-    .photo-row input:focus { border-color:var(--accent3); }
-    .photo-row button {
-      background:var(--accent3); color:#000; border:none;
-      padding:0 16px; border-radius:10px; font-weight:700;
-      font-family:'Rajdhani'; cursor:pointer; font-size:0.85rem; white-space:nowrap;
-    }
+    .photo-drawer{background:#12121e;border:1px solid var(--border);border-top:none;border-radius:0 0 20px 20px;max-height:0;overflow:hidden;transition:max-height .4s,padding .3s,opacity .3s;opacity:0;}
+    .photo-drawer.open{max-height:140px;padding:16px 24px;opacity:1;}
+    .photo-drawer label{font-size:.68rem;color:var(--text-muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:8px;}
+    .photo-row{display:flex;gap:8px;}
+    .photo-row input{flex:1;min-width:0;background:#0a0a0f;border:1px solid var(--border);padding:10px 12px;border-radius:10px;color:#fff;outline:none;font-family:'Rajdhani';font-size:.9rem;transition:.2s;}
+    .photo-row input:focus{border-color:var(--accent3);}
+    .photo-row button{background:var(--accent3);color:#000;border:none;padding:0 16px;border-radius:10px;font-weight:700;font-family:'Rajdhani';cursor:pointer;font-size:.85rem;white-space:nowrap;}
 
     /* ── Banner suspensión ── */
-    .susp-banner {
-      background:rgba(255,68,68,0.08); border:1px solid #ff4444;
-      border-radius:12px; padding:12px 16px; margin-bottom:18px;
-      font-size:0.85rem; color:#ff4444; display:none;
-    }
-    .susp-banner strong { display:block; margin-bottom:3px; }
+    .susp-banner{background:rgba(255,68,68,.08);border:1px solid #ff4444;border-radius:12px;padding:12px 16px;margin-bottom:18px;font-size:.85rem;color:#ff4444;display:none;}
+    .susp-banner strong{display:block;margin-bottom:3px;}
 
     /* ── Cabecera obras ── */
-    .obras-header {
-      display:flex; justify-content:space-between; align-items:center;
-      margin:24px 0 16px; flex-wrap:wrap; gap:10px;
-    }
-    .obras-header h3 {
-      font-family:'Cinzel Decorative'; font-size:0.82rem;
-      letter-spacing:1px; color:var(--text-muted); margin:0;
-    }
-    .btn-nueva {
-      background:var(--accent); color:#fff; text-decoration:none;
-      padding:9px 20px; border-radius:50px; font-weight:700;
-      font-size:0.75rem; box-shadow:0 4px 15px rgba(230,62,109,0.3); transition:0.2s;
-    }
-    .btn-nueva:hover { filter:brightness(1.1); transform:translateY(-1px); }
+    .obras-header{display:flex;justify-content:space-between;align-items:center;margin:24px 0 16px;flex-wrap:wrap;gap:10px;}
+    .obras-header h3{font-family:'Cinzel Decorative';font-size:.82rem;letter-spacing:1px;color:var(--text-muted);margin:0;}
+    .btn-nueva{background:var(--accent);color:#fff;text-decoration:none;padding:9px 20px;border-radius:50px;font-weight:700;font-size:.75rem;box-shadow:0 4px 15px rgba(230,62,109,.3);transition:.2s;}
+    .btn-nueva:hover{filter:brightness(1.1);transform:translateY(-1px);}
 
-    /* ── Obra card CON portada ── */
-    .obra-card {
-      background:var(--surface); border:1px solid var(--border);
-      border-radius:14px; padding:12px 14px;
-      display:flex; align-items:center; gap:14px;
-      margin-bottom:12px; transition:border-color 0.2s;
-    }
-    .obra-card:hover { border-color:rgba(230,62,109,0.35); }
-
-    .obra-cover-mini {
-      width:52px; height:72px; border-radius:7px;
-      object-fit:cover; border:1px solid var(--border);
-      flex-shrink:0; background:var(--surface2);
-    }
-    .obra-cover-ph {
-      width:52px; height:72px; border-radius:7px;
-      background:var(--surface2); border:1px solid var(--border);
-      flex-shrink:0; display:flex; align-items:center;
-      justify-content:center; font-size:1.4rem;
-    }
-
-    .obra-info { flex:1; min-width:0; }
-    .obra-info h4 {
-      margin:0 0 5px; color:#fff; font-size:0.93rem;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    }
-    .obra-info small { color:var(--text-muted); font-size:0.72rem; font-weight:600; display:block; }
-
-    .badge {
-      display:inline-block; font-size:0.58rem; font-weight:700;
-      padding:2px 7px; border-radius:10px; margin-left:6px; text-transform:uppercase;
-    }
-    .badge-aprobado  { color:#4CAF50; background:rgba(76,175,80,0.12);   border:1px solid #4CAF50; }
-    .badge-pendiente { color:#f59e0b; background:rgba(245,158,11,0.12);  border:1px solid #f59e0b; }
-    .badge-rechazado { color:var(--accent); background:rgba(230,62,109,0.1); border:1px solid var(--accent); }
-    .badge-revision  { color:var(--accent3); background:rgba(6,182,212,0.1); border:1px solid var(--accent3); }
-    .badge-suspension{ color:#ff4444; background:rgba(255,68,68,0.1); border:1px solid #ff4444; }
-
-    .obra-actions { display:flex; gap:8px; flex-shrink:0; }
-    .btn-gestionar, .btn-editar {
-      text-decoration:none; padding:7px 12px; border-radius:8px;
-      font-size:0.72rem; font-weight:700; white-space:nowrap; transition:0.2s;
-    }
-    .btn-gestionar { color:var(--accent3); border:1px solid var(--accent3); }
-    .btn-gestionar:hover { background:var(--accent3); color:#000; }
-    .btn-editar { color:var(--text-muted); border:1px solid var(--border); }
-    .btn-editar:hover { border-color:var(--accent); color:var(--accent); }
-
-    .empty-obras {
-      text-align:center; padding:50px 20px;
-      border:1px dashed var(--border); border-radius:14px; color:var(--text-muted);
-    }
-    .empty-obras i { font-size:2rem; margin-bottom:12px; display:block; opacity:0.4; }
+    /* ── Obra card ── */
+    .obra-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:14px;margin-bottom:12px;transition:border-color .2s;}
+    .obra-card:hover{border-color:rgba(230,62,109,.35);}
+    .obra-cover-mini{width:52px;height:72px;border-radius:7px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;}
+    .obra-cover-ph{width:52px;height:72px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+    .obra-info{flex:1;min-width:0;}
+    .obra-info h4{margin:0 0 5px;color:#fff;font-size:.93rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .obra-info small{color:var(--text-muted);font-size:.72rem;font-weight:600;display:block;}
+    .badge{display:inline-block;font-size:.58rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px;text-transform:uppercase;}
+    .badge-aprobado  {color:#4CAF50;background:rgba(76,175,80,.12);border:1px solid #4CAF50;}
+    .badge-pendiente {color:#f59e0b;background:rgba(245,158,11,.12);border:1px solid #f59e0b;}
+    .badge-rechazado {color:var(--accent);background:rgba(230,62,109,.1);border:1px solid var(--accent);}
+    .badge-revision  {color:var(--accent3);background:rgba(6,182,212,.1);border:1px solid var(--accent3);}
+    .badge-suspension{color:#ff4444;background:rgba(255,68,68,.1);border:1px solid #ff4444;}
+    .obra-actions{display:flex;gap:8px;flex-shrink:0;}
+    .btn-gestionar,.btn-editar{text-decoration:none;padding:7px 12px;border-radius:8px;font-size:.72rem;font-weight:700;white-space:nowrap;transition:.2s;}
+    .btn-gestionar{color:var(--accent3);border:1px solid var(--accent3);}
+    .btn-gestionar:hover{background:var(--accent3);color:#000;}
+    .btn-editar{color:var(--text-muted);border:1px solid var(--border);}
+    .btn-editar:hover{border-color:var(--accent);color:var(--accent);}
+    .empty-obras{text-align:center;padding:50px 20px;border:1px dashed var(--border);border-radius:14px;color:var(--text-muted);}
+    .empty-obras i{font-size:2rem;margin-bottom:12px;display:block;opacity:.4;}
 
     /* ── Responsive ── */
-    @media (max-width:600px) {
-      .obra-card { gap:10px; }
-      .obra-actions { flex-direction:column; gap:6px; }
-      .btn-gestionar, .btn-editar { padding:6px 10px; font-size:0.68rem; }
-    }
-    @media (max-width:480px) {
-      .obra-info h4 { font-size:0.88rem; }
-      .obra-cover-mini, .obra-cover-ph { width:44px; height:62px; }
-      .profile-card { padding:14px 16px; gap:14px; }
-      .top-nav { padding:10px 14px; }
-      .top-nav .brand { font-size:1rem; }
-      .btn-home { padding:6px 10px; font-size:0.72rem; }
-    }
-    @media (max-width:360px) {
-      .obra-actions { width:100%; flex-direction:row; justify-content:flex-end; }
-      .obra-card { flex-wrap:wrap; }
-    }
+    @media(max-width:600px){.obra-card{gap:10px;}.obra-actions{flex-direction:column;gap:6px;}.btn-gestionar,.btn-editar{padding:6px 10px;font-size:.68rem;}}
+    @media(max-width:480px){.obra-info h4{font-size:.88rem;}.obra-cover-mini,.obra-cover-ph{width:44px;height:62px;}.profile-card{padding:14px 16px;gap:14px;}.top-nav{padding:10px 14px;}.brand{font-size:.9rem;}.sc-name{max-width:70px;}}
+    @media(max-width:360px){.obra-actions{width:100%;flex-direction:row;justify-content:flex-end;}.obra-card{flex-wrap:wrap;}}
   </style>
 </head>
 <body>
   <div class="bg-grid"></div>
 
   <nav class="top-nav">
-    <span class="brand">KOTATSUNAME</span>
-    <div class="nav-links">
-      <a href="index.html" class="btn-home">Biblioteca</a>
+    <!-- Marca clickeable → index.html -->
+    <div class="nav-left">
+      <a href="index.html" class="brand">
+        <i class="fas fa-house brand-home-icon"></i>
+        KOTATSUNAME
+      </a>
+    </div>
+
+    <div class="nav-right">
       <button class="btn-refresh" id="btnRefresh" onclick="refrescar()" title="Actualizar">
         <i class="fas fa-rotate-right" id="refreshIcon"></i>
       </button>
-      <button class="logout" id="logoutBtn" title="Cerrar sesión">
-        <i class="fas fa-power-off"></i>
-      </button>
+
+      <!-- Chip de sesión (igual al panel_owner) -->
+      <div class="session-chip-wrap" id="sessionChipWrap">
+        <div class="session-chip" id="sessionChip" onclick="toggleSessionDropdown(event)">
+          <div class="sc-avatar" id="scAvatar">
+            <img id="scAvatarImg" src="" alt="" style="display:none">
+            <span id="scAvatarInitial"></span>
+          </div>
+          <span class="sc-name" id="scName"></span>
+          <i class="fas fa-chevron-down sc-caret"></i>
+        </div>
+        <div class="session-dropdown" id="sessionDropdown">
+          <div class="sd-header"><i class="fas fa-layer-group" style="margin-right:5px"></i>Sesiones guardadas</div>
+          <div class="sd-accounts" id="sdAccountsList"></div>
+          <div class="sd-divider"></div>
+          <button class="sd-action" onclick="cerrarSesion()">
+            <i class="fas fa-power-off"></i> Cerrar sesión
+          </button>
+        </div>
+      </div>
     </div>
   </nav>
 
   <main class="container">
-
     <div class="susp-banner" id="suspBanner">
       <strong>Tienes obras suspendidas</strong>
       El staff ha suspendido una o más de tus obras. Contacta a moderación si crees que es un error.
@@ -225,7 +207,7 @@
         <div class="avatar-wrap">
           <img id="profileImg"
             src="data:image/svg+xml,<svg viewBox='0 0 1 1' fill='%231a1a28' xmlns='http://www.w3.org/2000/svg'><rect width='1' height='1'/></svg>"
-            alt="Avatar" />
+            alt="Avatar"/>
           <button class="avatar-btn" onclick="togglePhotoDrawer()" title="Cambiar foto">
             <i class="fas fa-camera"></i>
           </button>
@@ -239,7 +221,7 @@
       <div class="photo-drawer" id="photoDrawer">
         <label>Enlace de imagen (Google Drive)</label>
         <div class="photo-row">
-          <input type="text" id="driveInput" placeholder="Pega el enlace de compartir de Drive..." />
+          <input type="text" id="driveInput" placeholder="Pega el enlace de compartir de Drive..."/>
           <button onclick="guardarFoto()">Actualizar</button>
         </div>
       </div>
@@ -250,13 +232,11 @@
       <h3>Mis Manuscritos</h3>
       <a href="nueva_obra.html" class="btn-nueva">+ Nueva Obra</a>
     </div>
-
     <div id="listaObras">
       <div style="text-align:center;padding:40px;color:var(--text-muted);">
         <i class="fas fa-spinner fa-spin"></i>&nbsp; Cargando manuscritos...
       </div>
     </div>
-
   </main>
 
   <script type="module">
@@ -264,22 +244,115 @@
 
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlwm_htimcLqGW7p5HQvdgqwY1V7tlr3oEt5vl6FMZ8j6TGyB3V8t4Dwd2t8vU9AZA/exec";
 
-    const idAutor = (localStorage.getItem("ktt_id")   || "").trim();
-    const user    = (localStorage.getItem("ktt_user") || "").trim();
-    const foto    =  localStorage.getItem("ktt_foto") || "";
-    const role    =  localStorage.getItem("ktt_role") || "user";
+    const idAutor    = (localStorage.getItem("ktt_id")    || "").trim();
+    const autorEmail =  localStorage.getItem("ktt_email") || "";
+    const autorName  =  localStorage.getItem("ktt_user")  || "Autor";
+    const autorFoto  =  localStorage.getItem("ktt_foto")  || "";
+    const role       =  localStorage.getItem("ktt_role")  || "user";
 
-    if (!idAutor || idAutor === "null") { window.location.href = "registrarse.html"; }
+    /* ── Guardia de sesión ── */
+    if (!idAutor || idAutor === "null") { window.location.replace("registrarse.html"); }
     if (role !== "user") {
       const map = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
-      window.location.href = map[role] || "registrarse.html";
+      window.location.replace(map[role] || "registrarse.html");
     }
 
-    document.getElementById("profileName").textContent = user || "Autor";
+    /* ── Perfil principal ── */
+    document.getElementById("profileName").textContent = autorName;
     document.getElementById("profileId").textContent   = `ID: ${idAutor}`;
-    if (foto && foto !== "undefined") document.getElementById("profileImg").src = foto;
+    if (autorFoto && autorFoto !== "undefined") document.getElementById("profileImg").src = autorFoto;
 
-    // ── Foto de perfil ──
+    /* ── Chip de sesión en nav ── */
+    initSessionChip();
+
+    function initSessionChip() {
+      const nameEl = document.getElementById("scName");
+      const img    = document.getElementById("scAvatarImg");
+      const ini    = document.getElementById("scAvatarInitial");
+      nameEl.textContent = autorName;
+      if (autorFoto && autorFoto !== "undefined") {
+        img.src = autorFoto; img.style.display = "block"; ini.style.display = "none";
+        img.onerror = () => { img.style.display = "none"; ini.style.display = ""; ini.textContent = (autorName||"?")[0].toUpperCase(); };
+      } else {
+        ini.textContent = (autorName||"?")[0].toUpperCase();
+      }
+      renderSessionDropdown();
+    }
+
+    function renderSessionDropdown() {
+      const list = document.getElementById("sdAccountsList");
+      list.innerHTML = "";
+      let accounts = [];
+      try { accounts = JSON.parse(localStorage.getItem("ktt_device_accounts") || "[]"); } catch {}
+      if (!Array.isArray(accounts)) accounts = [];
+
+      const roleLabels = { user:"Autor", mod:"Moderador", admin:"Admin", owner:"Owner" };
+      const panelMap   = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html", user:"panel_autor.html" };
+
+      if (accounts.length === 0) {
+        list.innerHTML = `<p style="font-size:.72rem;color:var(--text-muted);text-align:center;padding:8px 0;">Sin otras sesiones guardadas.</p>`;
+        return;
+      }
+
+      accounts.forEach(acc => {
+        const isActive = acc.email === autorEmail;
+        const chip = document.createElement("div");
+        chip.className = `sd-chip${isActive ? " active-chip" : ""}`;
+        chip.title = isActive ? "Sesión actual" : "Cambiar a esta cuenta";
+        const initial = (acc.nombre||"?")[0].toUpperCase();
+        chip.innerHTML = `
+          <div class="sd-av">
+            ${acc.foto
+              ? `<img src="${esc(acc.foto)}" alt="" onerror="this.parentElement.textContent='${initial}'">`
+              : initial}
+          </div>
+          <div class="sd-info">
+            <div class="sd-name">${esc(acc.nombre)}</div>
+            <div class="sd-email">${esc(acc.email)}</div>
+          </div>
+          <span class="sd-role ${acc.rol||"user"}">${roleLabels[acc.rol]||"Autor"}</span>
+          ${isActive ? `<div class="sd-active-dot" title="Activa"></div>` : ""}
+        `;
+        chip.onclick = () => {
+          closeSessionDropdown();
+          if (isActive) return;
+          sessionStorage.setItem("ktt_prefill_email", acc.email);
+          localStorage.removeItem("ktt_id");
+          localStorage.removeItem("ktt_role");
+          localStorage.removeItem("ktt_user");
+          localStorage.removeItem("ktt_foto");
+          localStorage.removeItem("ktt_email");
+          window.location.href = "registrarse.html";
+        };
+        list.appendChild(chip);
+      });
+    }
+
+    window.toggleSessionDropdown = (e) => {
+      e && e.stopPropagation();
+      const chip = document.getElementById("sessionChip");
+      const dd   = document.getElementById("sessionDropdown");
+      const open = dd.classList.toggle("open");
+      chip.classList.toggle("open", open);
+    };
+
+    function closeSessionDropdown() {
+      document.getElementById("sessionDropdown").classList.remove("open");
+      document.getElementById("sessionChip").classList.remove("open");
+    }
+
+    document.addEventListener("click", e => {
+      const wrap = document.getElementById("sessionChipWrap");
+      if (wrap && !wrap.contains(e.target)) closeSessionDropdown();
+    });
+
+    /* ── Cerrar sesión ── */
+    window.cerrarSesion = () => {
+      ["ktt_id","ktt_role","ktt_user","ktt_foto","ktt_email"].forEach(k => localStorage.removeItem(k));
+      window.location.href = "registrarse.html";
+    };
+
+    /* ── Foto de perfil ── */
     window.togglePhotoDrawer = () => document.getElementById("photoDrawer").classList.toggle("open");
 
     window.guardarFoto = async () => {
@@ -290,8 +363,15 @@
       const url = `https://wsrv.nl/?url=${encodeURIComponent(
         `https://drive.google.com/uc?export=view&id=${match[0]}`
       )}&w=300&output=webp`;
+
       document.getElementById("profileImg").src = url;
       localStorage.setItem("ktt_foto", url);
+
+      /* Actualizar chip de nav también */
+      const img = document.getElementById("scAvatarImg");
+      const ini = document.getElementById("scAvatarInitial");
+      img.src = url; img.style.display = "block"; ini.style.display = "none";
+
       document.getElementById("photoDrawer").classList.remove("open");
       document.getElementById("driveInput").value = "";
       try {
@@ -302,7 +382,7 @@
       } catch(e) {}
     };
 
-    // ── Cargar obras ──
+    /* ── Cargar obras ── */
     async function cargarObras() {
       const container = document.getElementById("listaObras");
       try {
@@ -321,7 +401,6 @@
           return;
         }
 
-        // Banner suspensión
         if (mias.some(o => (o.aprobacion||"").toLowerCase() === "suspension")) {
           document.getElementById("suspBanner").style.display = "block";
         }
@@ -338,24 +417,15 @@
         container.innerHTML = mias.map(o => {
           const ap       = (o.aprobacion || "pendiente").trim().toLowerCase();
           const [bc, bt] = badgeMap[ap] || ["badge-pendiente","Pendiente"];
-
-          // Portada miniatura — con fallback a emoji si falla la imagen
           const coverHtml = o.cover
-            ? `<img class="obra-cover-mini"
-                src="${o.cover}"
-                alt="${o.titulo}"
-                onerror="this.outerHTML='<div class=\\'obra-cover-ph\\'></div>'" />`
+            ? `<img class="obra-cover-mini" src="${o.cover}" alt="${o.titulo}" onerror="this.outerHTML='<div class=\\'obra-cover-ph\\'></div>'">`
             : `<div class="obra-cover-ph"></div>`;
-
           return `
             <div class="obra-card">
               ${coverHtml}
               <div class="obra-info">
                 <h4>${o.titulo}<span class="badge ${bc}">${bt}</span></h4>
-                <small>
-                  ${o.capitulos} CAP${o.capitulos !== 1 ? "S" : ""}
-                  &nbsp;·&nbsp; ${(o.estado || "").toUpperCase()}
-                </small>
+                <small>${o.capitulos} CAP${o.capitulos !== 1 ? "S" : ""} &nbsp;·&nbsp; ${(o.estado||"").toUpperCase()}</small>
               </div>
               <div class="obra-actions">
                 <a href="nueva_obra.html?id=${o.id}"        class="btn-editar">Editar</a>
@@ -372,7 +442,7 @@
       }
     }
 
-    // ── Botón refrescar ──
+    /* ── Refrescar ── */
     window.refrescar = async () => {
       const icon = document.getElementById("refreshIcon");
       icon.classList.add("spinning");
@@ -381,7 +451,7 @@
       setTimeout(() => icon.classList.remove("spinning"), 700);
     };
 
-    // Si venimos de guardar, esperar a que el Sheet procese
+    /* ── Arrancar carga ── */
     if (sessionStorage.getItem("panel_reload") === "1") {
       sessionStorage.removeItem("panel_reload");
       clearCache();
@@ -390,11 +460,10 @@
       cargarObras();
     }
 
-    document.getElementById("logoutBtn").onclick = () => {
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.href = "registrarse.html";
-    };
+    /* ── Helper esc ── */
+    function esc(s) {
+      return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
   </script>
 </body>
 </html>
