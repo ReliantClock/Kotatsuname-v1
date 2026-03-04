@@ -7,194 +7,151 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    :root {
-      --bg:#0a0a0f;--surface:#12121c;--border:#2a2a3e;
-      --accent:#e63e6d;--accent3:#06b6d4;--text:#e8e8f0;
-      --text-muted:#6b6b8a;--glow:rgba(230,62,109,0.3);
-    }
+    :root{--bg:#0a0a0f;--surface:#12121c;--border:#2a2a3e;--accent:#e63e6d;--accent3:#06b6d4;--text:#e8e8f0;--text-muted:#6b6b8a;--glow:rgba(230,62,109,0.3);}
     *{box-sizing:border-box;margin:0;padding:0;}
     body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex;min-height:100vh;}
 
-    /* ── Botón flotante cuentas ── */
-    #accountsFloatBtn {
+    /* ════ BOTÓN FLOTANTE — siempre visible ════ */
+    #accountsFloatBtn{
       position:fixed;top:14px;right:14px;z-index:1000;
-      background:var(--surface);border:1px solid var(--border);
-      border-radius:50px;padding:7px 14px 7px 8px;
-      display:none;align-items:center;gap:8px;cursor:pointer;
-      transition:all 0.25s;box-shadow:0 4px 20px rgba(0,0,0,0.5);
-      font-family:'Rajdhani';font-size:0.8rem;font-weight:700;
-      color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;
+      background:var(--surface);border:1px solid var(--border);border-radius:50px;
+      padding:7px 14px 7px 10px;
+      /* display:flex siempre — nunca lo ocultamos */
+      display:flex;align-items:center;gap:8px;cursor:pointer;
+      transition:all .25s;box-shadow:0 4px 20px rgba(0,0,0,.5);
+      font-family:'Rajdhani';font-size:.8rem;font-weight:700;color:var(--text-muted);
+      text-transform:uppercase;letter-spacing:.08em;
     }
-    #accountsFloatBtn:hover{border-color:var(--accent3);color:var(--accent3);box-shadow:0 4px 24px rgba(6,182,212,0.25);}
-    #accountsFloatBtn .avatars-row{display:flex;align-items:center;}
+    #accountsFloatBtn:hover{border-color:var(--accent3);color:var(--accent3);box-shadow:0 4px 24px rgba(6,182,212,.25);}
+    .avatars-row{display:flex;align-items:center;}
     .mini-avatar{
-      width:26px;height:26px;border-radius:50%;border:2px solid var(--border);
-      background:var(--bg);font-size:0.6rem;font-weight:700;color:var(--accent3);
-      display:flex;align-items:center;justify-content:center;overflow:hidden;
-      margin-left:-5px;flex-shrink:0;
+      width:26px;height:26px;border-radius:50%;border:2px solid var(--border);background:var(--bg);
+      font-size:.6rem;font-weight:700;color:var(--accent3);display:flex;align-items:center;
+      justify-content:center;overflow:hidden;margin-left:-5px;flex-shrink:0;
     }
     .mini-avatar:first-child{margin-left:0;}
     .mini-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 
-    /* ── Panel de cuentas ── */
-    #accountsPanel {
-      position:fixed;top:56px;right:14px;z-index:999;
-      background:var(--surface);border:1px solid var(--border);
-      border-radius:16px;padding:14px;width:290px;
-      box-shadow:0 16px 48px rgba(0,0,0,0.75);
+    /* ════ PANEL ════ */
+    #accountsPanel{
+      position:fixed;top:56px;right:14px;z-index:999;background:var(--surface);
+      border:1px solid var(--border);border-radius:16px;padding:14px;width:292px;
+      box-shadow:0 16px 48px rgba(0,0,0,.75);
+      /* display:none es el estado cerrado; .open lo muestra */
       display:none;flex-direction:column;gap:7px;
     }
-    #accountsPanel.open{display:flex;animation:slideDown 0.18s ease;}
-    @keyframes slideDown{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+    #accountsPanel.open{display:flex;animation:slideDown .18s ease;}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
-    .panel-header{
-      display:flex;align-items:center;justify-content:space-between;
-      padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:2px;
-    }
-    .panel-title-txt{font-size:0.6rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);}
-    .panel-close-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.9rem;padding:2px 4px;transition:0.2s;}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:2px;}
+    .panel-title-txt{font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted);}
+    .panel-close-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.9rem;padding:2px 4px;transition:.2s;}
     .panel-close-btn:hover{color:var(--accent);}
 
     #chipsContainer{max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-right:2px;}
     #chipsContainer::-webkit-scrollbar{width:3px;}
-    #chipsContainer::-webkit-scrollbar-track{background:transparent;}
     #chipsContainer::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 
-    .account-chip {
-      display:flex;align-items:center;gap:9px;padding:9px 11px;
-      background:rgba(26,26,40,0.8);border-radius:10px;border:1px solid var(--border);
-      cursor:pointer;transition:all 0.18s;
-    }
+    /* Skeleton de carga */
+    .chip-skel{display:flex;align-items:center;gap:9px;padding:9px 11px;background:rgba(26,26,40,.5);border-radius:10px;border:1px solid var(--border);}
+    .skel-av{width:34px;height:34px;border-radius:50%;background:var(--border);flex-shrink:0;animation:kpulse .9s ease-in-out infinite alternate;}
+    .skel-body{flex:1;display:flex;flex-direction:column;gap:5px;}
+    .skel-line{height:9px;border-radius:5px;background:var(--border);animation:kpulse .9s ease-in-out infinite alternate;}
+    .skel-line.s{width:55%;}
+    @keyframes kpulse{from{opacity:.3}to{opacity:.75}}
+
+    /* Chip real */
+    .account-chip{display:flex;align-items:center;gap:9px;padding:9px 11px;background:rgba(26,26,40,.8);border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:all .18s;}
     .account-chip:hover{border-color:var(--accent3);background:#1a1a28;}
-    .account-chip.is-active{border-color:rgba(76,175,80,0.4);background:rgba(76,175,80,0.04);}
-    .chip-avatar{
-      width:34px;height:34px;border-radius:50%;background:var(--bg);
-      border:2px solid var(--border);flex-shrink:0;overflow:hidden;
-      display:flex;align-items:center;justify-content:center;
-      font-size:0.85rem;font-weight:700;color:var(--accent3);
-    }
+    .account-chip.is-active{border-color:rgba(76,175,80,.4);background:rgba(76,175,80,.04);}
+    .chip-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg);border:2px solid var(--border);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:var(--accent3);}
     .chip-avatar img{width:100%;height:100%;object-fit:cover;}
     .chip-info{flex:1;min-width:0;}
-    .chip-name{font-size:0.85rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .chip-email{font-size:0.62rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .chip-role-tag{font-size:0.55rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:1px 7px;border-radius:20px;flex-shrink:0;}
-    .chip-role-tag.user  {background:rgba(76,175,80,0.15);color:#4CAF50;}
-    .chip-role-tag.mod   {background:rgba(245,158,11,0.15);color:#f59e0b;}
-    .chip-role-tag.admin {background:rgba(6,182,212,0.15);color:#06b6d4;}
-    .chip-role-tag.owner {background:rgba(230,62,109,0.15);color:#e63e6d;}
+    .chip-name{font-size:.85rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .chip-email{font-size:.62rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .chip-role-tag{font-size:.55rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:1px 7px;border-radius:20px;flex-shrink:0;}
+    .chip-role-tag.user {background:rgba(76,175,80,.15);color:#4CAF50;}
+    .chip-role-tag.mod  {background:rgba(245,158,11,.15);color:#f59e0b;}
+    .chip-role-tag.admin{background:rgba(6,182,212,.15);color:#06b6d4;}
+    .chip-role-tag.owner{background:rgba(230,62,109,.15);color:#e63e6d;}
     .chip-active-dot{width:7px;height:7px;border-radius:50%;background:#4CAF50;flex-shrink:0;}
-    .chips-footer{font-size:0.6rem;color:var(--text-muted);text-align:center;padding:4px 0 0;letter-spacing:0.05em;}
+    .chips-footer{font-size:.6rem;color:var(--text-muted);text-align:center;padding:4px 0 0;letter-spacing:.05em;}
     .chips-footer.at-limit{color:#f59e0b;}
+    .chips-empty{font-size:.78rem;color:var(--text-muted);text-align:center;padding:14px 6px;line-height:1.7;}
 
-    /* ── Info side ── */
-    .info-side{
-      flex:1;padding:3rem;display:flex;flex-direction:column;
-      justify-content:center;align-items:center;text-align:center;
-      border-right:1px solid var(--border);
-      background:radial-gradient(circle at 40% 50%,#1a1a28 0%,var(--bg) 70%);
-    }
+    /* ════ INFO SIDE ════ */
+    .info-side{flex:1;padding:3rem;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border-right:1px solid var(--border);background:radial-gradient(circle at 40% 50%,#1a1a28 0%,var(--bg) 70%);}
     .info-side h1{font-family:'Cinzel Decorative';font-size:5rem;color:var(--accent);line-height:1;}
     .info-side .tagline{color:var(--accent3);letter-spacing:8px;font-weight:700;margin-top:10px;}
-    .domain-indicator{
-      margin-top:20px;padding:8px 20px;border-radius:30px;
-      font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
-      border:1px solid var(--border);color:var(--text-muted);transition:all 0.3s;
-    }
-    .domain-indicator.user  {border-color:#4CAF50;color:#4CAF50;background:rgba(76,175,80,0.08);}
-    .domain-indicator.mod   {border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,0.08);}
-    .domain-indicator.admin {border-color:var(--accent3);color:var(--accent3);background:rgba(6,182,212,0.08);}
-    .domain-indicator.owner {border-color:var(--accent);color:var(--accent);background:rgba(230,62,109,0.08);}
-    .domain-indicator.invalid{border-color:#ff4444;color:#ff4444;background:rgba(255,68,68,0.08);}
+    .domain-indicator{margin-top:20px;padding:8px 20px;border-radius:30px;font-size:.75rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;border:1px solid var(--border);color:var(--text-muted);transition:all .3s;}
+    .domain-indicator.user {border-color:#4CAF50;color:#4CAF50;background:rgba(76,175,80,.08);}
+    .domain-indicator.mod  {border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.08);}
+    .domain-indicator.admin{border-color:var(--accent3);color:var(--accent3);background:rgba(6,182,212,.08);}
+    .domain-indicator.owner{border-color:var(--accent);color:var(--accent);background:rgba(230,62,109,.08);}
+    .domain-indicator.invalid{border-color:#ff4444;color:#ff4444;background:rgba(255,68,68,.08);}
 
-    /* ── Auth side ── */
+    /* ════ AUTH SIDE ════ */
     .auth-side{width:480px;display:flex;align-items:center;justify-content:center;padding:20px;}
-    .auth-card{
-      width:100%;max-width:400px;background:var(--surface);
-      padding:2.5rem 2rem;border-radius:24px;border:1px solid var(--border);
-      box-shadow:0 20px 50px rgba(0,0,0,0.6);
-    }
+    .auth-card{width:100%;max-width:400px;background:var(--surface);padding:2.5rem 2rem;border-radius:24px;border:1px solid var(--border);box-shadow:0 20px 50px rgba(0,0,0,.6);}
     .mobile-logo{display:none;text-align:center;margin-bottom:1.5rem;}
     .mobile-logo h1{font-family:'Cinzel Decorative';font-size:2.2rem;color:var(--accent);}
-    .mobile-logo .tagline{color:var(--accent3);letter-spacing:3px;font-size:0.7rem;font-weight:700;}
-
-    #deviceNotice{
-      display:none;margin-bottom:1.4rem;padding:11px 13px;
-      background:rgba(6,182,212,0.07);border:1px solid rgba(6,182,212,0.22);
-      border-radius:11px;font-size:0.78rem;color:var(--accent3);
-      line-height:1.5;text-align:center;
-    }
+    .mobile-logo .tagline{color:var(--accent3);letter-spacing:3px;font-size:.7rem;font-weight:700;}
+    #deviceNotice{display:none;margin-bottom:1.4rem;padding:11px 13px;background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.22);border-radius:11px;font-size:.78rem;color:var(--accent3);line-height:1.5;text-align:center;}
     #deviceNotice i{font-size:1.1rem;margin-bottom:5px;display:block;}
-
     .input-group{margin-bottom:1.15rem;}
-    label{display:block;margin-bottom:7px;font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;font-weight:700;}
+    label{display:block;margin-bottom:7px;font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;font-weight:700;}
     .input-wrapper{position:relative;}
-    .input-wrapper .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:0.85rem;}
-    input[type="text"],input[type="email"],input[type="password"]{
-      width:100%;padding:12px 12px 12px 40px;
-      background:rgba(26,26,40,0.6);border:1px solid var(--border);
-      border-radius:11px;color:#fff;font-family:'Rajdhani';font-size:1rem;
-      transition:0.3s;outline:none;
-    }
-    input:focus{border-color:var(--accent3);background:#1a1a28;box-shadow:0 0 10px rgba(6,182,212,0.1);}
-
-    .role-badge{
-      display:none;text-align:center;margin-bottom:1rem;
-      font-size:0.7rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
-      padding:5px 13px;border-radius:20px;border:1px solid currentColor;
-    }
-    .error-msg{min-height:1.2rem;font-size:0.83rem;font-weight:600;text-align:center;margin-bottom:0.9rem;color:var(--accent);}
-    .btn-submit{
-      width:100%;padding:14px;margin-top:6px;
-      background:linear-gradient(135deg,var(--accent),#7c3aed);
-      border:none;border-radius:50px;color:#fff;font-weight:700;
-      font-family:'Rajdhani';font-size:1rem;text-transform:uppercase;
-      letter-spacing:1px;cursor:pointer;transition:0.3s;
-      box-shadow:0 8px 25px var(--glow);
-      display:flex;align-items:center;justify-content:center;gap:10px;
-    }
+    .input-wrapper .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:.85rem;}
+    input[type="text"],input[type="email"],input[type="password"]{width:100%;padding:12px 12px 12px 40px;background:rgba(26,26,40,.6);border:1px solid var(--border);border-radius:11px;color:#fff;font-family:'Rajdhani';font-size:1rem;transition:.3s;outline:none;}
+    input:focus{border-color:var(--accent3);background:#1a1a28;box-shadow:0 0 10px rgba(6,182,212,.1);}
+    .role-badge{display:none;text-align:center;margin-bottom:1rem;font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:5px 13px;border-radius:20px;border:1px solid currentColor;}
+    .error-msg{min-height:1.2rem;font-size:.83rem;font-weight:600;text-align:center;margin-bottom:.9rem;color:var(--accent);}
+    .btn-submit{width:100%;padding:14px;margin-top:6px;background:linear-gradient(135deg,var(--accent),#7c3aed);border:none;border-radius:50px;color:#fff;font-weight:700;font-family:'Rajdhani';font-size:1rem;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:.3s;box-shadow:0 8px 25px var(--glow);display:flex;align-items:center;justify-content:center;gap:10px;}
     .btn-submit:hover:not(:disabled){transform:translateY(-2px);filter:brightness(1.1);}
-    .btn-submit:disabled{opacity:0.7;cursor:not-allowed;}
-    .spinner{width:17px;height:17px;border:3px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
-    @keyframes spin{to{transform:rotate(360deg);}}
-
-    .toggle{text-align:center;margin-top:22px;color:var(--text-muted);font-size:0.88rem;}
+    .btn-submit:disabled{opacity:.7;cursor:not-allowed;}
+    .spinner{width:17px;height:17px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .toggle{text-align:center;margin-top:22px;color:var(--text-muted);font-size:.88rem;}
     .toggle span{color:var(--accent3);cursor:pointer;font-weight:700;border-bottom:1px dashed var(--accent3);margin-left:4px;}
-
     .mode-tabs{display:flex;margin-bottom:1.7rem;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
-    .mode-tab{
-      flex:1;padding:9px;background:transparent;border:none;
-      color:var(--text-muted);font-family:'Rajdhani';font-size:0.78rem;font-weight:700;
-      letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:0.2s;
-    }
+    .mode-tab{flex:1;padding:9px;background:transparent;border:none;color:var(--text-muted);font-family:'Rajdhani';font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:.2s;}
     .mode-tab.active{background:var(--accent);color:#fff;}
-    .mode-tab:disabled{opacity:0.32;cursor:not-allowed;pointer-events:none;}
-
+    .mode-tab:disabled{opacity:.32;cursor:not-allowed;pointer-events:none;}
     #group-user{display:none;}
 
-    @media(max-width:860px){
-      .auth-side{width:100%;}
-      .info-side{display:none;}
-      .mobile-logo{display:block;}
-    }
-    @media(max-width:480px){
-      .auth-card{background:transparent;border:none;box-shadow:none;padding:1.5rem 1rem;}
-      body{background:var(--surface);}
-    }
+    @media(max-width:860px){.auth-side{width:100%;}.info-side{display:none;}.mobile-logo{display:block;}}
+    @media(max-width:480px){.auth-card{background:transparent;border:none;box-shadow:none;padding:1.5rem 1rem;}body{background:var(--surface);}}
   </style>
 </head>
 <body>
 
+  <!--
+    BOTÓN FLOTANTE — siempre en el DOM con display:flex.
+    El JS sólo cambia su contenido interior, nunca su visibilidad.
+    Estado inicial: ícono genérico + "Sesiones" (se ve desde el primer frame).
+  -->
   <button id="accountsFloatBtn" onclick="togglePanel(event)">
-    <div class="avatars-row" id="avatarsRow"></div>
-    <span id="accountsBtnLabel">Mis cuentas</span>
+    <div class="avatars-row" id="avatarsRow">
+      <i class="fas fa-users" style="font-size:.75rem;opacity:.45;margin-left:2px"></i>
+    </div>
+    <span id="accountsBtnLabel">Sesiones</span>
   </button>
 
+  <!--
+    PANEL — oculto por defecto (.open lo muestra).
+    chipsContainer tiene skeletons en el HTML: si hay cuentas guardadas,
+    el usuario los ve mientras el JS hace su trabajo (aunque es instantáneo).
+    Si no hay cuentas, el JS los reemplaza por el mensaje vacío.
+  -->
   <div id="accountsPanel">
     <div class="panel-header">
-      <span class="panel-title-txt"><i class="fas fa-id-card" style="margin-right:5px;"></i>Cuentas · este dispositivo</span>
+      <span class="panel-title-txt"><i class="fas fa-id-card" style="margin-right:5px"></i>Cuentas · este dispositivo</span>
       <button class="panel-close-btn" onclick="closePanel()"><i class="fas fa-times"></i></button>
     </div>
-    <div id="chipsContainer"></div>
+    <div id="chipsContainer">
+      <div class="chip-skel"><div class="skel-av"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line s"></div></div></div>
+      <div class="chip-skel"><div class="skel-av"></div><div class="skel-body"><div class="skel-line"></div><div class="skel-line s"></div></div></div>
+    </div>
   </div>
 
   <section class="info-side">
@@ -205,14 +162,11 @@
 
   <section class="auth-side">
     <div class="auth-card">
-      <div class="mobile-logo">
-        <h1>KOTATSU</h1>
-        <p class="tagline">PORTAL DE ACCESO</p>
-      </div>
+      <div class="mobile-logo"><h1>KOTATSU</h1><p class="tagline">PORTAL DE ACCESO</p></div>
 
       <div class="mode-tabs">
-        <button class="mode-tab active" id="tabLogin" onclick="setTab('login')">Iniciar Sesión</button>
-        <button class="mode-tab"        id="tabReg"   onclick="setTab('registro')">Registrarse</button>
+        <button class="mode-tab active" id="tabLogin"  onclick="setTab('login')">Iniciar Sesión</button>
+        <button class="mode-tab"        id="tabReg"    onclick="setTab('registro')">Registrarse</button>
       </div>
 
       <div id="deviceNotice">
@@ -227,7 +181,7 @@
         <label>Nombre de Autor / Usuario</label>
         <div class="input-wrapper">
           <i class="fas fa-user-ninja ico"></i>
-          <input type="text" id="user" placeholder="Tu seudónimo" autocomplete="username" oninput="markTyping()" />
+          <input type="text" id="user" placeholder="Tu seudónimo" autocomplete="username" oninput="markTyping()"/>
         </div>
       </div>
 
@@ -235,8 +189,7 @@
         <label>Correo Electrónico</label>
         <div class="input-wrapper">
           <i class="fas fa-envelope ico"></i>
-          <input type="email" id="email" placeholder="tu@correo.com" autocomplete="email"
-                 oninput="onEmailInput();markTyping();" />
+          <input type="email" id="email" placeholder="tu@correo.com" autocomplete="email" oninput="onEmailInput();markTyping();"/>
         </div>
       </div>
 
@@ -244,7 +197,7 @@
         <label>Contraseña</label>
         <div class="input-wrapper">
           <i class="fas fa-lock ico"></i>
-          <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password" oninput="markTyping()" />
+          <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password" oninput="markTyping()"/>
         </div>
       </div>
 
@@ -261,353 +214,314 @@
     </div>
   </section>
 
-<script type="module">
-  // ─── Reemplaza estos imports con los tuyos reales ───
-  // import { detectRole, saveSession } from "./staff_auth.js";
+<script>
+/* ================================================================
+   registrarse.html — Kotatsu
+   Sin type=module · Sin dependencias externas · localStorage sync
+   El botón flotante y el panel existen en el DOM desde el HTML.
+   JS sólo actualiza su contenido — nunca cambia display del botón.
+================================================================ */
 
-  function detectRole(email) {
-    const e = email.toLowerCase();
-    if (e.endsWith("@kots-stf-owner.kotatsuname.com")) return { role:"owner", valid:true };
-    if (e.endsWith("@kots-stf-adm.com"))               return { role:"admin", valid:true };
-    if (e.endsWith("@kots-stf-mod.com"))                return { role:"mod",   valid:true };
-    if (e.endsWith("@gmail.com"))                       return { role:"user",  valid:true };
-    return { role:null, valid:false };
-  }
-  function saveSession({ idAutor, nombre, foto, rol, email }) {
-    localStorage.setItem("ktt_id",    idAutor);
-    localStorage.setItem("ktt_role",  rol);
-    localStorage.setItem("ktt_user",  nombre);
-    localStorage.setItem("ktt_foto",  foto || "");
-    localStorage.setItem("ktt_email", email);
-  }
+var SCRIPT_URL   = "https://script.google.com/macros/s/AKfycbxlwm_htimcLqGW7p5HQvdgqwY1V7tlr3oEt5vl6FMZ8j6TGyB3V8t4Dwd2t8vU9AZA/exec";
+var PANEL_MAP    = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
+var KEY_REG      = "ktt_device_registered";
+var KEY_ACCS     = "ktt_device_accounts";
+var MAX_ACCOUNTS = 15;
 
-  // ─── Config ───
-  const SCRIPT_URL     = "https://script.google.com/macros/s/AKfycbxlwm_htimcLqGW7p5HQvdgqwY1V7tlr3oEt5vl6FMZ8j6TGyB3V8t4Dwd2t8vU9AZA/exec";
-  const KEY_REGISTERED = "ktt_device_registered";
-  const KEY_ACCOUNTS   = "ktt_device_accounts";
-  const MAX_ACCOUNTS   = 15;   // ← máximo de sesiones guardadas por dispositivo
+var currentTab       = "login";
+var deviceRegistered = false;
+var deviceAccounts   = [];
+var isTyping         = false;
+var typingTimer      = null;
+var _leaving         = false;
 
-  // ─── Estado ───
-  let currentTab       = "login";
-  let deviceRegistered = false;
-  let deviceAccounts   = [];
-  let isTyping         = false;
-  let typingTimer      = null;
-  let navigating       = false;   // evita pop doble al redirigir
+/* ── Detectar rol por dominio ── */
+function detectRole(email){
+  var e=(email||"").toLowerCase();
+  if(e.endsWith("@kots-stf-owner.kotatsuname.com")) return{role:"owner",valid:true};
+  if(e.endsWith("@kots-stf-adm.com"))               return{role:"admin",valid:true};
+  if(e.endsWith("@kots-stf-mod.com"))                return{role:"mod",valid:true};
+  if(e.endsWith("@gmail.com"))                       return{role:"user",valid:true};
+  return{role:null,valid:false};
+}
 
-  // ═══════════════════════════════════════════════
-  //  BOTÓN "ATRÁS" → index.html
-  //  Excepto si el usuario está escribiendo
-  // ═══════════════════════════════════════════════
-  history.pushState({ ktt: true }, "");   // estado centinela
+/* ── localStorage seguro ── */
+function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 
-  window.addEventListener("popstate", () => {
-    if (navigating) return;              // ya estamos redirigiendo
-    if (isTyping) {
-      // Restaura el estado para que el botón atrás siga funcionando
-      history.pushState({ ktt: true }, "");
-      return;
-    }
-    navigating = true;
-    window.location.href = "index.html";
+/* ── Cuentas del dispositivo ── */
+function readAccounts(){
+  try{var r=lsGet(KEY_ACCS);if(!r)return[];var a=JSON.parse(r);return Array.isArray(a)?a:[];}
+  catch(e){return[];}
+}
+function writeAccounts(arr){lsSet(KEY_ACCS,JSON.stringify(arr));}
+function addAccount(obj){
+  var arr=readAccounts();
+  var idx=arr.findIndex(function(a){return a.email===obj.email;});
+  if(idx>=0){Object.assign(arr[idx],{nombre:obj.nombre,foto:obj.foto||"",rol:obj.rol||"user"});}
+  else{if(arr.length>=MAX_ACCOUNTS)arr.shift();arr.push({nombre:obj.nombre,email:obj.email,foto:obj.foto||"",rol:obj.rol||"user"});}
+  writeAccounts(arr);
+  return arr;
+}
+
+/* ── Sesión ── */
+function saveSession(o){
+  lsSet("ktt_id",o.idAutor||"");lsSet("ktt_role",o.rol||"user");
+  lsSet("ktt_user",o.nombre||"");lsSet("ktt_foto",o.foto||"");lsSet("ktt_email",o.email||"");
+}
+function getSession(){
+  var id=lsGet("ktt_id");
+  if(!id||id==="null"||id==="")return null;
+  return{id:id,role:lsGet("ktt_role")||"user",email:lsGet("ktt_email")||""};
+}
+
+/* ── Botón atrás → index.html ── */
+function setupBackButton(){
+  history.replaceState({kttReg:true},"");
+  window.addEventListener("popstate",function handler(){
+    if(_leaving)return;
+    if(isTyping){history.pushState({kttReg:true},"");return;}
+    _leaving=true;
+    window.removeEventListener("popstate",handler);
+    window.location.href="index.html";
   });
+}
+function markTyping(){
+  isTyping=true;clearTimeout(typingTimer);
+  typingTimer=setTimeout(function(){isTyping=false;},2500);
+}
 
-  window.markTyping = function () {
-    isTyping = true;
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => { isTyping = false; }, 2000);
-  };
-
-  // ═══════════════════════════════════════════════
-  //  INIT
-  // ═══════════════════════════════════════════════
-  function init() {
-    deviceRegistered = localStorage.getItem(KEY_REGISTERED) === "true";
-    try { deviceAccounts = JSON.parse(localStorage.getItem(KEY_ACCOUNTS) || "[]"); }
-    catch { deviceAccounts = []; }
-    if (!Array.isArray(deviceAccounts)) deviceAccounts = [];
-
-    // Redirigir si sesión activa
-    const kttId   = localStorage.getItem("ktt_id");
-    const kttRole = localStorage.getItem("ktt_role") || "user";
-    if (kttId) {
-      navigating = true;
-      const map = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
-      window.location.href = map[kttRole] || "panel_autor.html";
-      return;
-    }
-
-    applyDeviceRestrictions();
-    renderFloatBtn();
-    renderChips();
+/* ================================================================
+   INIT — punto de entrada
+   Orden crítico:
+   1. Sesión activa → redirigir (antes de tocar el DOM)
+   2. Leer cuentas de LS (síncrono, nunca falla)
+   3. Actualizar botón flotante (reemplaza ícono por avatares)
+   4. Reemplazar skeletons del HTML por chips reales (o vacío)
+   5. Restricciones de registro
+================================================================ */
+function init(){
+  /* 1 — sesión activa */
+  var sess=getSession();
+  if(sess&&sess.id){
+    _leaving=true;
+    window.location.replace(PANEL_MAP[sess.role]||"panel_autor.html");
+    return;
   }
 
-  // ═══════════════════════════════════════════════
-  //  RESTRICCIONES POR DISPOSITIVO
-  // ═══════════════════════════════════════════════
-  function applyDeviceRestrictions() {
-    const tabReg = document.getElementById("tabReg");
-    const notice = document.getElementById("deviceNotice");
-    const toggle = document.getElementById("toggleMsg");
-    if (deviceRegistered) {
-      tabReg.disabled      = true;
-      notice.style.display = "block";
-      toggle.style.display = "none";
-      setTab("login", true);
-    } else {
-      tabReg.disabled      = false;
-      notice.style.display = "none";
-      toggle.style.display = "block";
-    }
+  /* 2 — leer estado */
+  deviceRegistered=lsGet(KEY_REG)==="true";
+  deviceAccounts=readAccounts();
+
+  /* 3 — botón atrás */
+  setupBackButton();
+
+  /* 4 — renderizar botón flotante */
+  _renderFloatBtn();
+
+  /* 5 — reemplazar skeletons HTML → chips reales o vacío */
+  _renderChips();
+
+  /* 6 — restricciones */
+  applyDeviceRestrictions();
+
+  /* 7 — pre-rellenar email si viene de cambio de cuenta */
+  var prefill=sessionStorage.getItem("ktt_prefill_email");
+  if(prefill){
+    sessionStorage.removeItem("ktt_prefill_email");
+    document.getElementById("email").value=prefill;
+    onEmailInput();
   }
 
-  // ═══════════════════════════════════════════════
-  //  BOTÓN FLOTANTE (muestra hasta 3 avatares)
-  // ═══════════════════════════════════════════════
-  function renderFloatBtn() {
-    const btn = document.getElementById("accountsFloatBtn");
-    if (deviceAccounts.length === 0) { btn.style.display = "none"; return; }
-    btn.style.display = "flex";
-
-    const row = document.getElementById("avatarsRow");
-    row.innerHTML = "";
-    deviceAccounts.slice(0, 3).forEach(acc => {
-      const el = document.createElement("div");
-      el.className = "mini-avatar";
-      if (acc.foto) {
-        const img = document.createElement("img");
-        img.src = acc.foto;
-        img.onerror = () => { el.innerHTML = ""; el.textContent = (acc.nombre||"?")[0].toUpperCase(); };
-        el.appendChild(img);
-      } else {
-        el.textContent = (acc.nombre||"?")[0].toUpperCase();
-      }
-      row.appendChild(el);
-    });
-
-    document.getElementById("accountsBtnLabel").textContent =
-      deviceAccounts.length === 1 ? deviceAccounts[0].nombre : `${deviceAccounts.length} cuentas`;
-  }
-
-  // ═══════════════════════════════════════════════
-  //  CHIPS EN EL PANEL  (scroll, hasta 15)
-  // ═══════════════════════════════════════════════
-  function renderChips() {
-    const container = document.getElementById("chipsContainer");
-    container.innerHTML = "";
-
-    if (deviceAccounts.length === 0) {
-      container.innerHTML = `<p style="font-size:.78rem;color:var(--text-muted);text-align:center;padding:10px 0;">Sin sesiones previas.</p>`;
-      return;
-    }
-
-    const roleLabels  = { user:"Autor", mod:"Moderador", admin:"Admin", owner:"Owner" };
-    const activeEmail = localStorage.getItem("ktt_email") || "";
-
-    deviceAccounts.forEach(acc => {
-      const chip     = document.createElement("div");
-      const isActive = acc.email === activeEmail;
-      chip.className = `account-chip${isActive ? " is-active" : ""}`;
-      chip.title     = "Clic para rellenar sesión";
-      const initial   = (acc.nombre||"?")[0].toUpperCase();
-      const roleLabel = roleLabels[acc.rol] || "Autor";
-      chip.innerHTML = `
-        <div class="chip-avatar">
-          ${acc.foto
-            ? `<img src="${acc.foto}" alt="${esc(acc.nombre)}" onerror="this.parentElement.textContent='${initial}'">`
-            : initial}
-        </div>
-        <div class="chip-info">
-          <div class="chip-name">${esc(acc.nombre)}</div>
-          <div class="chip-email">${esc(acc.email)}</div>
-        </div>
-        <span class="chip-role-tag ${acc.rol||"user"}">${roleLabel}</span>
-        ${isActive ? `<div class="chip-active-dot" title="Sesión activa"></div>` : ""}
-      `;
-      chip.onclick = () => {
-        closePanel();
-        setTab("login", true);
-        document.getElementById("email").value = acc.email;
-        document.getElementById("pass").focus();
-        onEmailInput();
-      };
-      container.appendChild(chip);
-    });
-
-    // Footer con contador
-    const footer = document.createElement("p");
-    const atLimit = deviceAccounts.length >= MAX_ACCOUNTS;
-    footer.className = `chips-footer${atLimit ? " at-limit" : ""}`;
-    footer.textContent = atLimit
-      ? `Límite de ${MAX_ACCOUNTS} cuentas alcanzado`
-      : `${deviceAccounts.length} / ${MAX_ACCOUNTS} sesiones guardadas`;
-    container.appendChild(footer);
-  }
-
-  window.togglePanel = function (e) { e && e.stopPropagation(); document.getElementById("accountsPanel").classList.toggle("open"); };
-  window.closePanel  = function ()  { document.getElementById("accountsPanel").classList.remove("open"); };
-
-  document.addEventListener("click", e => {
-    const panel = document.getElementById("accountsPanel");
-    const btn   = document.getElementById("accountsFloatBtn");
-    if (panel.classList.contains("open") && !panel.contains(e.target) && !btn.contains(e.target))
+  /* 8 — cerrar panel al click fuera */
+  document.addEventListener("click",function(e){
+    var panel=document.getElementById("accountsPanel");
+    var btn=document.getElementById("accountsFloatBtn");
+    if(panel.classList.contains("open")&&!panel.contains(e.target)&&!btn.contains(e.target))
       panel.classList.remove("open");
   });
+  document.addEventListener("keydown",function(e){if(e.key==="Enter")enviar();});
+}
 
-  // ═══════════════════════════════════════════════
-  //  TABS
-  // ═══════════════════════════════════════════════
-  window.setTab = function (tab, force = false) {
-    if (tab === "registro" && deviceRegistered && !force) {
-      setError("Este dispositivo ya tiene una cuenta. Usa otro dispositivo.", "var(--accent3)");
-      return;
-    }
-    currentTab = tab;
-    document.getElementById("tabLogin").classList.toggle("active", tab === "login");
-    document.getElementById("tabReg").classList.toggle("active",   tab === "registro");
-    document.getElementById("group-user").style.display = tab === "registro" ? "block" : "none";
-    document.getElementById("btnTxt").textContent = tab === "registro" ? "Crear cuenta" : "Conectar";
-    if (!deviceRegistered) {
-      document.getElementById("toggleMsg").innerHTML = tab === "registro"
-        ? `¿Ya tienes cuenta? <span onclick="setTab('login')">Inicia sesión</span>`
-        : `¿No tienes cuenta? <span onclick="setTab('registro')">Regístrate</span>`;
-    }
-    setError("");
-  };
+/* ── Botón flotante: actualiza solo el interior ── */
+function _renderFloatBtn(){
+  var row=document.getElementById("avatarsRow");
+  var lbl=document.getElementById("accountsBtnLabel");
+  row.innerHTML="";
 
-  // ═══════════════════════════════════════════════
-  //  INDICADOR DE DOMINIO
-  // ═══════════════════════════════════════════════
-  window.onEmailInput = function () {
-    const email = document.getElementById("email").value.trim();
-    const ind   = document.getElementById("domainIndicator");
-    const badge = document.getElementById("roleBadge");
-
-    if (!email || !email.includes("@")) {
-      ind.className = "domain-indicator"; ind.textContent = "Ingresa tu correo";
-      badge.style.display = "none"; return;
-    }
-
-    const { role, valid } = detectRole(email);
-    if (!valid) {
-      ind.className = "domain-indicator invalid"; ind.textContent = "Dominio no reconocido";
-      badge.style.display = "none"; return;
-    }
-
-    const labels = { user:"✦ Autor", mod:"🛡 Moderador", admin:"⚙ Administrador", owner:"👑 Owner" };
-    const colors = { user:"#4CAF50", mod:"#f59e0b", admin:"#06b6d4", owner:"#e63e6d" };
-    ind.className = `domain-indicator ${role}`; ind.textContent = labels[role];
-    badge.style.display = "block";
-    badge.style.color = badge.style.borderColor = colors[role];
-    badge.style.background = colors[role] + "14";
-    badge.textContent = labels[role];
-
-    if (role !== "user" && currentTab === "registro") {
-      setTab("login", true); setError("El staff no puede registrarse aquí.", "#f59e0b");
-    }
-  };
-
-  // ═══════════════════════════════════════════════
-  //  HELPERS UI
-  // ═══════════════════════════════════════════════
-  function setError(msg, color = "var(--accent)") {
-    const el = document.getElementById("errMsg"); el.style.color = color; el.textContent = msg;
+  if(!deviceAccounts||deviceAccounts.length===0){
+    row.innerHTML='<i class="fas fa-users" style="font-size:.75rem;opacity:.45;margin-left:2px"></i>';
+    lbl.textContent="Sesiones";
+    return;
   }
-  function setLoading(on) {
-    document.getElementById("btnSubmit").disabled = on;
-    document.getElementById("spinner").style.display = on ? "block" : "none";
-    document.getElementById("btnTxt").style.display  = on ? "none"  : "block";
-  }
-  function esc(str) {
-    return String(str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  deviceAccounts.slice(0,3).forEach(function(acc){
+    var el=document.createElement("div");el.className="mini-avatar";
+    if(acc.foto){
+      var img=document.createElement("img");img.src=acc.foto;
+      img.onerror=function(){el.innerHTML="";el.textContent=(acc.nombre||"?")[0].toUpperCase();};
+      el.appendChild(img);
+    }else{el.textContent=(acc.nombre||"?")[0].toUpperCase();}
+    row.appendChild(el);
+  });
+  lbl.textContent=deviceAccounts.length===1?deviceAccounts[0].nombre:deviceAccounts.length+" cuentas";
+}
+
+/* ── Chips: reemplaza skeletons del HTML ── */
+function _renderChips(){
+  var c=document.getElementById("chipsContainer");
+  c.innerHTML="";
+
+  if(!deviceAccounts||deviceAccounts.length===0){
+    c.innerHTML=
+      '<div class="chips-empty">'+
+        '<i class="fas fa-ghost" style="font-size:1.5rem;display:block;margin-bottom:8px;opacity:.3"></i>'+
+        'Aún no hay sesiones guardadas.<br>'+
+        '<span style="font-size:.65rem;opacity:.55">Inicia sesión para que aparezcan aquí.</span>'+
+      '</div>';
+    return;
   }
 
-  // ═══════════════════════════════════════════════
-  //  GUARDAR CUENTA (máximo MAX_ACCOUNTS = 15)
-  //  Si ya existe el email, actualiza. Si hay
-  //  espacio, añade. Si está lleno, descarta el
-  //  registro más antiguo (FIFO) para hacer lugar.
-  // ═══════════════════════════════════════════════
-  function addAccountToDevice({ nombre, email, foto, rol }) {
-    const idx = deviceAccounts.findIndex(a => a.email === email);
-    if (idx >= 0) {
-      Object.assign(deviceAccounts[idx], { nombre, foto: foto||"", rol: rol||"user" });
-    } else {
-      if (deviceAccounts.length >= MAX_ACCOUNTS) {
-        deviceAccounts.shift();   // elimina el más antiguo
+  var roleLabels={user:"Autor",mod:"Moderador",admin:"Admin",owner:"Owner"};
+  var activeEmail=lsGet("ktt_email")||"";
+
+  deviceAccounts.forEach(function(acc){
+    var chip=document.createElement("div");
+    var isActive=acc.email===activeEmail;
+    chip.className="account-chip"+(isActive?" is-active":"");
+    chip.title="Toca para iniciar sesión rápido";
+    var initial=(acc.nombre||"?")[0].toUpperCase();
+    chip.innerHTML=
+      '<div class="chip-avatar">'+
+        (acc.foto
+          ?'<img src="'+_esc(acc.foto)+'" alt="" onerror="this.parentElement.textContent=\''+initial+'\'">'
+          :initial)+
+      '</div>'+
+      '<div class="chip-info">'+
+        '<div class="chip-name">'+_esc(acc.nombre)+'</div>'+
+        '<div class="chip-email">'+_esc(acc.email)+'</div>'+
+      '</div>'+
+      '<span class="chip-role-tag '+(acc.rol||"user")+'">'+(roleLabels[acc.rol]||"Autor")+'</span>'+
+      (isActive?'<div class="chip-active-dot" title="Sesión activa"></div>':"");
+    (function(a){
+      chip.addEventListener("click",function(){
+        closePanel();_applyTab("login");
+        document.getElementById("email").value=a.email;
+        onEmailInput();document.getElementById("pass").focus();
+      });
+    })(acc);
+    c.appendChild(chip);
+  });
+
+  var footer=document.createElement("p");
+  var atLimit=deviceAccounts.length>=MAX_ACCOUNTS;
+  footer.className="chips-footer"+(atLimit?" at-limit":"");
+  footer.textContent=atLimit
+    ?"Límite de "+MAX_ACCOUNTS+" cuentas alcanzado"
+    :deviceAccounts.length+" / "+MAX_ACCOUNTS+" sesiones guardadas";
+  c.appendChild(footer);
+}
+
+/* ── Panel toggle ── */
+function togglePanel(e){if(e)e.stopPropagation();document.getElementById("accountsPanel").classList.toggle("open");}
+function closePanel(){document.getElementById("accountsPanel").classList.remove("open");}
+
+/* ── Restricciones de dispositivo ── */
+function applyDeviceRestrictions(){
+  var tabReg=document.getElementById("tabReg");
+  var notice=document.getElementById("deviceNotice");
+  var toggle=document.getElementById("toggleMsg");
+  if(deviceRegistered){
+    tabReg.disabled=true;notice.style.display="block";toggle.style.display="none";_applyTab("login");
+  }else{
+    tabReg.disabled=false;notice.style.display="none";toggle.style.display="block";
+  }
+}
+
+/* ── Tabs ── */
+function setTab(tab,force){
+  if(tab==="registro"&&deviceRegistered&&!force){setError("Este dispositivo ya tiene una cuenta. Usa otro dispositivo.","var(--accent3)");return;}
+  _applyTab(tab);
+}
+function _applyTab(tab){
+  currentTab=tab;
+  document.getElementById("tabLogin").classList.toggle("active",tab==="login");
+  document.getElementById("tabReg").classList.toggle("active",tab==="registro");
+  document.getElementById("group-user").style.display=tab==="registro"?"block":"none";
+  document.getElementById("btnTxt").textContent=tab==="registro"?"Crear cuenta":"Conectar";
+  if(!deviceRegistered){
+    document.getElementById("toggleMsg").innerHTML=tab==="registro"
+      ?"¿Ya tienes cuenta? <span onclick=\"setTab('login')\">Inicia sesión</span>"
+      :"¿No tienes cuenta? <span onclick=\"setTab('registro')\">Regístrate</span>";
+  }
+  setError("");
+}
+
+/* ── Indicador de dominio ── */
+function onEmailInput(){
+  var email=document.getElementById("email").value.trim();
+  var ind=document.getElementById("domainIndicator");
+  var badge=document.getElementById("roleBadge");
+  if(!email||!email.includes("@")){ind.className="domain-indicator";ind.textContent="Ingresa tu correo";badge.style.display="none";return;}
+  var res=detectRole(email);
+  if(!res.valid){ind.className="domain-indicator invalid";ind.textContent="Dominio no reconocido";badge.style.display="none";return;}
+  var labels={user:"✦ Autor",mod:"🛡 Moderador",admin:"⚙ Administrador",owner:"👑 Owner"};
+  var colors={user:"#4CAF50",mod:"#f59e0b",admin:"#06b6d4",owner:"#e63e6d"};
+  ind.className="domain-indicator "+res.role;ind.textContent=labels[res.role];
+  badge.style.display="block";badge.style.color=colors[res.role];badge.style.borderColor=colors[res.role];
+  badge.style.background=colors[res.role]+"14";badge.textContent=labels[res.role];
+  if(res.role!=="user"&&currentTab==="registro"){_applyTab("login");setError("El staff no puede registrarse aquí.","#f59e0b");}
+}
+
+/* ── Helpers ── */
+function setError(msg,color){var el=document.getElementById("errMsg");el.style.color=color||"var(--accent)";el.textContent=msg||"";}
+function setLoading(on){document.getElementById("btnSubmit").disabled=on;document.getElementById("spinner").style.display=on?"block":"none";document.getElementById("btnTxt").style.display=on?"none":"block";}
+function _esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+/* ── Enviar ── */
+function enviar(){
+  var email=(document.getElementById("email").value||"").trim();
+  var pass=(document.getElementById("pass").value||"").trim();
+  var user=(document.getElementById("user").value||"").trim();
+  if(!email||!pass){setError("Completa todos los campos.");return;}
+  var res=detectRole(email);
+  if(!res.valid){setError("Dominio de correo no válido.");return;}
+  if(currentTab==="registro"){
+    if(deviceRegistered){setError("Este dispositivo ya tiene una cuenta.","var(--accent3)");return;}
+    if(res.role!=="user"){setError("El staff solo puede ser creado por sus superiores.");return;}
+    if(!user){setError("Ingresa tu nombre de autor.");return;}
+  }
+  setLoading(true);setError("");
+  var action=currentTab==="registro"?"registro":"login";
+  var body={action:action,user:user,pass:pass,email:email};
+  if(action==="login"&&res.role!=="user"){body.action="loginStaff";body.rolReq=res.role;}
+  fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(body)})
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data.status==="success"){
+      if(currentTab==="registro"){
+        lsSet(KEY_REG,"true");deviceRegistered=true;
+        setError("¡Registro exitoso! Ahora inicia sesión.","var(--accent3)");
+        applyDeviceRestrictions();
+        setTimeout(function(){_applyTab("login");document.getElementById("pass").value="";},1500);
+        return;
       }
-      deviceAccounts.push({ nombre, email, foto: foto||"", rol: rol||"user" });
-    }
-    localStorage.setItem(KEY_ACCOUNTS, JSON.stringify(deviceAccounts));
-    renderFloatBtn();
-    renderChips();
-  }
-
-  // ═══════════════════════════════════════════════
-  //  ENVIAR
-  // ═══════════════════════════════════════════════
-  window.enviar = async function () {
-    const email = document.getElementById("email").value.trim();
-    const p     = document.getElementById("pass").value.trim();
-    const u     = document.getElementById("user").value.trim();
-
-    if (!email || !p) { setError("Completa todos los campos."); return; }
-    const { role, valid } = detectRole(email);
-    if (!valid) { setError("Dominio de correo no válido."); return; }
-
-    if (currentTab === "registro") {
-      if (deviceRegistered) { setError("Este dispositivo ya tiene una cuenta.", "var(--accent3)"); return; }
-      if (role !== "user")  { setError("El staff solo puede ser creado por sus superiores."); return; }
-      if (!u)               { setError("Ingresa tu nombre de autor."); return; }
-    }
-
-    setLoading(true); setError("");
-
-    try {
-      const body = { action: currentTab === "registro" ? "registro" : "login", user: u, pass: p, email };
-      if (body.action === "login" && role !== "user") { body.action = "loginStaff"; body.rolReq = role; }
-
-      const res  = await fetch(SCRIPT_URL, { method:"POST", headers:{"Content-Type":"text/plain"}, body: JSON.stringify(body) });
-      const data = await res.json();
-
-      if (data.status === "success") {
-        if (currentTab === "registro") {
-          localStorage.setItem(KEY_REGISTERED, "true");
-          deviceRegistered = true;
-          setError("¡Registro exitoso! Ahora inicia sesión.", "var(--accent3)");
-          applyDeviceRestrictions();
-          setTimeout(() => { setTab("login", true); document.getElementById("pass").value = ""; }, 1500);
-          return;
-        }
-
-        if (data.suspendido) {
-          localStorage.setItem("ktt_suspension_motivo", data.motivo || "");
-          localStorage.setItem("ktt_suspension_email",  email);
-          navigating = true;
-          window.location.href = "suspendido.html";
-          return;
-        }
-
-        const nombre = data.nombre || u;
-        const foto   = data.foto   || "";
-        const rol    = data.rol    || "user";
-        const idSess = data.idAutor || data.idStaff;
-
-        saveSession({ idAutor: idSess, nombre, foto, rol, email });
-        addAccountToDevice({ nombre, email, foto, rol });
-
-        navigating = true;
-        const map = { owner:"panel_owner.html", admin:"panel_admin.html", mod:"panel_mod.html" };
-        window.location.href = map[rol] || "panel_autor.html";
-      } else {
-        setError(data.message || "Credenciales incorrectas.");
+      if(data.suspendido){
+        lsSet("ktt_suspension_motivo",data.motivo||"");lsSet("ktt_suspension_email",email);
+        _leaving=true;window.location.href="suspendido.html";return;
       }
-    } catch { setError("Error de conexión. Intenta de nuevo."); }
-    finally  { setLoading(false); }
-  };
+      var nombre=data.nombre||user,foto=data.foto||"",rol=data.rol||"user",idSess=data.idAutor||data.idStaff||"";
+      saveSession({idAutor:idSess,nombre:nombre,foto:foto,rol:rol,email:email});
+      addAccount({nombre:nombre,email:email,foto:foto,rol:rol});
+      _leaving=true;window.location.href=PANEL_MAP[rol]||"panel_autor.html";
+    }else{setError(data.message||"Credenciales incorrectas.");}
+  })
+  .catch(function(){setError("Error de conexión. Intenta de nuevo.");})
+  .finally(function(){setLoading(false);});
+}
 
-  document.addEventListener("keydown", e => { if (e.key === "Enter") window.enviar(); });
-  init();
+/* ── Arrancar ── */
+if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",init);}
+else{init();}
 </script>
 </body>
 </html>
