@@ -208,6 +208,8 @@
     .btn-action.suspend:hover{background:var(--accent);color:#fff;}
     .btn-action.review{border-color:#f59e0b;color:#f59e0b;}
     .btn-action.review:hover{background:#f59e0b;color:#000;}
+        .btn-action.edit{border-color:var(--accent3);color:var(--accent3);}
+    .btn-action.edit:hover{background:var(--accent3);color:#000;}
 
     /* ── Modal ── */
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.84);display:flex;align-items:center;
@@ -562,6 +564,7 @@
                 <button class="btn-action suspend" onclick="accion('suspension','obra','${o.id}')">
                   <i class="fas fa-ban"></i> Suspender
                 </button>
+                
               </div>
             </div>`;
         }).join("");
@@ -591,7 +594,9 @@
               <div class="item-actions">
                 ${estado === "suspendido"
                   ? `<button class="btn-action approve" onclick="accion('activar','autor','${a.id_autor}')"><i class="fas fa-circle-check"></i> Activar</button>`
-                  : `<button class="btn-action suspend" onclick="accion('suspender','autor','${a.id_autor}')"><i class="fas fa-ban"></i> Suspender</button>`}
+                  : `<button class="btn-action suspend" onclick="accion('suspender','autor','${a.id_autor}')"><i class="fas fa-ban"></i> Suspender</button>`}            <a href="edit_autor.html?id=${a.id_autor}" class="btn-action edit" title="Editar perfil">
+              <i class="fas fa-pen"></i> Perfil
+            </a>
               </div>
             </div>`;
         }).join("");
