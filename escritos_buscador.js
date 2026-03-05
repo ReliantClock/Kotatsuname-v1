@@ -6,7 +6,7 @@
 import { loadEscritos } from "./escritos_data.js";
 
 let ESCRITOS = [];
-const filters = { query: "", genero: "" };
+const filters = { query: "", generos: new Set() };  // multi-género
 
 const grid  = document.getElementById("resultsGrid");
 const count = document.getElementById("resultCount");
@@ -20,7 +20,6 @@ let _lazyLoaded   = 0;
 const LAZY_BATCH  = 12;
 let _lazyObserver = null;
 
-// Centinela invisible que activa la carga al aparecer en pantalla
 const _sentinel = document.createElement("div");
 _sentinel.setAttribute("aria-hidden", "true");
 _sentinel.style.cssText = "height:2px;width:100%;pointer-events:none;grid-column:1/-1;";
@@ -32,7 +31,6 @@ grid.appendChild(_sentinel);
 async function init() {
   count.textContent = "Cargando biblioteca...";
   ESCRITOS = await loadEscritos();
-  // Solo mostrar obras aprobadas en el catálogo público
   ESCRITOS = ESCRITOS.filter(e => {
     const ap = (e.aprobacion || "").toLowerCase();
     return ap === "aprobado" || ap === "true" || ap === "";
@@ -43,125 +41,344 @@ async function init() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  CARRUSEL — 6 obras al azar con auto-avance y arrastre
+//  CARRUSEL INFINITO — track append-only
+//
+//  El track NUNCA se resetea al inicio.
+//  Cuando el índice llega al penúltimo slide visible,
+//  se añaden 6 nuevos slides al final del track y se
+//  eliminan los primeros 6 (ya vistos) para evitar
+//  que el DOM crezca indefinidamente.
+//  Resultado: siempre avanza, como 1→2→3→4→5→6→7→8→...
 // ═══════════════════════════════════════════════════════
 
-let _cPicks = [];
-let _cIndex = 0;
+const CAROUSEL_BATCH = 6;   // cuántos slides se añaden cada vez
+const CAROUSEL_TRIM  = 6;   // cuántos slides se eliminan al añadir
+
+let _cPool  = [];            // cola mezclada pendiente de mostrar
+let _cShown = new Set();     // ids ya mostrados alguna vez
+let _cIndex = 0;             // índice global (crece siempre)
+let _cTotal = 0;             // total de slides en el DOM
 let _cTimer = null;
 
-function _cBuild() {
+/** Devuelve las próximas N obras sin repetir; si se agota el pool lo rellena */
+function _cNextItems(n) {
+  const result = [];
+  while (result.length < n) {
+    // Rellenar pool si está vacío o casi vacío
+    if (_cPool.length < n) {
+      // Todos menos los últimos CAROUSEL_BATCH mostrados para no repetir inmediatamente
+      const recent = [..._cShown].slice(-CAROUSEL_BATCH);
+      const fresh  = ESCRITOS.filter(o => !recent.includes(o.id))
+                              .sort(() => Math.random() - 0.5);
+      _cPool.push(...fresh);
+    }
+    const item = _cPool.shift();
+    if (!item) break;
+    _cShown.add(item.id);
+    result.push(item);
+  }
+  return result;
+}
+
+/** Crea y devuelve un elemento DOM de slide */
+function _cMakeSlide(item, globalIndex) {
+  const genre = item.generos?.[0] ? `<span class="c-genre">${item.generos[0]}</span>` : "";
+  const caps  = `${item.capitulos} cap${item.capitulos !== 1 ? "s" : ""}`;
+  const div   = document.createElement("div");
+  div.className    = "c-slide";
+  div.dataset.gi   = globalIndex;   // índice global para el dot activo
+  div.innerHTML    = `
+    ${item.cover
+      ? `<img src="${item.cover}" alt="${item.titulo}" loading="lazy"
+           onerror="this.outerHTML='<div class=\\'c-slide-ph\\'>&#128218;</div>'">`
+      : `<div class="c-slide-ph">&#128218;</div>`}
+    <div class="c-info">
+      <div class="c-title">${item.titulo}</div>
+      <div class="c-meta">${genre}<span class="c-caps">${caps}</span></div>
+    </div>`;
+  div.addEventListener("click", () => openModal(item));
+  return div;
+}
+
+/** Calcula el ancho de un slide (incluye gap) */
+function _cSlideW() {
   const track = document.getElementById("carouselTrack");
-  const dots  = document.getElementById("carouselDots");
+  const s     = track?.querySelector(".c-slide");
+  return s ? s.offsetWidth + 12 : 0;
+}
+
+/** Mueve el track al índice _cIndex */
+function _cPos(animate) {
+  const track = document.getElementById("carouselTrack");
+  if (!track) return;
+  const w = _cSlideW();
+  if (!w) return;
+  if (!animate) {
+    track.style.transition = "none";
+    track.style.transform  = `translateX(-${_cIndex * w}px)`;
+    requestAnimationFrame(() => requestAnimationFrame(() => { track.style.transition = ""; }));
+  } else {
+    track.style.transition = "";
+    track.style.transform  = `translateX(-${_cIndex * w}px)`;
+  }
+  const dotPos = _cIndex % CAROUSEL_BATCH;
+  document.querySelectorAll(".c-dot").forEach((d, i) => d.classList.toggle("active", i === dotPos));
+}
+
+// ── Flags de estado del carrusel ─────────────────────────
+let _cDragging    = false;  // gesto activo en curso
+let _cPendingTrim = false;  // hay slides para limpiar cuando termine el drag
+let _cAppending   = false;  // guard para evitar doble append simultáneo
+
+/** Añade CAROUSEL_BATCH slides al final del track */
+function _cAppendBatch() {
+  if (_cAppending) return;
+  _cAppending = true;
+
+  const track = document.getElementById("carouselTrack");
+  if (!track) { _cAppending = false; return; }
+
+  const items = _cNextItems(CAROUSEL_BATCH);
+  items.forEach((item, i) => track.appendChild(_cMakeSlide(item, _cTotal + i)));
+  _cTotal += items.length;
+
+  _cPendingTrim = true;
+  _cBuildDots();
+
+  // Solo limpiar si no hay gesto en curso
+  if (!_cDragging) setTimeout(_cDoTrim, 500);
+
+  _cAppending = false;
+}
+
+/**
+ * Elimina slides del inicio del track cuando hay demasiados.
+ * Solo se ejecuta cuando NO hay drag activo y siempre con
+ * transición desactivada para que el salto de índice sea invisible.
+ */
+function _cDoTrim() {
+  if (_cDragging || !_cPendingTrim) return;
+
+  const track = document.getElementById("carouselTrack");
   if (!track) return;
 
-  if (_cPicks.length === 0) {
-    track.innerHTML = `<p style="color:var(--text-muted);padding:40px 20px;text-align:center;">Sin obras disponibles.</p>`;
-    return;
+  const maxSlides = CAROUSEL_BATCH * 4;
+  const slides    = Array.from(track.querySelectorAll(".c-slide"));
+  if (slides.length <= maxSlides) { _cPendingTrim = false; return; }
+
+  const toRemove = slides.length - maxSlides;
+  const w        = _cSlideW();
+  if (!w) return;
+
+  // Congelar visualmente sin clase — solo sobreescribimos inline
+  track.style.transition = "none";
+  track.style.transform  = `translateX(-${_cIndex * w}px)`;
+
+  requestAnimationFrame(() => {
+    // Borrar y corregir índice
+    for (let i = 0; i < toRemove; i++) slides[i].remove();
+    _cIndex = Math.max(0, _cIndex - toRemove);
+    track.style.transform = `translateX(-${_cIndex * w}px)`;
+
+    // Devolver control a CSS en el frame siguiente
+    requestAnimationFrame(() => {
+      track.style.transition = "";
+      _cPendingTrim = false;
+    });
+  });
+}
+
+/** Dots */
+function _cBuildDots() {
+  const dots = document.getElementById("carouselDots");
+  if (!dots) return;
+  const dotPos = _cIndex % CAROUSEL_BATCH;
+  dots.innerHTML = Array.from({ length: CAROUSEL_BATCH }, (_, i) =>
+    `<button class="c-dot${i === dotPos ? " active" : ""}"
+      onclick="carouselGoTo(${i})" aria-label="Slide ${i+1}"></button>`
+  ).join("");
+}
+
+/** Avanza un slide — nunca se llama desde dentro de un gesto */
+function _cAdvance() {
+  if (_cDragging) return;
+  const track = document.getElementById("carouselTrack");
+  if (!track) return;
+  _cIndex++;
+  if (_cIndex >= track.querySelectorAll(".c-slide").length - CAROUSEL_BATCH) _cAppendBatch();
+  _cPos(true);
+  _cAutoReset();
+}
+
+/** Retrocede un slide */
+function _cBack() {
+  if (_cDragging) return;
+  if (_cIndex <= 0) return;
+  _cIndex--;
+  _cPos(true);
+  _cAutoReset();
+}
+
+window.carouselGoTo = function(dotI) {
+  const track = document.getElementById("carouselTrack");
+  if (!track) return;
+  const slides    = track.querySelectorAll(".c-slide");
+  const tandaBase = Math.floor(_cIndex / CAROUSEL_BATCH) * CAROUSEL_BATCH;
+  const target    = tandaBase + dotI;
+  if (target >= 0 && target < slides.length) {
+    _cIndex = target; _cPos(true); _cAutoReset();
+  }
+};
+
+window.carouselNext = function() { _cAdvance(); };
+window.carouselPrev = function() { _cBack(); };
+
+function _cAutoStart() {
+  clearInterval(_cTimer);
+  _cTimer = setInterval(_cAdvance, 3000);
+}
+function _cAutoReset() { clearInterval(_cTimer); _cAutoStart(); }
+
+/**
+ * Drag — un solo objeto `gesture` por gesto activo.
+ * Los listeners de mouse se registran con AbortController
+ * para que se limpien solos al terminar cada gesto.
+ */
+function _cDrag() {
+  const outer = document.getElementById("carouselOuter");
+  const track = document.getElementById("carouselTrack");
+  if (!outer || !track) return;
+
+  // ── Lógica compartida touch/mouse ────────────────────
+
+  function onStart(clientX) {
+    if (_cDragging) return;           // ignorar si ya hay un gesto activo
+    _cDragging = true;
+    clearInterval(_cTimer);
+    track.style.transition = "none"; // detener cualquier animación en curso
+    return {
+      sx:      clientX,
+      base:    _cIndex * (_cSlideW() || 0),
+      moved:   false,
+      done:    false,
+    };
   }
 
-  track.innerHTML = _cPicks.map((item, i) => {
-    const genre = item.generos[0] ? `<span class="c-genre">${item.generos[0]}</span>` : "";
-    const caps  = `${item.capitulos} cap${item.capitulos !== 1 ? "s" : ""}`;
-    const cover = item.cover
-      ? `<img src="${item.cover}" alt="${item.titulo}" loading="lazy" onerror="this.outerHTML='<div class=\\'c-slide-ph\\'>&#128218;</div>'" />`
-      : `<div class="c-slide-ph">&#128218;</div>`;
-    return `<div class="c-slide" data-i="${i}">${cover}<div class="c-info"><div class="c-title">${item.titulo}</div><div class="c-meta">${genre}<span class="c-caps">${caps}</span></div></div></div>`;
-  }).join("");
-
-  if (dots) {
-    dots.innerHTML = _cPicks.map((_, i) =>
-      `<button class="c-dot${i === 0 ? " active" : ""}" onclick="carouselGoTo(${i})" aria-label="Slide ${i + 1}"></button>`
-    ).join("");
+  function onMove(g, clientX) {
+    if (!g || g.done) return;
+    const dx = clientX - g.sx;
+    if (Math.abs(dx) > 6) g.moved = true;
+    if (!g.moved) return;
+    const w   = _cSlideW() || 1;
+    const max = (track.querySelectorAll(".c-slide").length - 1) * w;
+    const px  = Math.max(0, Math.min(g.base - dx, max));
+    track.style.transform = `translateX(-${px}px)`;
   }
 
-  track.querySelectorAll(".c-slide").forEach(s =>
-    s.addEventListener("click", () => { const it = _cPicks[+s.dataset.i]; if (it) openModal(it); })
-  );
+  function onEnd(g, clientX) {
+    if (!g || g.done) return;
+    g.done     = true;
+    _cDragging = false;
 
+    // Reactivar transición CSS antes del snap/avance
+    track.style.transition = "";
+
+    const dx  = clientX - g.sx;
+    const thr = (_cSlideW() || 180) * 0.2;
+
+    if (g.moved) {
+      if      (dx < -thr) { _cIndex++; _cPos(true); }   // siguiente
+      else if (dx >  thr) { if (_cIndex > 0) _cIndex--; _cPos(true); }  // anterior
+      else                  _cPos(true);                  // snap
+    } else {
+      _cPos(true);  // sin movimiento: snap
+    }
+
+    // Comprobar si hay que precargar más después del snap
+    const inDOM = track.querySelectorAll(".c-slide").length;
+    if (_cIndex >= inDOM - CAROUSEL_BATCH) _cAppendBatch();
+
+    _cAutoStart();
+    // Trim siempre después de que termine la animación de snap (~420ms)
+    setTimeout(_cDoTrim, 500);
+  }
+
+  // ── Touch ────────────────────────────────────────────
+  let tGesture = null;
+
+  outer.addEventListener("touchstart", e => {
+    tGesture = onStart(e.touches[0].clientX);
+  }, { passive: true });
+
+  outer.addEventListener("touchmove", e => {
+    onMove(tGesture, e.touches[0].clientX);
+  }, { passive: true });
+
+  outer.addEventListener("touchend", e => {
+    onEnd(tGesture, e.changedTouches[0].clientX);
+    tGesture = null;
+  }, { passive: true });
+
+  outer.addEventListener("touchcancel", () => {
+    if (!tGesture) return;
+    onEnd(tGesture, tGesture.sx);  // snap a posición original
+    tGesture = null;
+  }, { passive: true });
+
+  // ── Mouse — AbortController limpia los listeners solos ──
+  outer.addEventListener("mousedown", e => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+
+    const mGesture = onStart(e.clientX);
+    if (!mGesture) return;
+
+    const ctrl = new AbortController();
+    const sig  = { signal: ctrl.signal };
+
+    document.addEventListener("mousemove", ev => {
+      onMove(mGesture, ev.clientX);
+    }, sig);
+
+    document.addEventListener("mouseup", ev => {
+      onEnd(mGesture, ev.clientX);
+      ctrl.abort();   // elimina mousemove y este mouseup de una vez
+    }, { ...sig, once: true });
+  });
+}
+
+/** Arranque inicial del carrusel */
+function renderRecomendadas() {
+  if (!ESCRITOS.length) return;
+  const track = document.getElementById("carouselTrack");
+  if (!track) return;
+
+  // Reiniciar estado
+  _cPool  = [...ESCRITOS].sort(() => Math.random() - 0.5);
+  _cShown = new Set();
+  _cIndex = 0;
+  _cTotal = 0;
+  track.innerHTML = "";
+
+  // Precargar 3 tandas desde el inicio:
+  // tanda 1 = visible ahora
+  // tanda 2 = lista para cuando termine la 1
+  // tanda 3 = lista para cuando termine la 2
+  // → cuando el usuario llega a la mitad de la tanda 2, ya se carga la 4
+  for (let t = 0; t < 3; t++) {
+    const batch = _cNextItems(CAROUSEL_BATCH);
+    batch.forEach((item, i) => track.appendChild(_cMakeSlide(item, _cTotal + i)));
+    _cTotal += batch.length;
+  }
+
+  _cBuildDots();
   _cPos(false);
   _cAutoStart();
   _cDrag();
 }
 
-function _cPos(animate) {
-  const track = document.getElementById("carouselTrack");
-  if (!track) return;
-  const slide = track.querySelector(".c-slide");
-  if (!slide) return;
-  const w = slide.offsetWidth + 12;
-  if (!animate) track.classList.add("no-anim");
-  track.style.transform = `translateX(-${_cIndex * w}px)`;
-  if (!animate) requestAnimationFrame(() => requestAnimationFrame(() => track.classList.remove("no-anim")));
-  document.querySelectorAll(".c-dot").forEach((d, i) => d.classList.toggle("active", i === _cIndex));
-}
-
-window.carouselGoTo = function (i) {
-  _cIndex = Math.max(0, Math.min(i, _cPicks.length - 1));
-  _cPos(true); _cAutoReset();
-};
-window.carouselNext = function () {
-  _cIndex = (_cIndex + 1) % _cPicks.length;
-  _cPos(true); _cAutoReset();
-};
-window.carouselPrev = function () {
-  _cIndex = (_cIndex - 1 + _cPicks.length) % _cPicks.length;
-  _cPos(true); _cAutoReset();
-};
-
-function _cAutoStart() {
-  clearInterval(_cTimer);
-  if (_cPicks.length > 1)
-    _cTimer = setInterval(() => { _cIndex = (_cIndex + 1) % _cPicks.length; _cPos(true); }, 4200);
-}
-function _cAutoReset() { clearInterval(_cTimer); _cAutoStart(); }
-
-function _cDrag() {
-  const outer = document.getElementById("carouselOuter");
-  const track = document.getElementById("carouselTrack");
-  if (!outer || !track) return;
-  let sx = 0, base = 0, dragging = false;
-
-  const start = x => {
-    dragging = true; sx = x;
-    const s = track.querySelector(".c-slide");
-    base = s ? _cIndex * (s.offsetWidth + 12) : 0;
-    track.classList.add("no-anim");
-    clearInterval(_cTimer);
-  };
-  const move = x => {
-    if (!dragging) return;
-    track.style.transform = `translateX(-${base - (x - sx)}px)`;
-  };
-  const end = x => {
-    if (!dragging) return;
-    dragging = false;
-    track.classList.remove("no-anim");
-    const s = track.querySelector(".c-slide");
-    const thr = s ? s.offsetWidth * 0.28 : 55;
-    const dx = x - sx;
-    if      (dx < -thr) _cIndex = Math.min(_cIndex + 1, _cPicks.length - 1);
-    else if (dx >  thr) _cIndex = Math.max(_cIndex - 1, 0);
-    _cPos(true); _cAutoStart();
-  };
-
-  outer.addEventListener("touchstart",  e => start(e.touches[0].clientX),     { passive: true });
-  outer.addEventListener("touchmove",   e => move(e.touches[0].clientX),       { passive: true });
-  outer.addEventListener("touchend",    e => end(e.changedTouches[0].clientX), { passive: true });
-  outer.addEventListener("mousedown",   e => { start(e.clientX); e.preventDefault(); });
-  window.addEventListener("mousemove",  e => move(e.clientX));
-  window.addEventListener("mouseup",    e => end(e.clientX));
-}
-
-/** Solo 6 obras aleatorias */
-function renderRecomendadas() {
-  if (!ESCRITOS.length) return;
-  _cIndex = 0;
-  _cPicks = [...ESCRITOS].sort(() => Math.random() - 0.5).slice(0, Math.min(6, ESCRITOS.length));
-  _cBuild();
-}
-
-window.shuffleCarousel = function () {
+/** Botón shuffle — reinicia el carrusel con un orden nuevo */
+window.shuffleCarousel = function() {
   const btn = document.querySelector(".btn-shuffle");
   if (btn) {
     btn.style.transform  = "rotate(360deg)";
@@ -169,9 +386,7 @@ window.shuffleCarousel = function () {
     setTimeout(() => { btn.style.transform = ""; btn.style.transition = ""; }, 500);
   }
   clearInterval(_cTimer);
-  _cIndex = 0;
-  _cPicks = [...ESCRITOS].sort(() => Math.random() - 0.5).slice(0, Math.min(6, ESCRITOS.length));
-  _cBuild();
+  renderRecomendadas();
 };
 
 window.shuffleRecomendadas = window.shuffleCarousel;
@@ -231,19 +446,24 @@ function render() {
   _lazyItems = ESCRITOS.filter(item => {
     const q = filters.query.toLowerCase();
     if (q && !item.titulo.toLowerCase().includes(q) && !item.autor.toLowerCase().includes(q)) return false;
-    if (filters.genero && !item.generos.map(g => g.toLowerCase()).includes(filters.genero.toLowerCase())) return false;
+    // Multi-género: la obra debe tener TODOS los géneros seleccionados (AND)
+    if (filters.generos.size > 0) {
+      const itemGeneros = item.generos.map(g => g.toLowerCase());
+      for (const g of filters.generos) {
+        if (!itemGeneros.includes(g.toLowerCase())) return false;
+      }
+    }
     return true;
   });
 
-  // Limpiar cards preservando el centinela
   while (grid.firstChild && grid.firstChild !== _sentinel) grid.removeChild(grid.firstChild);
   _lazyLoaded = 0;
 
   count.textContent = `${_lazyItems.length} historia${_lazyItems.length !== 1 ? "s" : ""} encontrada${_lazyItems.length !== 1 ? "s" : ""}`;
   document.getElementById("emptyState").classList.toggle("hidden", _lazyItems.length > 0);
 
-  loadNextBatch();       // primer lote inmediato
-  initLazyObserver();    // el resto al hacer scroll
+  loadNextBatch();
+  initLazyObserver();
 }
 
 // ─────────────────────────────────────────────
@@ -284,12 +504,11 @@ function closeModal() {
 //  EVENT LISTENERS
 // ─────────────────────────────────────────────
 function setupEventListeners() {
-  const searchInput = document.getElementById("searchInput");
-  const clearBtn    = document.getElementById("clearBtn");
+  const searchInput  = document.getElementById("searchInput");
+  const clearBtn     = document.getElementById("clearBtn");
   const genresToggle = document.getElementById("genresToggle");
   const generoFilter = document.getElementById("generoFilter");
 
-  // Búsqueda
   searchInput.addEventListener("input", e => {
     filters.query = e.target.value;
     clearBtn?.classList.toggle("visible", !!e.target.value);
@@ -303,17 +522,57 @@ function setupEventListeners() {
     render();
   });
 
-  // Filtro de géneros
   generoFilter.addEventListener("click", e => {
     const tag = e.target.closest(".tag");
     if (!tag) return;
-    generoFilter.querySelectorAll(".tag").forEach(t => t.classList.remove("active"));
-    tag.classList.add("active");
-    filters.genero = tag.dataset.value;
+    const val = tag.dataset.value;
+
+    if (val === "") {
+      // "Todos" → limpiar selección
+      filters.generos.clear();
+      generoFilter.querySelectorAll(".tag").forEach(t => t.classList.remove("active"));
+      tag.classList.add("active");
+    } else {
+      // Desmarcar "Todos"
+      generoFilter.querySelector('.tag[data-value=""]')?.classList.remove("active");
+
+      if (filters.generos.has(val)) {
+        filters.generos.delete(val);
+        tag.classList.remove("active");
+        // Si no queda ninguno activo → volver a "Todos"
+        if (filters.generos.size === 0) {
+          generoFilter.querySelector('.tag[data-value=""]')?.classList.add("active");
+        }
+      } else {
+        filters.generos.add(val);
+        tag.classList.add("active");
+      }
+    }
+
+    // Actualizar badge de conteo en el label
+    _updateGenreCountBadge();
     render();
   });
 
-  // Toggle "Ver todos / Ver menos"
+  function _updateGenreCountBadge() {
+    const label = document.querySelector(".filter-label");
+    if (!label) return;
+    const n = filters.generos.size;
+    // Eliminar badge anterior si existe
+    label.querySelector(".genre-count-badge")?.remove();
+    if (n > 0) {
+      const badge = document.createElement("span");
+      badge.className = "genre-count-badge";
+      badge.textContent = n;
+      badge.style.cssText = `
+        display:inline-flex;align-items:center;justify-content:center;
+        background:var(--accent);color:#fff;font-size:.55rem;font-weight:700;
+        width:16px;height:16px;border-radius:50%;margin-left:6px;vertical-align:middle;
+      `;
+      label.appendChild(badge);
+    }
+  }
+
   genresToggle.addEventListener("click", () => {
     const isExpanded = generoFilter.classList.contains("genres-expanded");
     if (isExpanded) {
@@ -327,26 +586,26 @@ function setupEventListeners() {
     }
   });
 
-  // Cerrar modal de obra
   document.getElementById("modalClose").addEventListener("click", closeModal);
   modal.addEventListener("click", e => { if (e.target === modal) closeModal(); });
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
 
-  // Reset filtros
   document.getElementById("resetFilters").addEventListener("click", () => {
     searchInput.value = "";
     filters.query  = "";
-    filters.genero = "";
+    filters.generos.clear();
     clearBtn?.classList.remove("visible");
     generoFilter.querySelectorAll(".tag").forEach((t, i) => t.classList.toggle("active", i === 0));
     generoFilter.classList.remove("genres-expanded");
     generoFilter.classList.add("genres-collapsed");
     genresToggle.innerHTML = "Ver todos &#9662;";
+    // Limpiar badge
+    document.querySelector(".filter-label .genre-count-badge")?.remove();
     render();
   });
 }
 
-// Estilos del enlace de autor (inyectados una sola vez)
+// Estilos del enlace de autor
 const authorStyle = document.createElement("style");
 authorStyle.textContent = `
   .author-link {
